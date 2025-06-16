@@ -1,0 +1,71 @@
+const mysql = require('mysql2');
+require('dotenv').config();
+
+const connection = mysql.createConnection({
+    host:'MySQL-5.7',
+    user:'root',
+    database:'klan_db',
+    password: ''
+});
+
+const createUsersTable = `
+CREATE TABLE IF NOT EXISTS klanUsers (
+    userId INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    regDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    consent TINYINT(1) DEFAULT 0
+) ENGINE=InnoDB;
+`;
+
+const createBalanceTable = `
+CREATE TABLE IF NOT EXISTS balance (
+    userId INT PRIMARY KEY,
+    amount DECIMAL(10,2) DEFAULT 0.00,
+    FOREIGN KEY (userId) REFERENCES klanUsers(userId) ON DELETE CASCADE
+) ENGINE=InnoDB;
+`;
+
+const createProductsTable = `
+CREATE TABLE IF NOT EXISTS products (
+    productId INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+    quantity INT DEFAULT 0 CHECK (quantity >= 0),
+    categoryId INT DEFAULT NULL,
+    imageUrl VARCHAR(512),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    isActive TINYINT(1) DEFAULT 1 -- 1 = активный товар, 0 = неактивный
+) ENGINE=InnoDB;
+`;
+
+connection.query(createUsersTable, (err, result) => {
+    if (err) {
+        console.log('Ошибка при создании таблицы klanUsers:', err);
+    } else {
+        console.log('Таблица klanUsers успешно создана или уже существует.');
+
+        // Только после создания klanUsers создаём balance
+        connection.query(createBalanceTable, (err, result) => {
+            if (err) {
+                console.log('Ошибка при создании таблицы balance:', err);
+            } else {
+                console.log('Таблица balance успешно создана или уже существует.');
+            }
+        });
+    }
+});
+
+connection.query(createProductsTable, (err, result) => {
+    if (err) {
+        console.log('Ошибка при создании таблицы balance:', err);
+    } else {
+        console.log('Таблица ProductsTable успешно создана или уже существует.');
+    }
+});
+
+module.exports = connection;
