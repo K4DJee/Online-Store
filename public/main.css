@@ -11,3 +11,44 @@ ul,li{
 a{
     text-decoration: none;
 }
+body{
+   background-color:#F6F6F6;
+}
+h2{
+    font-family: 'Roboto';
+}
+button, input{
+    outline: none;
+}
+
+.kvadrat {
+    animation: rotate 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+.loader-krug{
+    width:100%;
+    height:100%;
+    background-color: white;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.anim-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 5px;
+}
+.profile-menu .active{
+  color:#1178FF;
+}
