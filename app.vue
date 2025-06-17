@@ -53,6 +53,8 @@ async function fetchUserData(actualToken:string){
   }    
 }
 
+//Логирование
+
 
 //hooks
 onMounted(async()=>{
@@ -62,7 +64,7 @@ onMounted(async()=>{
   else{
     console.log('Not enough token');
   }
-})
+});
 </script>
 <style>
 </style>
