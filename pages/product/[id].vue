@@ -2,7 +2,7 @@
 import { onMounted } from 'vue';
     const route = useRoute();
     const productId = route.params.id;
-    interface responseProductPage{
+    interface responseProductPageInfo{
         productRow: [{
     productId: number;
     name: string;
@@ -16,12 +16,23 @@ import { onMounted } from 'vue';
     isActive: number;
   }];
     }
+    interface responseProductPageReviews{
+        reviewRows:[{
+            reviewId: number,
+            productId: number,
+            userId: number,
+            rating:number,
+            comment:string,
+            updatedAt:Date,
+            reviewerUsername:string
+        }];
+    }
 
-    const {data, pending} = useAsyncData(
+    const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
         `product-${productId}`,
         async ()=>{
             try{
-                const data =  await $fetch<responseProductPage>(`http://localhost:8000/api/product/${productId}`,{
+                const data =  await $fetch<responseProductPageInfo>(`http://localhost:8000/api/product/${productId}`,{
                 method:'GET'
             })
             if(data?.productRow){
@@ -45,11 +56,24 @@ import { onMounted } from 'vue';
             break;
             }
             }
-        }
+        });
 
-        
-        
-    )
+        const {data:reviewRows} = useAsyncData<responseProductPageReviews | undefined>(
+        `product-${productId}/reviews`,
+        async ()=>{
+            try{
+                const data = await $fetch<responseProductPageReviews>(`http://localhost:8000/api/product/${productId}/reviews`,{
+                    method:'GET'
+                });
+                if(data?.reviewRows){
+                return data;
+            }
+            }
+            catch(error){
+
+            }
+        }
+        )
 </script>
 <template>
     <div class="product-page-section">
