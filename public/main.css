@@ -1,54 +1,55 @@
 @import url('https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-*,*:after,*:before{
-    box-sizing: border-box;
-    margin: 0;
-    padding:0;
-    border:none;
+*,
+*:after,
+*:before {
+	box-sizing: border-box;
 }
-ul,li{
-    list-style: none;
+ul,
+li {
+	list-style: none;
 }
-a{
-    text-decoration: none;
+a {
+	text-decoration: none;
 }
-body{
-   background-color:#F6F6F6;
+body {
+	background-color: #f6f6f6;
 }
-h2{
-    font-family: 'Roboto';
+h2 {
+	font-family: 'Roboto';
 }
-button, input{
-    outline: none;
+button,
+input {
+	outline: none;
 }
 
 .kvadrat {
-    animation: rotate 1s ease-in-out infinite alternate;
-  }
-
-  @keyframes rotate {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-.loader-krug{
-    width:100%;
-    height:100%;
-    background-color: white;
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	animation: rotate 1s ease-in-out infinite alternate;
 }
-.anim-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    column-gap: 5px;
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
-.profile-menu .active{
-  color:#1178FF;
+
+.loader-krug {
+	width: 100%;
+	height: 100%;
+	background-color: white;
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.anim-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	column-gap: 5px;
+}
+.profile-menu .active {
+	color: #1178ff;
 }

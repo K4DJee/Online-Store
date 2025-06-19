@@ -1,12 +1,15 @@
 <template>
-  <div>
-    <Header />
-    <slot /> <!-- Здесь будет контент страницы -->
-    <Footer />
-  </div>
+	<div
+		class="bg-gradient-to-br from-lime-50 to-gray-50 min-h-screen flex flex-col"
+	>
+		<Header />
+
+		<main class="flex-grow">
+			<slot />
+		</main>
+
+		<Footer />
+	</div>
 </template>
 
-<script setup>
-import Header from '../components/Header.vue'
-import Footer from '../components/Footer.vue'
-</script>
+<script setup></script>

@@ -1,125 +1,187 @@
 <script setup lang="ts">
-import {ref, watch} from 'vue';
-import Register from './Register.vue';
-import Login from './Login.vue';
-    const currentAuthForm =  ref(1);
-    const loginBtn = ref<HTMLButtonElement | null>(null);
-    const regBtn = ref<HTMLButtonElement | null>(null);
-    const props = defineProps<{
-        isOpen:boolean
-    }>()
-    const emit = defineEmits<{
-  (e: 'close'): void
+import { ref, watch } from 'vue'
+import Register from './Register.vue'
+import Login from './Login.vue'
+const currentAuthForm = ref(1)
+const loginBtn = ref<HTMLButtonElement | null>(null)
+const regBtn = ref<HTMLButtonElement | null>(null)
+const props = defineProps<{
+	isOpen: boolean
+}>()
+const emit = defineEmits<{
+	(e: 'close'): void
 }>()
 
-
 function handleEsc(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    emit('close')
-  }
+	if (e.key === 'Escape') {
+		emit('close')
+	}
 }
 
-    watch(currentAuthForm, ()=>{
-        if(currentAuthForm.value === 1){
-            if(loginBtn.value && regBtn.value){
-                regBtn.value.style.backgroundColor = 'white';
-                loginBtn.value.style.backgroundColor = '#FFB200';
-            }
-        }
-        else if (currentAuthForm.value === 2){
-            if(regBtn.value && loginBtn.value){
-                loginBtn.value.style.backgroundColor = 'white';
-                regBtn.value.style.backgroundColor = '#FFB200';
-            }
-        }
-    });
+watch(currentAuthForm, () => {
+	if (currentAuthForm.value === 1) {
+		if (loginBtn.value && regBtn.value) {
+			regBtn.value.classList.remove('active')
+			loginBtn.value.classList.add('active')
+		}
+	} else if (currentAuthForm.value === 2) {
+		if (regBtn.value && loginBtn.value) {
+			loginBtn.value.classList.remove('active')
+			regBtn.value.classList.add('active')
+		}
+	}
+})
 
 onMounted(() => {
-  window.addEventListener('keydown', handleEsc)
+	window.addEventListener('keydown', handleEsc)
+	// Set initial active state
+	if (loginBtn.value) {
+		loginBtn.value.classList.add('active')
+	}
 })
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleEsc)
+	window.removeEventListener('keydown', handleEsc)
 })
 </script>
 
 <template>
-<div v-if="props.isOpen" class="modal" @click="$event => $event.target === $event.currentTarget && $emit('close')">
-    <div class="modal-container">
-        <!-- <div @click="$emit('close')" class="close-svg">
-            <svg height="200" width="200" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-	<path d="M10 8.586L2.929 1.515L1.515 2.929L8.586 10l-7.071 7.071l1.414 1.414L10 11.414l7.071 7.071l1.414-1.414L11.414 10l7.071-7.071l-1.414-1.414L10 8.586z" fill="currentColor"/>
-</svg>
-        </div> -->
-        <div class="btns-container">
-        <button class="login-btn" ref="loginBtn" @click="currentAuthForm = 1">Войти</button>
-        <button class="reg-btn" ref="regBtn" @click="currentAuthForm = 2">Зарегистрироваться</button>
-    </div>
-    <div class="auth-container">
-        <Login v-if="currentAuthForm === 1" @close="$emit('close')"></Login>
-    <Register v-else-if="currentAuthForm === 2"></Register>
-    </div>
-    
-    </div>
-    <div class="modal-background"></div>
-</div>
+	<Transition
+		appear
+		enter-active-class="transition-opacity duration-200"
+		enter-from-class="opacity-0"
+		enter-to-class="opacity-100"
+		leave-active-class="transition-opacity duration-200"
+		leave-from-class="opacity-100"
+		leave-to-class="opacity-0"
+	>
+		<div
+			v-if="props.isOpen"
+			class="fixed inset-0 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in"
+			@click="
+				$event =>
+					$event.target === $event.currentTarget && $emit('close')
+			"
+		>
+			<div
+				class="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto relative shadow-2xl animate-slide-up m-4"
+			>
+				<!-- Close button -->
+				<button
+					@click="$emit('close')"
+					class="absolute top-5 right-5 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-500 hover:text-gray-700 flex items-center justify-center transition-all duration-200 hover:scale-105 z-10 cursor-pointer"
+				>
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M18 6L6 18M6 6L18 18"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
+
+				<!-- Titles -->
+				<div class="text-center pt-10 pb-5 px-8">
+					<h2 class="text-3xl font-bold text-gray-900 mb-2">
+						Добро пожаловать!
+					</h2>
+					<p class="text-gray-600">
+						Войдите в аккаунт или создайте новый
+					</p>
+				</div>
+
+				<!-- Buttons login or register -->
+				<div class="relative flex mx-8 mb-5 bg-gray-100 rounded-xl p-1">
+					<button
+						class="tab-button flex-1 h-11 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-700 transition-all duration-200 relative z-10"
+						ref="loginBtn"
+						:class="[
+							{
+								'bg-white text-lime-500 shadow-sm hover:text-lime-500':
+									currentAuthForm === 1,
+								' cursor-pointer': currentAuthForm === 2,
+							},
+						]"
+						@click="currentAuthForm = 1"
+					>
+						Вход
+					</button>
+					<button
+						class="tab-button flex-1 h-11 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-700 transition-all duration-200 relative z-10 active:bg-white active:text-lime-500 hover:shadow-sm"
+						ref="regBtn"
+						:class="[
+							{
+								'bg-white text-lime-500 shadow-sm hover:text-lime-500':
+									currentAuthForm === 2,
+								' cursor-pointer': currentAuthForm === 1,
+							},
+						]"
+						@click="currentAuthForm = 2"
+					>
+						Регистрация
+					</button>
+				</div>
+
+				<!-- Modals -->
+				<div class="px-8 pb-10">
+					<Transition name="slide" mode="out-in">
+						<Login
+							v-if="currentAuthForm === 1"
+							@close="$emit('close')"
+							key="login"
+						/>
+						<Register
+							v-else-if="currentAuthForm === 2"
+							@close="$emit('close')"
+							key="register"
+						/>
+					</Transition>
+				</div>
+			</div>
+		</div>
+	</Transition>
 </template>
 
-<style>
-.modal{
-    position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(1px);
-  
-}
-.modal-container{
-    background-color: white;
-    height:415px;
-    width:400px;
-    position: relative;
-    box-shadow: 4px 4px 30px 0px rgba(34, 60, 80, 0.32);
-    border-radius: 6px;
-}
-.close-svg{
-    position: absolute;
-    top:5px;
-    right:5px;
-    & svg{
-        width:25px;
-        height:25px;
-    }
-}
-.btns-container{
-    height:32px;
-    width:100%;
-    border-bottom: 1px solid rgb(0, 174, 255);
-    & button{
-        width:50%;
-        height:100%;
-        cursor: pointer;
-        font-family: 'Roboto';
-        font-size: 15px;
-        &:hover{
-            opacity: 0.8;
-        }
-    }
-}
-.auth-container{
-    padding:10px 25px;
+<style scoped>
+/* Transition animations */
+.slide-enter-active,
+.slide-leave-active {
+	transition: all 0.3s ease;
 }
 
-.login-btn{
-    background-color: #FFB200;
-}
-.reg-btn{
-
+.slide-enter-from {
+	opacity: 0;
+	transform: translateX(20px);
 }
 
+.slide-leave-to {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+	width: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #d1d5db;
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #9ca3af;
+}
 </style>
