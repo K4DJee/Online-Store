@@ -42,7 +42,29 @@ CREATE TABLE IF NOT EXISTS products (
     isActive TINYINT(1) DEFAULT 1 -- 1 = активный товар, 0 = неактивный
 ) ENGINE=InnoDB;
 `;
-
+const createReviewsTable = `
+CREATE TABLE IF NOT EXISTS reviews (
+    reviewId INT AUTO_INCREMENT PRIMARY KEY,
+    productId INT NOT NULL,
+    userId INT NOT NULL,
+    rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (productId) REFERENCES products(productId) ON DELETE CASCADE,
+    FOREIGN KEY (userId) REFERENCES klanUsers(userId) ON DELETE CASCADE
+) ENGINE=InnoDB;
+`;
+const createCartsTable = `
+CREATE TABLE IF NOT EXISTS carts (
+    cartId INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    productId INT NOT NULL,
+    quantity INT DEFAULT 1,
+    addedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES klanUsers(userId),
+    FOREIGN KEY (productId) REFERENCES products(productId)
+) ENGINE=InnoDB;
+`;
 connection.query(createUsersTable, (err, result) => {
     if (err) {
         console.log('Ошибка при создании таблицы klanUsers:', err);
@@ -65,6 +87,22 @@ connection.query(createProductsTable, (err, result) => {
         console.log('Ошибка при создании таблицы balance:', err);
     } else {
         console.log('Таблица ProductsTable успешно создана или уже существует.');
+    }
+});
+
+connection.query(createReviewsTable, (err,result)=>{
+    if (err) {
+        console.log('Ошибка при создании таблицы balance:', err);
+    } else {
+        console.log('Таблица ReviewsTable успешно создана или уже существует.');
+    }
+});
+
+connection.query(createCartsTable, (err,result)=>{
+    if (err) {
+        console.log('Ошибка при создании таблицы balance:', err);
+    } else {
+        console.log('Таблица CartsTable успешно создана или уже существует.');
     }
 });
 
