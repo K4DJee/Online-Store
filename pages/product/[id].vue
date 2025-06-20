@@ -1,35 +1,11 @@
 <script setup lang="ts">
 import { pluralizeReviews } from '~/entities/helpers/pluralize';
+import type {responseProductPageInfo, responseProductPageReviews} from '../../types/productTypes'
     const route = useRoute();
     const productId = route.params.id;
 	const quantity = ref(1);
-    interface responseProductPageInfo{
-        productRow: [{
-    productId: number;
-    name: string;
-    description: string;
-    price: string;
-    quantity: number;
-    categoryId: number | null;
-    imageUrl: string;
-    createdAt: string;
-    updatedAt: string;
-    isActive: number;
-	averageRating: number
-	reviewCount: number
-  }];
-    }
-    interface responseProductPageReviews{
-        reviewRows:[{
-            reviewId: number,
-            productId: number,
-            userId: number,
-            rating:number,
-            comment:string,
-            updatedAt:Date,
-            reviewerUsername:string
-        }];
-    }
+    
+    
 
     const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
         `product-${productId}`,
@@ -80,7 +56,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 		//
 		const updateQuantity = (delta: number) => {
   const newQuantity = quantity.value + delta;
-  const availableQuantity = data.value?.productRow[0]?.quantity || 0;
+  const availableQuantity = data.value?.productRow?.quantity || 0;
   
   if (newQuantity >= 1 && newQuantity <= availableQuantity) {
     quantity.value = newQuantity;
@@ -107,7 +83,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 							<div class="thumbnails">
 								<button class="thumbnail">
 									<img
-										:src="data.productRow[0].imageUrl"
+										:src="data.productRow?.imageUrl"
 										alt="Product view"
 									/>
 								</button>
@@ -116,8 +92,8 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 							<!-- Main Image -->
 							<div class="main-image">
 								<img
-									:src="data.productRow[0].imageUrl"
-									:alt="data?.productRow[0]?.name"
+									:src="data.productRow?.imageUrl"
+									:alt="data?.productRow?.name"
 								/>
 							</div>
 						</div>
@@ -127,7 +103,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 					<div class="info-section">
 						<div class="product-header">
 							<h1 class="product-title">
-								{{ data?.productRow[0]?.name }}
+								{{ data?.productRow?.name }}
 							</h1>
 
 							<!-- Rating -->
@@ -144,9 +120,9 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 											fill="#FFAC33"
 										/>
 									</svg>
-									<span class="rating-score">{{ data?.productRow[0].averageRating }}</span>
+									<span class="rating-score">{{ data?.productRow?.averageRating }}</span>
 								</div>
-								<span class="reviews-count">{{ pluralizeReviews(data?.productRow[0].reviewCount) }}</span>
+								<span class="reviews-count">{{ pluralizeReviews(data?.productRow?.reviewCount) }}</span>
 							</div>
 						</div>
 
@@ -155,7 +131,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 							<div class="detail-row">
 								<span class="detail-label">Артикул:</span>
 								<span class="detail-value">{{
-									data?.productRow[0]?.productId
+									data?.productRow?.productId
 								}}</span>
 							</div>
 							<div class="detail-row">
@@ -170,7 +146,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 						<div class="description-section">
 							<h3 class="description-title">Описание:</h3>
 							<p class="description-text">
-								{{ data?.productRow[0]?.description }}
+								{{ data?.productRow?.description }}
 							</p>
 						</div>
 
@@ -197,7 +173,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 										fill="#FFAC33"
 									/>
 								</svg>
-								<span class="seller-rating-score">{{ pluralizeReviews(data?.productRow[0].reviewCount) }}</span>
+								<span class="seller-rating-score">{{ pluralizeReviews(data?.productRow?.reviewCount) }}</span>
 							</div>
 						</div>
 					</div>
@@ -208,7 +184,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 							<!-- Price and Delivery -->
 							<div class="price-delivery">
 								<div class="price-tag">
-									{{ data?.productRow[0]?.price }} ₽
+									{{ data?.productRow?.price }} ₽
 								</div>
 								<div class="delivery-info">
 									<div class="delivery-icon">
@@ -246,7 +222,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 								</svg>
 								<span
 									>В наличии
-									{{ data?.productRow[0]?.quantity }}
+									{{ data?.productRow?.quantity }}
 									шт.</span
 								>
 							</div>
@@ -271,7 +247,7 @@ import { pluralizeReviews } from '~/entities/helpers/pluralize';
 										@click="updateQuantity(1)"
 										:disabled="
 											quantity >=
-											(data?.productRow[0]?.quantity || 0)
+											(data?.productRow?.quantity || 0)
 										"
 										class="quantity-btn"
 									>

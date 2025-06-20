@@ -5,7 +5,6 @@
 	</NuxtLayout>
 </template>
 <script setup lang="ts">
-import axios from 'axios'
 import type { AuthState, IUser } from './types/types'
 import { useProfileStore } from '#imports'
 
@@ -15,6 +14,9 @@ const profileStore = useProfileStore()
 const token = useCookie('token')
 const isAuthUser = ref(false)
 const currentUser = ref<IUser | null>(null)
+interface validateTokenResponse {
+	valid:boolean
+}
 provide<AuthState>('auth', {
 	isAuthUser,
 	currentUser,
@@ -30,21 +32,31 @@ async function fetchUserData(actualToken: string) {
 			console.log('enough token')
 			return
 		}
-		const response = await axios.post(
+		const response = await $fetch<validateTokenResponse>(
 			'http://localhost:8000/api/validateToken',
-			{ token: token.value }
+			{ 
+			method:'POST',
+			body:{
+				token: token.value
+			} 
+		}
 		)
-		if (!response.data.valid === true) {
+		if (!response?.valid === true) {
 			return console.log('wrong valid')
 		}
 		isAuthUser.value = true
-		const userResponse = await axios.post(
+		const userResponse = await $fetch<IUser>(
 			'http://localhost:8000/api/userdata',
-			{ token: token.value }
+			{ 
+				method:'POST',
+				body:{
+					token: token.value
+				}
+		}
 		)
-		currentUser.value = userResponse.data
-		profileStore.user = userResponse.data
-		console.log(userResponse.data)
+		currentUser.value = userResponse
+		profileStore.user = userResponse
+		console.log(userResponse)
 
 		return console.log('success')
 	} catch (error) {

@@ -2,15 +2,26 @@ import { defineStore } from 'pinia'
 import type { IUser } from '~/types/types'
 
 export const useProfileStore = defineStore('profileStore', () => {
-	const user = reactive<IUser>({
-		balance: '',
-		consent: 0,
-		email: '',
-		regDate: '',
-		role: '',
-		userId: 0,
-		username: '',
-	})
+	//state
+	const user = ref<IUser | null>(null)
+	const isAutheticated = ref(false);
+	//actions
+	const setUser = (userData:IUser) =>{
+		user.value = userData;
+		isAutheticated.value = true;
+	}
+	const clearUser = ()=>{
+		user.value = null;
+		isAutheticated.value = false
+	}
+	//getters
+	const isAdmin = computed(() => user.value?.role === 'admin');
+	
+	return {
+		user, isAutheticated,
 
-	return { user }
+		setUser, clearUser,
+
+		isAdmin
+	}
 })

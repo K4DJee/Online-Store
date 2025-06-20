@@ -27,7 +27,7 @@
 								</div>
 								<div>
 									<h2 class="text-xl font-bold">
-										{{ user.username }}
+										{{ user!.username }}
 									</h2>
 									<button
 										class="text-lime-100 hover:text-white text-sm transition-colors"
@@ -243,7 +243,7 @@
 												Баланс
 											</h3>
 											<p class="text-2xl font-bold">
-												{{ user.balance }} ₽
+												{{ user!.balance }} ₽
 											</p>
 										</div>
 									</div>
@@ -406,7 +406,7 @@
 										</svg>
 									</div>
 									<span class="text-gray-900 font-medium">{{
-										user.email
+										user!.email
 									}}</span>
 								</div>
 								<button
@@ -443,7 +443,7 @@
 									</svg>
 								</div>
 								<span class="text-gray-900 font-medium">{{
-									new Date(user.regDate).toLocaleDateString(
+									new Date(user!.regDate).toLocaleDateString(
 										'ru-RU'
 									)
 								}}</span>
