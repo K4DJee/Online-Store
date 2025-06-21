@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import type { IProduct } from '~/entities/model/productCard'
+import type { IProduct } from '~/types/types'
 import axios from 'axios'
 
+const { addToCart } = useCart()
+
 const products = ref<IProduct[]>([])
+
+const token = useCookie('token')
 
 async function fetchProducts() {
 	try {
@@ -12,6 +16,11 @@ async function fetchProducts() {
 	} catch (error) {
 		console.log('Error: ', error)
 	}
+}
+
+async function handleAddProduct(productId: number) {
+	console.log('productId: ', productId)
+	addToCart(productId)
 }
 
 onMounted(async () => {
@@ -50,6 +59,7 @@ onMounted(async () => {
 					v-for="(product, index) in products"
 					:key="index"
 					:product="product"
+					@add-to-cart="handleAddProduct"
 				/>
 			</div>
 

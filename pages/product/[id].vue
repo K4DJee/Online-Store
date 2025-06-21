@@ -5,12 +5,8 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
     const productId = route.params.id;
 	const quantity = ref(1);
     
-    
-
-    const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
-        `product-${productId}`,
-        async ()=>{
-            try{
+    async function fetchProductPageInfo(){
+		try{
                 const data =  await $fetch<responseProductPageInfo>(`http://localhost:8000/api/product/${productId}`,{
                 method:'GET'
             })
@@ -35,7 +31,12 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
             break;
             }
             }
-        });
+	}
+
+    const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
+        `product-${productId}`,
+		fetchProductPageInfo
+	);
 
         const {data:reviewRows} = useAsyncData<responseProductPageReviews | undefined>(
         `product-${productId}/reviews`,

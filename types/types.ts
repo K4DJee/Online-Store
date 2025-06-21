@@ -24,7 +24,7 @@ export interface IProduct {
 	price: string
 	productId: number
 	quantity: number
+	updatedAt: string
 	averageRating: number
 	reviewCount: number
-	updatedAt: string
 }
