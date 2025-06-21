@@ -9,9 +9,9 @@ const jwt = require('jsonwebtoken');
 
 
 const newProductReview = async (req,res)=>{
-    const {productId} = req.params;
-    const { token, rating, comment,} = req.body;
     try{
+        const {productId} = req.params;
+        const { token, rating, comment,} = req.body;
     if(!token){
         return res.status(401).json({message:'Token required', success:false});
     }
@@ -38,8 +38,8 @@ const newProductReview = async (req,res)=>{
 };
 
 const changeReviewContent = async(req,res)=>{
-    const {comment, rating, reviewId, token} = req.body;
     try{
+        const {comment, rating, reviewId, token} = req.body;
         if(!token){
             return res.status(401).json({message:'Token required', success:false});
         }
@@ -73,8 +73,8 @@ const changeReviewContent = async(req,res)=>{
 };
 
 const deleteUserReview = async(req,res)=>{
-    const {reviewId, token} = req.body;
     try{
+        const {reviewId, token} = req.body;
         if(!token){
             return res.status(401).json({message:'Token required', success:false});
         }
@@ -103,17 +103,17 @@ const deleteUserReview = async(req,res)=>{
 }
 
 const allProductReviews = async (req,res)=>{
-    const {productId} = req.params;
     try{
+        const {productId} = req.params;
     if(!productId){
         return res.status(400).json({message:'Wrong data. ProductId required'});
     }
-    const reviewsRow = await allProductReviewsSQL(productId);
-    if(reviewsRow.length === 0){
+    const reviewRows = await allProductReviewsSQL(productId);
+    if(reviewRows.length === 0){
         res.status(200).json({message:'Отзывов у данного товара не найдено', success:true, reviewsRow:[]});
     }
-    if(reviewsRow.length > 0){
-        res.status(200).json({valid:true, reviewsRow:reviewsRow})
+    if(reviewRows.length > 0){
+        res.status(200).json({valid:true, reviewRows:reviewRows})
     }
     }
     catch(error){
@@ -123,8 +123,8 @@ const allProductReviews = async (req,res)=>{
 }
 
 const allUserReviews = async(req,res)=>{
-    const {token} = req.body;
     try{
+        const {token} = req.body;
     if(!token){
         res.status(400).json({message:'Wrong data. Token required'});
     }
@@ -145,8 +145,8 @@ const allUserReviews = async(req,res)=>{
 }
 
 const averageProductRating = async (req,res)=>{
-    const {productId} = req.params;
     try{
+        const {productId} = req.params;
     if(!productId){
         res.status(400).json({message:'Wrong data. ProductId required'});
     }

@@ -42,12 +42,12 @@ const loginUser  = async(req,res)=>{
 }
 
 const registerUser = async(req,res)=>{
-    const user = req.body;
-    if(!user.username || !user.email || !user.password || !user.regDate || !user.role || !user.consent){
-        console.log('Wrong user data!');
-        return res.status(400).json({message:'Wrong user data! All fields required.'});
-    }
     try{
+        const user = req.body;
+        if(!user.username || !user.email || !user.password || !user.regDate || !user.role || !user.consent){
+            console.log('Wrong user data!');
+            return res.status(400).json({message:'Wrong user data! All fields required.'});
+        }
     // Проверяем, существует ли такой пользователь
     const existingUser = await findUserSQL(user.username, user.email);
     if (existingUser.length > 0) {
@@ -121,8 +121,8 @@ const validateToken =  async (req, res) => {
 
 
 const recoverAccount = async(req,res)=>{
-    const {email} = req.body;
     try{
+        const {email} = req.body;
         if(!email){
             return res.status(403).json({message:'email required', valid:false});
         }
@@ -156,10 +156,10 @@ const recoverAccount = async(req,res)=>{
 }
 
 const verifyRecoverAccount = async(req,res)=>{
-    const {codeObject} = req.body
-    const email = codeObject.email;
-    const code = codeObject.code;
     try{
+        const {codeObject} = req.body
+        const email = codeObject.email;
+        const code = codeObject.code;
         if(!email || !code){
             console.log('email or code empty');
             return res.status(400).json({message: 'email or code emppty', valid:false});
@@ -186,9 +186,9 @@ const verifyRecoverAccount = async(req,res)=>{
 }
 
     const changeUserPassword = async(req,res)=>{
-    const {password, token} = req.body;
-    var email = '';
     try{
+        const {password, token} = req.body;
+        var email = '';
     if(!password && !token){
         console.log('password or recover_token required');
         return res.status(400).json({message:'Password required', valid:false});

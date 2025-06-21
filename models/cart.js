@@ -51,7 +51,14 @@ const connection = require('../db.js');
     async function getProductsFromCartSQL(userId){
         return new Promise((resolve,reject)=>{
             const sql = `
-            SELECT * FROM carts WHERE userId = ?
+            SELECT carts.cartId, carts.productId, carts.quantity, carts.addedAt,
+            products.name AS productName,
+            products.description AS productDescription,
+            products.price AS productPrice,
+            products.imageUrl AS imageUrl
+            FROM carts 
+            LEFT JOIN products ON carts.productId = products.productId
+            WHERE userId = ?
             `;
             connection.query(sql,[userId], (err,rows)=>{
                 if(err){

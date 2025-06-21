@@ -1,8 +1,11 @@
 const {
     getProductsSQL, getProductByIdSQL
 } = require('../models/product');
-const { route } = require('../routes');
+const {
+    getProductArrayImgsSQL
+} = require('../models/product_img');
 
+// get products
 const getProducts = async (req, res)=>{
     try{
     const products = await getProductsSQL();
@@ -17,6 +20,7 @@ const getProducts = async (req, res)=>{
     }
 }
 
+// get product page
 const getProductPage = async (req,res)=>{
     try{
         const productId = req.params.productId;
@@ -27,7 +31,12 @@ const getProductPage = async (req,res)=>{
         if(productRow.length === 0 || !productRow[0]){
             return res.status(404).json({message:'Товар не найден. Product not found', data:null});
         }
-        res.status(200).json({productRow:productRow});
+        const images = await getProductArrayImgsSQL(productId);
+        const response  = {
+            ...productRow[0],
+            images:images
+        }
+        res.status(200).json({productRow:response});
 
     }
     catch(error){
@@ -35,6 +44,8 @@ const getProductPage = async (req,res)=>{
         return res.status(500).json({message:'Internal Server Error'});
     }
 }
+
+
 module.exports = {
     getProducts, getProductPage
 }

@@ -8,8 +8,8 @@ const jwt = require('jsonwebtoken');
 
 
 const addProductInCart = async (req,res)=>{
-    const {token, productId, quantity} = req.body;
     try{
+        const {token, productId, quantity} = req.body;
     if(!token){
         return res.status(401).json({message:'Token required', success:false});
     }
@@ -48,8 +48,8 @@ const addProductInCart = async (req,res)=>{
 };
 
 const changeQuantityProductsInCart = async (req,res)=>{
-    const {token, cartId, quantity} = req.body;
     try{
+        const {token, cartId, quantity} = req.body;
         if(!token){
             return res.status(401).json({message:'Token required', success:false});
         }
@@ -92,8 +92,8 @@ const changeQuantityProductsInCart = async (req,res)=>{
 };
 
 const deleteProductInCart = async (req,res)=>{
-    const {token, cartId} = req.body;
     try{
+        const {token, cartId} = req.body;
         if(!token){
             return res.status(401).json({message:'Token required', success:false}); 
         }
@@ -120,8 +120,12 @@ const deleteProductInCart = async (req,res)=>{
 };
 
 const getProductsFromCart = async (req,res)=>{
-    const {token} = req.body;
     try{
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(401).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
         if(!token){
             return res.status(401).json({message:'Token required', success:false}); 
         }
