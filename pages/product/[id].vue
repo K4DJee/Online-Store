@@ -33,26 +33,42 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
             }
 	}
 
+	async function fetchProductReviews(){
+		try{
+			const reviewsData = await $fetch<responseProductPageReviews>(`http://localhost:8000/api/product/${productId}/reviews`,{
+				method:'GET',
+			});
+			if(reviewsData?.reviewRows){
+				return reviewsData;
+			}
+		}
+		catch(error: any){
+			const status = error?.status;
+                switch (status) {
+            case 400:
+                console.log('Некорректный запрос');
+            break;
+            case 404:
+                console.log('Продукт не найден');
+            break;
+            case 500:
+                console.log('Ошибка сервера.');
+            break;
+            default:
+                console.log('Произошла неизвестная ошибка.');
+            break;
+            }
+		}
+	}
+
     const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
         `product-${productId}`,
 		fetchProductPageInfo
 	);
 
         const {data:reviewRows} = useAsyncData<responseProductPageReviews | undefined>(
-        `product-${productId}/reviews`,
-        async ()=>{
-            try{
-                const data = await $fetch<responseProductPageReviews>(`http://localhost:8000/api/product/${productId}/reviews`,{
-                    method:'GET'
-                });
-                if(data?.reviewRows){
-                return data;
-            }
-            }
-            catch(error){
-
-            }
-        }
+        `product/${productId}/reviews`,
+        fetchProductReviews
         )
 		//
 		const updateQuantity = (delta: number) => {
@@ -323,6 +339,10 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<div class="reviews-container">
+				{{ reviewRows?.reviewRows }}
 			</div>
 		</div>
 	</div>
@@ -798,6 +818,12 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 	justify-content: center;
 	font-size: 0.75rem;
 	font-weight: 700;
+}
+
+.reviews-container{
+	height:300px;
+	width:100%;
+	background-color: gray;
 }
 
 /* Responsive Design */

@@ -1,10 +1,13 @@
 export interface basketResponse{
     cartProductsRow:{
         cartId:number,
-        userId:number,
         productId:number,
         quantity:number,
-        addedAt:Date
+        addedAt:Date,
+        productName:string,
+        productDescription:string,
+        productPrice:number,
+        imageUrl:string,
     }
 }
 

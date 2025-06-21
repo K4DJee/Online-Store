@@ -3,8 +3,9 @@ import type { IProduct } from '~/entities/model/productCard'
 import axios from 'axios'
 const {addToCart} = useCart();
 const products = ref<IProduct[]>([])
-const token = useCookie('token');
-
+const profileStore = useProfileStore()
+const isAutheticated = computed(() => profileStore.isAutheticated)
+const isAuthModal = ref(false);
 async function fetchProducts() {
 	try {
 		const response = await axios.get('http://localhost:8000/api/products')
@@ -17,7 +18,13 @@ async function fetchProducts() {
 
 async function handleAddProduct(productId:number){
 	console.log('productId: ', productId)
-	addToCart(productId);
+	if(isAutheticated.value === true){
+		isAuthModal.value = false;
+		addToCart(productId);
+	}
+	else{
+		isAuthModal.value = true;
+	}
 }
 
 onMounted(async () => {
@@ -63,6 +70,7 @@ onMounted(async () => {
 			<Loader v-else />
 		</section>
 	</div>
+	<AuthModal :is-open="isAuthModal" @close="isAuthModal = false"></AuthModal>
 </template>
 
 <style>

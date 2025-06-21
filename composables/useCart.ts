@@ -1,24 +1,29 @@
+import { NuxtLink } from "#components";
 import type { addProductInBasket } from "~/types/basketTypes";
 // const cartObject = ref<addProductInBasket | null>
 interface responseAddToCart{
     success:boolean
 }
+
 export const useCart = ()=>{
     const addToCart = async(productId:number, quantity:number = 1)=>{
         const token = useCookie('token');
+
         if(!token.value){
+            console.log('open AuthModal')
+        }
+        if(token.value){
             try{
                 console.log('Попытка добавления товара в корзину')
-                const {data,error} = await useFetch<responseAddToCart | null>('http://localhost:8000/api/add-product-cart',{
+                const data = await $fetch<responseAddToCart | null>('http://localhost:8000/api/add-product-cart',{
                     method:'POST',
                     body:{
-                        productId, quantity
+                        productId, quantity, token:token.value
                     },
-                    server:false
                 })  
-                if(data.value?.success === true){
+                if(data?.success === true){
                     console.log('Успешно добавлено!!!');
-                    return data.value 
+                    return data;
                 }
             }
             catch(error:any){
