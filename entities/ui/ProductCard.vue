@@ -125,20 +125,8 @@
 
 <script setup lang="ts">
 import { pluralizeReviews } from '~/entities/helpers/pluralize';
-interface IProduct {
-	categoryId: number
-	createdAt: string
-	description: string
-	imageUrl: string
-	isActive: number
-	name: string
-	price: string
-	productId: number
-	quantity: number
-	averageRating: number
-	reviewCount: number
-	updatedAt: string
-}
+import type { addProductInBasket } from '~/types/basketTypes';
+import type { IProduct } from '../model/productCard';
 
 const props = defineProps<{
 	product: IProduct
@@ -160,6 +148,14 @@ const formatPrice = (price: string) => parseInt(price).toLocaleString('ru-RU')
 // Добавление в корзину
 const addToCart = () => {
 	if (product.value.quantity === 0 || !product.value.isActive) return
+	emit('add-to-cart', product.value.productId);
 	console.log('Добавлен в корзину:', product.value.name)
 }
+
+
+const emit = defineEmits<{
+	(e:'add-to-cart', productId:number):void
+}>()
+
+
 </script>

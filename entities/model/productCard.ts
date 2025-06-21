@@ -9,4 +9,6 @@ export interface IProduct {
 	productId: number
 	quantity: number
 	updatedAt: string
+	averageRating: number
+	reviewCount: number
 }

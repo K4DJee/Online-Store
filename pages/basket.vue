@@ -6,8 +6,12 @@
 const token = useCookie('token');
 import type {basketResponse}  from '../types/basketTypes'
 
-async function fetchUserBasket(){
+async function fetchUserBasket(): Promise<basketResponse | undefined>{
     try{
+        if(token.value === undefined){
+            console.log('Отсутствует токен');
+            return undefined
+        }
             console.log('fetch cart attempt')
         const cartData =  await $fetch<basketResponse>('http://localhost:8000/api/cart',{
             method:'GET',

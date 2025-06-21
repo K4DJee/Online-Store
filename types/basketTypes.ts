@@ -7,3 +7,9 @@ export interface basketResponse{
         addedAt:Date
     }
 }
+
+export interface addProductInBasket{
+    token:string
+    productId:number
+    quantity:number
+}
