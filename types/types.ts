@@ -13,3 +13,18 @@ export interface IUser {
 	userId: number
 	username: string
 }
+
+export interface IProduct {
+	categoryId: number
+	createdAt: string
+	description: string
+	imageUrl: string
+	isActive: number
+	name: string
+	price: string
+	productId: number
+	quantity: number
+	averageRating: number
+	reviewCount: number
+	updatedAt: string
+}

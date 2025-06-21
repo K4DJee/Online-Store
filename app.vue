@@ -1,7 +1,14 @@
 <template>
 	<NuxtLayout name="default">
 		<NuxtLoadingIndicator />
-		<NuxtPage />
+		<Suspense>
+			<template #default>
+				<NuxtPage />
+			</template>
+			<template #fallback>
+				<Loader :variant="'dots'" />
+			</template>
+		</Suspense>
 	</NuxtLayout>
 </template>
 <script setup lang="ts">
@@ -15,7 +22,7 @@ const token = useCookie('token')
 const isAuthUser = ref(false)
 const currentUser = ref<IUser | null>(null)
 interface validateTokenResponse {
-	valid:boolean
+	valid: boolean
 }
 provide<AuthState>('auth', {
 	isAuthUser,
@@ -34,12 +41,12 @@ async function fetchUserData(actualToken: string) {
 		}
 		const response = await $fetch<validateTokenResponse>(
 			'http://localhost:8000/api/validateToken',
-			{ 
-			method:'POST',
-			body:{
-				token: token.value
-			} 
-		}
+			{
+				method: 'POST',
+				body: {
+					token: token.value,
+				},
+			}
 		)
 		if (!response?.valid === true) {
 			return console.log('wrong valid')
@@ -47,12 +54,12 @@ async function fetchUserData(actualToken: string) {
 		isAuthUser.value = true
 		const userResponse = await $fetch<IUser>(
 			'http://localhost:8000/api/userdata',
-			{ 
-				method:'POST',
-				body:{
-					token: token.value
-				}
-		}
+			{
+				method: 'POST',
+				body: {
+					token: token.value,
+				},
+			}
 		)
 		currentUser.value = userResponse
 		profileStore.user = userResponse

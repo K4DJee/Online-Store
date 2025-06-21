@@ -58,9 +58,13 @@
 							fill="#FFAC33"
 						/>
 					</svg>
-					<span class="font-semibold text-slate-800">{{ product.averageRating }}</span>
+					<span class="font-semibold text-slate-800">{{
+						product.averageRating
+					}}</span>
 				</div>
-				<span class="text-gray-500">{{ pluralizeReviews(product.reviewCount) }}</span>
+				<span class="text-gray-500">{{
+					pluralizeReviews(product.reviewCount)
+				}}</span>
 			</div>
 			<div class="flex items-center justify-between mt-2">
 				<span class="text-xl font-bold text-slate-800"
@@ -124,21 +128,8 @@
 </template>
 
 <script setup lang="ts">
-import { pluralizeReviews } from '~/entities/helpers/pluralize';
-interface IProduct {
-	categoryId: number
-	createdAt: string
-	description: string
-	imageUrl: string
-	isActive: number
-	name: string
-	price: string
-	productId: number
-	quantity: number
-	averageRating: number
-	reviewCount: number
-	updatedAt: string
-}
+import { pluralizeReviews } from '~/entities/helpers/pluralize'
+import type { IProduct } from '~/types/types'
 
 const props = defineProps<{
 	product: IProduct
