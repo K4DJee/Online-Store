@@ -16,6 +16,10 @@ const {
     addProductInCart, changeQuantityProductsInCart, deleteProductInCart, 
     getProductsFromCart
 } = require('./controllers/api-carts-controller');
+const {
+    createBecomeSeller, loginSeller, sellerData, validateSellerToken,
+
+} = require('./controllers/api-seller-controller');
 //auth
 router.post('/api/login', loginUser);
 router.post('/api/register', registerUser);
@@ -39,4 +43,9 @@ router.post('/api/add-product-cart', addProductInCart);
 router.get('/api/cart', getProductsFromCart);
 router.put('/api/change-product-cart', changeQuantityProductsInCart);
 router.delete('/api/delete-product-cart', deleteProductInCart);
+//seller
+router.post('/api/auth/login/seller',loginSeller);
+router.post('/api/auth/register/seller', createBecomeSeller);
+router.post('/api/auth/sellerData', sellerData);
+router.post('/api/auth/validateSellerToken', validateSellerToken);
 module.exports = router;
