@@ -5,7 +5,8 @@ const { loginUser, registerUser, validateToken,
     changeUserPassword
 } = require('./controllers/api-auth-controllers');
 const {
-    getProducts, getProductPage
+    getProducts, getProductPage,
+    buyProduct
 } = require('./controllers/api-product-controller');
 
 const { 
@@ -18,8 +19,12 @@ const {
 } = require('./controllers/api-carts-controller');
 const {
     createBecomeSeller, loginSeller, sellerData, validateSellerToken,
-
+    addProductBySeller, getAllSellerProducts, changeProductInfoBySeller,
+    deleteProductBySeller
 } = require('./controllers/api-seller-controller');
+const {
+    refillUserBalance
+} = require('./controllers/api-balance-controller');
 //auth
 router.post('/api/login', loginUser);
 router.post('/api/register', registerUser);
@@ -31,6 +36,7 @@ router.post('/api/changePassword', changeUserPassword);
 //products
 router.get('/api/products', getProducts);
 router.get('/api/product/:productId', getProductPage);
+router.post('/api/buyProduct', buyProduct);
 //reviews
 router.post('/api/product/:productId/create-review', newProductReview);
 router.get('/api/user-reviews', allUserReviews);
@@ -48,4 +54,10 @@ router.post('/api/auth/login/seller',loginSeller);
 router.post('/api/auth/register/seller', createBecomeSeller);
 router.post('/api/auth/sellerData', sellerData);
 router.post('/api/auth/validateSellerToken', validateSellerToken);
+router.post('/api/addProduct', addProductBySeller);
+router.get('/api/getSellerProducts', getAllSellerProducts);
+router.put('/api/changeProductInfo',changeProductInfoBySeller);
+router.delete('/api/deleteProduct', deleteProductBySeller);
+//balance 
+router.post('/api/refillBalance',refillUserBalance);
 module.exports = router;

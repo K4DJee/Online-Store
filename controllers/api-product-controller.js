@@ -1,9 +1,13 @@
 const {
-    getProductsSQL, getProductByIdSQL
+    getProductsSQL, getProductByIdSQL,
+    buyProductTransactionSQL
 } = require('../models/product');
 const {
     getProductArrayImgsSQL
 } = require('../models/product_img');
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const jwt = require('jsonwebtoken');
 
 // get products
 const getProducts = async (req, res)=>{
@@ -46,6 +50,34 @@ const getProductPage = async (req,res)=>{
 }
 
 
+const buyProduct = async(req,res)=>{
+    try{
+        const {token, productId, sellerId, sellerName, price, quantity, receivedDate} = req.body;
+        if(!token){
+            return res.status(401).json({message:'No token provided'});
+        }
+        const decoded = jwt.verify(token,JWT_SECRET);
+        if(!decoded || !decoded.userId){
+            return res.status(401).json({message:'Invalid token'});
+        }
+
+        if(!productId || !sellerId || !sellerName || !price || !quantity || !receivedDate){
+            return res.status(400).json({message:'Wrong data', success:false});
+        }
+        const buyProductRow = await buyProductTransactionSQL(decoded.userId, productId, sellerId, sellerName, price, 
+            quantity, receivedDate);
+        if(buyProductRow.success === false || !buyProductRow.purchaseId){
+            return res.status(400).json({success:false, message:buyProductRow.message})
+        }
+        return res.status(200).json({success:true, purchaseId: buyProductRow.purchaseId})
+
+    }
+    catch(error){
+        console.error(error.message);
+        return res.status(500).json({message:'Internal Server Error'});
+    }
+}
+
 module.exports = {
-    getProducts, getProductPage
+    getProducts, getProductPage, buyProduct
 }

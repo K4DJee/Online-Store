@@ -13,6 +13,7 @@ async function createBecomeSellerSQL(userId, sellerName, sellerEmail, sellerPass
         const sql2 = `
         INSERT INTO balance(userId, sellerId) VALUES(?,?)
         `;
+        try{
         connection.query(sql, [userId, sellerName, sellerEmail, hashPassword, description], (err,row)=>{
             if(err){
                 return connection.rollback(() => reject(err));
@@ -21,7 +22,7 @@ async function createBecomeSellerSQL(userId, sellerName, sellerEmail, sellerPass
             
             connection.query(sql2, [userId, sellerId], (err2,row2)=>{
                 if(err2){
-                return reject(err2)
+                return connection.rollback(() => reject(err));
                 }
                 connection.commit((commitErr)=>{
                     if(commitErr){
@@ -31,6 +32,11 @@ async function createBecomeSellerSQL(userId, sellerName, sellerEmail, sellerPass
                 })
             })
         });
+    }
+    catch(error){
+        connection.rollback(()=>reject(err));
+    }
+        
         })
     });
 }

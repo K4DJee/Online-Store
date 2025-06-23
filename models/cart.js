@@ -1,11 +1,11 @@
 const connection = require('../db.js');
 
-    async function addProductInCartSQL(userId,productId,quantity){
+    async function addProductInCartSQL(userId, sellerId, productId, quantity){
         return new Promise((resolve,reject)=>{
             const sql = `
-            INSERT INTO carts(userId,productId,quantity) VALUES(?,?,?)
+            INSERT INTO carts(userId, sellerId, productId,quantity) VALUES(?,?,?,?)
             `;
-            connection.query(sql,[userId,productId,quantity], (err, row)=>{
+            connection.query(sql,[userId, sellerId, productId,quantity], (err, row)=>{
                 if(err){
                     reject(err);
                 }

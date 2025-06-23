@@ -7,6 +7,7 @@ const connection = require('../db.js');
             COUNT (reviews.reviewId) AS reviewCount
             FROM products
             LEFT JOIN reviews ON products.productId = reviews.productId
+            WHERE isActive = 1
             GROUP BY products.productId`; 
             connection.query(sql,(err,rows)=>{
                 if(err){
@@ -41,6 +42,259 @@ const connection = require('../db.js');
         })
     }
 
+    async function addProductBySellerSQL(sellerId, name, description, price, quantity, categoryId, imageUrl, isActive){
+        return new Promise((resolve,reject)=>{
+            const sql = `
+            INSERT INTO products(sellerId, name, description, price, quantity, categoryId, imageUrl, isActive)
+            VALUES(?,?,?,?,?,?,?,?)
+            `;
+            connection.query(sql,[sellerId, name, description, price, quantity, categoryId, imageUrl, isActive],
+                (err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row);
+                }
+            })
+        });
+    }
+
+
+    async function checkReviewOwnershipSQL(reviewId, userId){
+        return new Promise((resolve,reject)=>{
+            const sql = `
+            SELECT 1 FROM reviews WHERE reviewId = ? AND userId = ?
+            `;
+            connection.query(sql,[reviewId, userId], (err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row);
+                }
+            })
+        });
+    }
+
+    async function checkProductOwnerSQL(sellerId, productId){
+        return new Promise((resolve,reject)=>{
+            const sql = `
+            SELECT 1 FROM products WHERE sellerId = ? AND productId = ?
+            `;
+            connection.query(sql,[sellerId, productId], (err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row[0]);
+                }
+            })
+        })
+    }
+
+    async function getAllSellerProductsSQL(sellerId){
+        return new Promise((resolve,reject)=>{
+            const sql = `
+            SELECT * FROM products WHERE sellerId = ?
+            `;
+            connection.query(sql,[sellerId],(err,rows)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(rows);
+                }
+            });
+        })
+    }
+
+    async function changeProductInfoBySellerSQL(name, description, price, quantity, categoryId, imageUrl, isActive,sellerId, productId){
+        return new Promise((resolve,reject)=>{
+            const sql = `   
+            UPDATE products SET name = ?, description = ?, price = ?, 
+            quantity = ?, categoryId = ?, imageUrl = ?, isActive = ?
+            WHERE sellerId = ? AND productId = ?
+            `;
+            connection.query(sql,[name, description, price, quantity, categoryId, imageUrl, isActive, sellerId, productId],(err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row);
+                }
+            })
+        })
+    }
+
+    async function deleteProductBySellerSQL(productId){
+        return new Promise((resolve,reject)=>{
+            const sql = `
+            DELETE FROM products WHERE productId = ?
+            `;
+            connection.query(sql,[productId],(err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row);
+                }
+            })
+        });
+    }
+
+
+
+    async function buyProductTransactionSQL(userId, productId, sellerId, sellerName, price, quantity, receivedDate) {
+        const totalPrice = price * quantity;
+    
+        return new Promise((resolve, reject) => {
+            connection.beginTransaction((err) => {
+                if (err) {
+                    return reject(err);
+                }
+    
+                // 1. Проверка баланса пользователя
+                const balanceSql = 'SELECT * FROM balance WHERE userId = ?';
+                connection.query(balanceSql, [userId], (err, balanceRows) => {
+                    if (err) {
+                        return connection.rollback(() => reject(err));
+                    }
+    
+                    if (!balanceRows.length || balanceRows[0].amount < totalPrice) {
+                        return resolve({ success: false, message: '❌ Недостаточно средств на балансе' });
+                    }
+    
+                    const userBalanceRow = balanceRows[0];
+    
+                    // 2. Проверка наличия товара
+                    const productSql = 'SELECT quantity FROM products WHERE productId = ?';
+                    connection.query(productSql, [productId], (err, productRows) => {
+                        if (err) {
+                            return connection.rollback(() => reject(err));
+                        }
+    
+                        if (!productRows.length || productRows[0].quantity < quantity) {
+                            return connection.rollback(() => {
+                                resolve({ success: false, message: '❌ Недостаточно средств на балансе' });
+                            });
+                        }
+    
+                        // 3. Создание покупки
+                        const purchaseSql = `
+                            INSERT INTO purchases(productId, userId, sellerId, sellerName, quantity, price)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        `;
+                        connection.query(purchaseSql, [
+                            productId,
+                            userId,
+                            sellerId,
+                            sellerName,
+                            quantity,
+                            price
+                        ], (err, purchaseResult) => {
+                            if (err) {
+                                return connection.rollback(() => reject(err));
+                            }
+                            const purchaseId = purchaseResult.insertId;
+    
+                            // 4. Запись доставки
+                            const shippingSql = `
+                                INSERT INTO shippings(productId, purchaseId, sellerId, receivedDate)
+                                VALUES (?, ?, ?, ?)
+                            `;
+                            connection.query(shippingSql, [
+                                productId,
+                                purchaseId,
+                                sellerId,
+                                receivedDate
+                            ], (err, shippingResult) => {
+                                if (err) {
+                                    return connection.rollback(() => reject(err));
+                                }
+                                const shippingId = shippingResult.insertId;
+    
+                                // 5. Списание средств с баланса пользователя
+                                const deductSql = 'UPDATE balance SET amount = amount - ? WHERE userId = ?';
+                                connection.query(deductSql, [totalPrice, userId], (err) => {
+                                    if (err) {
+                                        return connection.rollback(() => reject(err));
+                                    }
+    
+                                    // 6. Пополнение баланса продавца
+                                    const creditSql = 'UPDATE balance SET amount = amount + ? WHERE sellerId = ?';
+                                    connection.query(creditSql, [totalPrice, sellerId], (err) => {
+                                        if (err) {
+                                            return connection.rollback(() => reject(err));
+                                        }
+    
+                                        // 7. Транзакция списания для пользователя
+                                        const debitTransSql = `
+                                            INSERT INTO transactions(userId, balanceId, purchaseId, shippingId, amount, type)
+                                            VALUES (?, ?, ?, ?, ?, 'debit')
+                                        `;
+                                        connection.query(debitTransSql, [
+                                            userId,
+                                            userBalanceRow.balanceId,
+                                            purchaseId,
+                                            shippingId,
+                                            totalPrice
+                                        ], (err) => {
+                                            if (err) {
+                                                return connection.rollback(() => reject(err));
+                                            }
+    
+                                            // 8. Транзакция зачисления для продавца
+                                            const creditTransSql = `
+                                                INSERT INTO transactions(userId, sellerId, balanceId, purchaseId, shippingId, amount, type)
+                                                VALUES (?, ?, ?, ?, ?, ?, 'credit')
+                                            `;
+                                            connection.query(creditTransSql, [
+                                                userId,
+                                                sellerId,
+                                                userBalanceRow.balanceId,
+                                                purchaseId,
+                                                shippingId,
+                                                totalPrice
+                                            ], (err) => {
+                                                if (err) {
+                                                    return connection.rollback(() => reject(err));
+                                                }
+    
+                                                // 9. Уменьшение количества товара
+                                                const updateProductSql = 'UPDATE products SET quantity = quantity - ? WHERE productId = ?';
+                                                connection.query(updateProductSql, [quantity, productId], (err) => {
+                                                    if (err) {
+                                                        return connection.rollback(() => reject(err));
+                                                    }
+    
+                                                    // 10. Фиксируем транзакцию
+                                                    connection.commit((err) => {
+                                                        if (err) {
+                                                            return connection.rollback(() => reject(err));
+                                                        }
+    
+                                                        resolve({
+                                                            success: true,
+                                                            purchaseId
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
+
 module.exports = {
-    getProductsSQL, getProductByIdSQL
+    getProductsSQL, getProductByIdSQL, addProductBySellerSQL, checkProductOwnerSQL,
+    getAllSellerProductsSQL, changeProductInfoBySellerSQL, deleteProductBySellerSQL,
+
+    buyProductTransactionSQL
 }

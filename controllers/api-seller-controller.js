@@ -1,6 +1,9 @@
 const {createBecomeSellerSQL, loginSellerSQL, findSellerSQL,
-    sellerDataSQL
+    sellerDataSQL 
 } = require('../models/seller');
+const {addProductBySellerSQL, getAllSellerProductsSQL, checkProductOwnerSQL,
+    changeProductInfoBySellerSQL, deleteProductBySellerSQL
+} = require('../models/product');
 const {comparePassword} = require('../models/user');
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -108,6 +111,134 @@ const validateSellerToken = async (req,res)=>{
     }
 }
 
+const addProductBySeller = async(req,res)=>{
+    try{
+        const {sellerToken, name, description, price, quantity, categoryId, imageUrl, isActive} = req.body;
+        if(!sellerToken || !name || !description || !price || !quantity || !categoryId || !imageUrl || !isActive){
+            return res.status(400).json({message:'Wrong data', success:false});
+        }
+        const decoded = jwt.verify(sellerToken,JWT_SECRET);
+        if(!decoded || !decoded.sellerId){
+            return res.status(401).json({message:'Invalid token'});
+        }
+        const priceINT = parseFloat(price);
+        const quantityINT = parseInt(quantity, 10);
+        const productRow = await addProductBySellerSQL(decoded.sellerId, name, description, 
+            priceINT, quantityINT, categoryId, imageUrl, isActive)
+        if(!productRow.insertId){
+            return res.status(500).json({message:'Ошибка создания нового товара', success:false});
+        }
+        res.status(200).json({message:'Товар успешно был создан!', success:true});
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ valid: false, message: 'Server error' });
+    }
+}
+
+const getAllSellerProducts = async (req,res)=>{
+    try{
+        const {sellerToken} = req.body;
+        if (!sellerToken) {
+            return res.status(400).json({ valid: false, message: 'sellerToken is required' });
+        }
+        const decoded = jwt.verify(sellerToken,JWT_SECRET);
+        if(!decoded || !decoded.sellerId){
+            return res.status(401).json({message:'Invalid token'});
+        }
+        const allSellerProductsRows = await getAllSellerProductsSQL(decoded.sellerId);
+        if(allSellerProductsRows.length === 0){
+            return res.status(200).json({message:'Товаров не найдено', success:true, 
+                sellerProductsRow:[]})
+        }
+
+        return res.status(200).json({message:'Успешно найдены товары', success:true, 
+            sellerProductsRow:allSellerProductsRows
+        })
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ valid: false, message: 'Server error' });
+    }
+}
+
+const changeProductInfoBySeller = async (req,res)=>{
+    try{
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(401).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+            return res.status(401).json({message:'Token required', success:false}); 
+        }   
+        console.log(sellerToken);
+        const {productId, name, description, price, quantity, categoryId, imageUrl, isActive} = req.body;
+        if (!sellerToken || !productId || !name || !description || !price || !quantity || !categoryId || !imageUrl || !isActive) {
+            return res.status(400).json({ success: false, message: 'Wrong data' });
+        }
+        var price2 = parseFloat(price);
+        var quantity2 = parseInt(quantity, 10);
+        var isActive2 = parseInt(isActive);
+        const decoded = jwt.verify(sellerToken,JWT_SECRET);
+        if(!decoded || !decoded.sellerId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        const productOwner = await checkProductOwnerSQL(decoded.sellerId, productId);
+        if(!productOwner){
+            return res.status(403).json({message:'Вам отказано в доступе изменять этот товар',
+                success:false
+            })
+        }
+        if(quantity2 === 0){
+            isActive2 = 0;
+        }
+        const changeProductRow = await changeProductInfoBySellerSQL(
+            name, description, price2, quantity2, categoryId, imageUrl, isActive2, decoded.sellerId, productId
+        );
+        if(changeProductRow.affectedRows === 0){
+            return res.status(500).json({message:'Не удалось изменить данные товара', success:false});
+        }
+        return res.status(200).json({message:'Успешно изменены данные товара', success:true});
+        // const changedProductRow = await 
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+}
+
+const deleteProductBySeller = async (req,res)=>{
+    try{
+        const {sellerToken, productId} = req.body;
+        if(!sellerToken || !productId){
+            return res.status(400).json({message:'Wrong data', success:false});
+        }
+        const decoded = jwt.verify(sellerToken,JWT_SECRET);
+        if(!decoded || !decoded.sellerId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        const productOwner = await checkProductOwnerSQL(decoded.sellerId, productId);
+        if(!productOwner){
+            return res.status(403).json({message:'Вам отказано в доступе изменять этот товар',
+                success:false
+            })
+        }
+
+        const deletedProductRow = await deleteProductBySellerSQL(productId, );
+        if(deletedProductRow.affectedRows === 0 || !deletedProductRow){
+            return res.status(500).json({message:'Товар не удалился', success:false});
+        }
+        return res.status(200).json({message:'Товар был успешно удалён', success:true});
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+}
+
 module.exports = {
-    createBecomeSeller, loginSeller, sellerData, validateSellerToken
+    createBecomeSeller, loginSeller, sellerData, validateSellerToken,
+    addProductBySeller, getAllSellerProducts, changeProductInfoBySeller,
+    deleteProductBySeller
 }

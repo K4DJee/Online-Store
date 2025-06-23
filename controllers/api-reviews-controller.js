@@ -91,7 +91,7 @@ const deleteUserReview = async(req,res)=>{
         }
         const deletedReviewRow = await deleteUserReviewSQL(reviewId);
         if(deletedReviewRow.affectedRows === 0 || !deletedReviewRow){
-            return res.status(200).json({message:'Отзыв не был удалён', success:false});
+            return res.status(500).json({message:'Отзыв не был удалён', success:false});
         }
         return res.status(200).json({message:'Отзыв успешно был удалён', success:true});
 

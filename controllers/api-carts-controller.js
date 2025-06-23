@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const addProductInCart = async (req,res)=>{
     try{
-        const {token, productId, quantity} = req.body;
+        const {token, productId, quantity, sellerId} = req.body;
     if(!token){
         return res.status(401).json({message:'Token required', success:false});
     }
@@ -17,7 +17,7 @@ const addProductInCart = async (req,res)=>{
     if(!decoded || !decoded.userId){
         return res.status(401).json({message:'Invalid token', success:false});
     }
-    if(!productId || !quantity){
+    if(!productId || !quantity || !sellerId){
         return res.status(400).json({message:'Wrong data', success:false});
     }
     const productExists = await checkProductExistsSQL(productId);
@@ -34,7 +34,7 @@ const addProductInCart = async (req,res)=>{
     if(quantity < 0) {
         return res.status(400).json({message: 'Количество не может быть отрицательным', success: false});
     }
-    const addProductInCartRow = await addProductInCartSQL(decoded.userId,productId,quantity);
+    const addProductInCartRow = await addProductInCartSQL(decoded.userId, sellerId, productId,quantity);
     if(!addProductInCartRow.insertId){
         return res.status(500).json({message:'Ошибка добавления товара в корзину', success:false});
     }
