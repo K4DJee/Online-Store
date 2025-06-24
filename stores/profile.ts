@@ -4,21 +4,21 @@ import type { IUser } from '~/types/types'
 export const useProfileStore = defineStore('profileStore', () => {
 	//state
 	const user = ref<IUser | null>(null)
-	const isAutheticated = ref(false);
+	const isAuthenticated = ref(false);
 	//actions
 	const setUser = (userData:IUser) =>{
 		user.value = userData;
-		isAutheticated.value = true;
+		isAuthenticated.value = true;
 	}
 	const clearUser = ()=>{
 		user.value = null;
-		isAutheticated.value = false
+		isAuthenticated.value = false
 	}
 	//getters
 	const isAdmin = computed(() => user.value?.role === 'admin');
 	
 	return {
-		user, isAutheticated,
+		user, isAuthenticated,
 
 		setUser, clearUser,
 

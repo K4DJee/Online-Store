@@ -1,144 +1,107 @@
+<template>
+	<section class="bg-gray-50">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div v-if="user" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+				<!-- Sidebar Menu -->
+				<ProfileSidebar />
+
+				<!-- Main Content -->
+				<div class="lg:col-span-3 space-y-8">
+					<!-- Balance and Stats Section -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<!-- Balance Card -->
+						<BalanceCard />
+
+						<!-- Quick Stats -->
+						<ProfileQuickInfo />
+					</div>
+
+					<!-- Account Settings Section -->
+					<div class="space-y-6">
+						<!-- Email Settings -->
+						<settings-section :type="'text'">
+							<template #title
+								>Почта, привязанная к аккаунту</template
+							>
+							<template #icon
+								><svg
+									class="w-5 h-5 text-lime-600"
+									fill="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+									></path>
+								</svg>
+							</template>
+							<template #text>{{ user!.email }}</template>
+							<template #textButton
+								>Привязать другую почту</template
+							>
+						</settings-section>
+
+						<!-- Registration Date -->
+						<settings-section :type="'text'">
+							<template #title
+								>Дата регистрации аккаунта</template
+							>
+							<template #icon
+								><svg
+									class="w-5 h-5 text-blue-600"
+									fill="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"
+									></path>
+								</svg>
+							</template>
+							<template #text>{{
+								formatDate(new Date(user.regDate))
+							}}</template>
+						</settings-section>
+
+						<!-- Promo Code -->
+						<settings-section
+							:type="'input'"
+							v-model:inputModel="promoQuery"
+							:placeholder="'Введите промокод'"
+						>
+							<template #title>Активировать промокод </template>
+							<template #inputButton>Активировать</template>
+						</settings-section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</template>
+
 <script setup lang="ts">
-import axios from 'axios';
-import {ref, inject, onMounted} from 'vue';
-interface AuthState {
-  isAuthUser: { value: boolean }
-  currentUser: { value: {
-    id: number
-    username: string
-    email: string
-    role: string
-    balance: number
-  } | null }
-  fetchUserData: (actualToken:string) => Promise<void>;
-};
-const currentUser = inject<AuthState>('auth');
-const token = useCookie('token');
-const router = useRouter();
+import type { AuthState, IUser } from '~/types/types'
+import { useProfileStore } from '#imports'
 
-const logout = ()=>{
-  token.value = null;
+const profileStore = useProfileStore()
+const { user } = storeToRefs(profileStore)
 
-  if (currentUser?.isAuthUser) {
-    currentUser.isAuthUser.value = false;
-  }
-  if (currentUser?.currentUser) {
-    currentUser.currentUser.value = null;
-  }
-
-  router.push('/');
-};
+const promoQuery = ref<string>('')
 
 definePageMeta({
-  middleware: 'auth'
-});
+	middleware: 'auth',
+})
+
+const promoCode = ref('')
+
+const formatDate = (date: Date) =>
+	date.toLocaleDateString('ru-RU', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	})
+
+const applyPromo = () => {
+	console.log('Promo code applied:', promoCode.value)
+}
 </script>
-<template>
-  <section class="profile-section">
-    <div class="profile-container">
-    <div class="profile-menu-container">
-      <div class="profile-img">
-      <img src="" alt="">
-    </div>
 
-    <div class="profile-user-info">
-      <h2 class="profile-username">{{ currentUser?.currentUser.value?.username }}</h2>
-      <a class="profile-change-info">Изменить профиль</a>
-    </div>
-
-    <ul class="profile-menu">
-      <li class="menu-title">Личная информация</li>
-      <li class="menu-title-page" @click="router.push('/profile')">Главная</li>
-      <li class="menu-title-page active"  @click="router.push('/balance')">Баланс средств</li>
-      <li class="menu-title">Заказы</li>
-      <li class="menu-title-page" @click="router.push('/orders')">Мои заказы</li>
-      <li class="menu-title-page">Мои возвраты</li>
-      <li class="menu-title-page" @click="router.push('/basket')">Корзина</li>
-      <li class="menu-title">Отзывы</li>
-      <li class="menu-title-page">Мои отзывы</li>
-      <li class="menu-title">Для продавца</li>
-      <li class="menu-title-page">Стать продавцом</li>
-      <li class="menu-title-page">Мои продажи</li>
-      <li class="menu-title-page">Мой счёт</li>
-    </ul>
-
-    <h2 @click="logout" class="logout-btn">Выйти</h2>
-    </div>
-    <div class="profile-menu-option-container">
-      <h2>Your balance: {{ currentUser?.currentUser.value?.balance }}</h2>
-    </div>
-  </div>
-  </section>
-</template>
-<style>
-.profile-section{
-  max-width:1425px;
-  margin: 0 auto;
-  padding: 15px;
-}
-.profile-container{
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  column-gap: 25px;
-}
-.profile-menu-container{
-  width:200px;
-  height:485px;
-  background-color: #FCFCFC;
-  border-radius: 9px;
-}
-.profile-menu-option-container{
-  width:1200px;
-  height:400px;
-  background-color: #FCFCFC;
-  border-radius: 9px;
-}
-.profile-menu-container{
-  padding:15px;
-}
-.menu-title{
-  color:black;
-  font-size: 14px;
-  font-family: 'Roboto';
-}
-.menu-title-page{
-  color:#808080;
-  font-size: 14px;
-  font-family: 'Roboto';
-  cursor: pointer;
-  &:hover{
-    text-decoration: underline;
-    text-decoration-color: black;
-  }
-}
-.profile-img{
-  width:85px;
-  height:85px;
-  background-color: gray;
-  margin: 0 auto;
-  border-radius: 52px;
-}
-.profile-menu{
-  margin-top: 10px;
-  row-gap: 7px;
-  display: grid;
-}
-.profile-change-info{
-  font-family: 'Roboto';
-  color:#002FFF;
-  font-size: 14px;
-  cursor: pointer;
-}
-.profile-username{
-  font-family: 'Roboto';
-  font-size: 16px;
-}
-.logout-btn{
-  color:red;
-  font-family: 'Roboto';
-  font-size: 14px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-</style>
+<style scoped></style>
