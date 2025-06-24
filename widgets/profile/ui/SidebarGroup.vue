@@ -1,42 +1,30 @@
 <template>
-	<div>
+	<div class="space-y-1">
 		<div
 			class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
 		>
-			<slot name="groupTitle"></slot>
+			{{ title }}
 		</div>
 
-		<sidebar-item label="Главная" link="/profile">
-			<template #icon
-				><svg
-					class="mr-3 w-5 h-5"
-					fill="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-				</svg>
-			</template>
-		</sidebar-item>
-
-		<sidebar-item label="Баланс средств" link="/balance">
-			<template #icon
-				><svg
-					class="mr-3 w-5 h-5"
-					fill="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-				</svg>
-			</template>
+		<sidebar-item
+			v-for="(item, index) in items"
+			:key="index"
+			:label="item.title"
+			:link="item.route"
+			:icon="item.icon"
+			:activeIcon="item.activeIcon"
+		>
 		</sidebar-item>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { useProfileStore } from '#imports'
+import type { SidebarItem } from '~/features/profile/profile-sidebar/config/sidebar.config'
 
-const profileStore = useProfileStore()
-const { user } = profileStore
+defineProps<{
+	title: string
+	items: SidebarItem[]
+}>()
 </script>
 
 <style scoped></style>
