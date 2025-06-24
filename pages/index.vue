@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import type { IProduct } from '~/entities/model/productCard'
+import type { IProduct } from '~/types/types'
 import axios from 'axios'
-const {addToCart} = useCart();
+
+const { addToCart } = useCart()
+
 const products = ref<IProduct[]>([])
 const profileStore = useProfileStore()
-const isAutheticated = computed(() => profileStore.isAutheticated)
+const isAuthenticated = computed(() => profileStore.isAuthenticated)
 const isAuthModal = ref(false);
 async function fetchProducts() {
 	try {
@@ -16,15 +18,15 @@ async function fetchProducts() {
 	}
 }
 
-async function handleAddProduct(productId:number){
+async function handleAddProduct(productId: number) {
 	console.log('productId: ', productId)
-	if(isAutheticated.value === true){
-		isAuthModal.value = false;
+	// if(isAuthenticated.value === true){
+	// 	isAuthModal.value = false;
 		addToCart(productId);
-	}
-	else{
-		isAuthModal.value = true;
-	}
+	// }
+	// else{
+	// 	isAuthModal.value = true;
+	// }
 }
 
 onMounted(async () => {
@@ -39,15 +41,14 @@ onMounted(async () => {
 			<div
 				class="bg-gradient-to-r from-lime-500 to-lime-600 rounded-2xl p-8 text-white"
 			>
-				<h2 class="text-4xl font-bold mb-4">Найкращі технології</h2>
+				<h2 class="text-4xl font-bold mb-4">Лучшие технологии</h2>
 				<p class="text-lime-100 text-lg mb-6">
-					Відкрийте для себе новітні гаджети та електроніку за
-					найкращими цінами
+					Откройте для себя новейшие гаджеты и электронику по лучшим ценам
 				</p>
 				<button
 					class="bg-white text-lime-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors"
 				>
-					Переглянути каталог
+				Посмотреть каталог
 				</button>
 			</div>
 		</section>

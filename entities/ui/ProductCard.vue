@@ -58,9 +58,13 @@
 							fill="#FFAC33"
 						/>
 					</svg>
-					<span class="font-semibold text-slate-800">{{ product.averageRating }}</span>
+					<span class="font-semibold text-slate-800">{{
+						product.averageRating
+					}}</span>
 				</div>
-				<span class="text-gray-500">{{ pluralizeReviews(product.reviewCount) }}</span>
+				<span class="text-gray-500">{{
+					pluralizeReviews(product.reviewCount)
+				}}</span>
 			</div>
 			<div class="flex items-center justify-between mt-2">
 				<span class="text-xl font-bold text-slate-800"
@@ -124,9 +128,9 @@
 </template>
 
 <script setup lang="ts">
-import { pluralizeReviews } from '~/entities/helpers/pluralize';
-import type { addProductInBasket } from '~/types/basketTypes';
-import type { IProduct } from '../model/productCard';
+import { pluralizeReviews } from '~/entities/helpers/pluralize'
+import type { addProductInBasket } from '~/types/basketTypes'
+import type { IProduct } from '~/types/types'
 
 const props = defineProps<{
 	product: IProduct
@@ -148,14 +152,11 @@ const formatPrice = (price: string) => parseInt(price).toLocaleString('ru-RU')
 // Добавление в корзину
 const addToCart = () => {
 	if (product.value.quantity === 0 || !product.value.isActive) return
-	emit('add-to-cart', product.value.productId);
+	emit('add-to-cart', product.value.productId)
 	console.log('Добавлен в корзину:', product.value.name)
 }
 
-
 const emit = defineEmits<{
-	(e:'add-to-cart', productId:number):void
+	(e: 'add-to-cart', sellerId:number, productId: number,): void
 }>()
-
-
 </script>

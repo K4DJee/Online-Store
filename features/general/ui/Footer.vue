@@ -9,7 +9,7 @@
 					Tech<span class="text-lime-400">Store</span>
 				</h3>
 				<p class="text-gray-400">
-					Ваш надійний партнер у світі технологій
+					Ваш надежный партнер в мире технологий
 				</p>
 			</div>
 		</div>

@@ -4,7 +4,10 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
     const route = useRoute();
     const productId = route.params.id;
 	const quantity = ref(1);
-    
+    const profileStore = useProfileStore()
+	const isAuthenticated = profileStore.isAuthenticated
+	const isAuthModal = ref(false);
+	const { addToCart } = useCart()
     async function fetchProductPageInfo(){
 		try{
                 const data =  await $fetch<responseProductPageInfo>(`http://localhost:8000/api/product/${productId}`,{
@@ -60,6 +63,21 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
             }
 		}
 	}
+
+	async function handleAddProduct(productId: number) {
+	console.log('productId: ', productId)
+	console.log(isAuthenticated);
+	// if(isAuthenticated === true){
+	// 	isAuthModal.value = false;
+	// 	// addToCart(productId);
+	// }
+	// else{
+	// 	isAuthModal.value = true;
+	// }
+	if( data.value?.productRow?.sellerId){
+		addToCart(productId, data.value?.productRow?.sellerId);
+	}
+}
 
     const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
         `product-${productId}`,
@@ -275,7 +293,8 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 
 							<!-- Action Buttons -->
 							<div class="action-buttons">
-								<button class="btn btn-cart">
+								<button class="btn btn-cart" 
+								@click.prevent="handleAddProduct(data?.productRow?.productId)">
 									<svg
 										width="18"
 										height="14"
@@ -346,6 +365,7 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 			</div>
 		</div>
 	</div>
+	<AuthModal :is-open="isAuthModal" @close="isAuthModal = false"></AuthModal>
 </template>
 
 <style scoped>

@@ -1,6 +1,7 @@
 export interface responseProductPageInfo{
     productRow:{
 		productId: number;
+        sellerId:number;
     name: string;
     description: string;
     price: string;
