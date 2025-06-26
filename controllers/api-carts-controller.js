@@ -1,7 +1,7 @@
 const {
     addProductInCartSQL, changeQuantityProductsInCartSQL, deleteProductInCartSQL,
     getProductsFromCartSQL, checkProductQuantitySQL, checkProductExistsSQL,
-    checkCartItemExistsSQL, checkProductExistsSQL
+    checkCartItemExistsSQL, checkProductInCartExistsSQL
 } = require('../models/cart');
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -119,8 +119,8 @@ const deleteProductInCart = async (req,res)=>{
         if(!cartId){
             return res.status(400).json({message:'Wrong data', success:false});
         }
-        //Проверяем, есть ли такой товар
-        const existProduct = await checkProductExistsSQL(cartId);
+        //Проверяем, есть ли такой товар в корзине
+        const existProduct = await checkProductInCartExistsSQL(cartId);
         if(!existProduct.cartId){
             return res.status(404).json({message:'Товар в корзине не найден', success:false});
         }
