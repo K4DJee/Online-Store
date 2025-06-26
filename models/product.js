@@ -145,113 +145,106 @@ const connection = require('../db.js');
 
 
 
-    async function buyProductTransactionSQL(userId, productId, sellerId, sellerName, price, quantity, receivedDate) {
-        const totalPrice = price * quantity;
+    async function buyProductTransactionSQL(userId, productId, sellerId, sellerName, quantity, receivedDate) {
     
         return new Promise((resolve, reject) => {
             connection.beginTransaction((err) => {
                 if (err) {
                     return reject(err);
                 }
-    
-                // 1. Проверка баланса пользователя
-                const balanceSql = 'SELECT * FROM balance WHERE userId = ?';
-                connection.query(balanceSql, [userId], (err, balanceRows) => {
-                    if (err) {
-                        return connection.rollback(() => reject(err));
+                // 0. Берём цену продукта
+                const productPrice = 'SELECT price FROM products WHERE productId = ?';
+                connection.query(productPrice,[productId],(err0,productPriceRow)=>{
+                    if(err0){
+                        return connection.rollback(() => reject(err0));
                     }
-    
-                    if (!balanceRows.length || balanceRows[0].amount < totalPrice) {
-                        return resolve({ success: false, message: '❌ Недостаточно средств на балансе' });
+                    const price = productPriceRow[0].price;
+                    const totalPrice = price * quantity;
+                    if(price === null || price === undefined){
+                        return resolve({ success: false, message: '❌ Ошибка получения цены товара' })
                     }
-    
-                    const userBalanceRow = balanceRows[0];
-    
-                    // 2. Проверка наличия товара
-                    const productSql = 'SELECT quantity FROM products WHERE productId = ?';
-                    connection.query(productSql, [productId], (err, productRows) => {
+                    // 1. Проверка баланса пользователя
+                    const balanceSql = 'SELECT * FROM balance WHERE userId = ? LIMIT 1';
+                    connection.query(balanceSql, [userId], (err, balanceRows) => {
                         if (err) {
                             return connection.rollback(() => reject(err));
                         }
-    
-                        if (!productRows.length || productRows[0].quantity < quantity) {
-                            return connection.rollback(() => {
-                                resolve({ success: false, message: '❌ Недостаточно средств на балансе' });
-                            });
+        
+                        if (!balanceRows.length || balanceRows[0].amount < totalPrice) {
+                            return resolve({ success: false, message: '❌ Недостаточно средств на балансе' });
                         }
-    
-                        // 3. Создание покупки
-                        const purchaseSql = `
-                            INSERT INTO purchases(productId, userId, sellerId, sellerName, quantity, price)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        `;
-                        connection.query(purchaseSql, [
-                            productId,
-                            userId,
-                            sellerId,
-                            sellerName,
-                            quantity,
-                            price
-                        ], (err, purchaseResult) => {
+        
+                        const userBalanceRow = balanceRows[0];
+        
+                        // 2. Проверка наличия товара
+                        const productSql = 'SELECT quantity FROM products WHERE productId = ?';
+                        connection.query(productSql, [productId], (err, productRows) => {
                             if (err) {
                                 return connection.rollback(() => reject(err));
                             }
-                            const purchaseId = purchaseResult.insertId;
-    
-                            // 4. Запись доставки
-                            const shippingSql = `
-                                INSERT INTO shippings(productId, purchaseId, sellerId, receivedDate)
-                                VALUES (?, ?, ?, ?)
+        
+                            if (!productRows.length || productRows[0].quantity < quantity) {
+                                return connection.rollback(() => {
+                                    resolve({ success: false, message: '❌ Недостаточно средств на балансе' });
+                                });
+                            }
+        
+                            // 3. Создание покупки
+                            const purchaseSql = `
+                                INSERT INTO purchases(productId, userId, sellerId, sellerName, quantity, price)
+                                VALUES (?, ?, ?, ?, ?, ?)
                             `;
-                            connection.query(shippingSql, [
+                            connection.query(purchaseSql, [
                                 productId,
-                                purchaseId,
+                                userId,
                                 sellerId,
-                                receivedDate
-                            ], (err, shippingResult) => {
+                                sellerName,
+                                quantity,
+                                price
+                            ], (err, purchaseResult) => {
                                 if (err) {
                                     return connection.rollback(() => reject(err));
                                 }
-                                const shippingId = shippingResult.insertId;
-    
-                                // 5. Списание средств с баланса пользователя
-                                const deductSql = 'UPDATE balance SET amount = amount - ? WHERE userId = ?';
-                                connection.query(deductSql, [totalPrice, userId], (err) => {
+                                const purchaseId = purchaseResult.insertId;
+        
+                                // 4. Запись доставки
+                                const shippingSql = `
+                                    INSERT INTO shippings(productId, purchaseId, sellerId, receivedDate)
+                                    VALUES (?, ?, ?, ?)
+                                `;
+                                connection.query(shippingSql, [
+                                    productId,
+                                    purchaseId,
+                                    sellerId,
+                                    receivedDate
+                                ], (err, shippingResult) => {
                                     if (err) {
                                         return connection.rollback(() => reject(err));
                                     }
-    
-                                    // 6. Пополнение баланса продавца
-                                    const creditSql = 'UPDATE balance SET amount = amount + ? WHERE sellerId = ?';
-                                    connection.query(creditSql, [totalPrice, sellerId], (err) => {
+                                    const shippingId = shippingResult.insertId;
+        
+                                    // 5. Списание средств с баланса пользователя
+                                    const deductSql = 'UPDATE balance SET amount = amount - ? WHERE userId = ?';
+                                    connection.query(deductSql, [totalPrice, userId], (err) => {
                                         if (err) {
                                             return connection.rollback(() => reject(err));
                                         }
-    
-                                        // 7. Транзакция списания для пользователя
-                                        const debitTransSql = `
-                                            INSERT INTO transactions(userId, balanceId, purchaseId, shippingId, amount, type)
-                                            VALUES (?, ?, ?, ?, ?, 'debit')
-                                        `;
-                                        connection.query(debitTransSql, [
-                                            userId,
-                                            userBalanceRow.balanceId,
-                                            purchaseId,
-                                            shippingId,
-                                            totalPrice
-                                        ], (err) => {
+        
+                                        // 6. Пополнение баланса продавца
+                                        const creditSql = 'UPDATE balance SET amount = amount + ? WHERE sellerId = ?';
+                                        connection.query(creditSql, [totalPrice, sellerId], (err, creditSellerRow) => {
                                             if (err) {
                                                 return connection.rollback(() => reject(err));
                                             }
-    
-                                            // 8. Транзакция зачисления для продавца
-                                            const creditTransSql = `
-                                                INSERT INTO transactions(userId, sellerId, balanceId, purchaseId, shippingId, amount, type)
-                                                VALUES (?, ?, ?, ?, ?, ?, 'credit')
+                                            console.log(creditSellerRow);
+                                            console.log('Цена товара: ',totalPrice, 'SellerId: ', sellerId);
+                                            // 7. Транзакция списания для пользователя
+                                            const debitTransSql = `
+                                                INSERT INTO transactions(userId, balanceId, purchaseId, shippingId, amount, type)
+                                                VALUES (?, ?, ?, ?, ?, 'debit')
                                             `;
-                                            connection.query(creditTransSql, [
+                                            connection.query(debitTransSql, [
                                                 userId,
-                                                sellerId,
                                                 userBalanceRow.balanceId,
                                                 purchaseId,
                                                 shippingId,
@@ -260,23 +253,41 @@ const connection = require('../db.js');
                                                 if (err) {
                                                     return connection.rollback(() => reject(err));
                                                 }
-    
-                                                // 9. Уменьшение количества товара
-                                                const updateProductSql = 'UPDATE products SET quantity = quantity - ? WHERE productId = ?';
-                                                connection.query(updateProductSql, [quantity, productId], (err) => {
+        
+                                                // 8. Транзакция зачисления для продавца
+                                                const creditTransSql = `
+                                                    INSERT INTO transactions(userId, sellerId, balanceId, purchaseId, shippingId, amount, type)
+                                                    VALUES (?, ?, ?, ?, ?, ?, 'credit')
+                                                `;
+                                                connection.query(creditTransSql, [
+                                                    userId,
+                                                    sellerId,
+                                                    userBalanceRow.balanceId,
+                                                    purchaseId,
+                                                    shippingId,
+                                                    totalPrice
+                                                ], (err) => {
                                                     if (err) {
                                                         return connection.rollback(() => reject(err));
                                                     }
-    
-                                                    // 10. Фиксируем транзакцию
-                                                    connection.commit((err) => {
+        
+                                                    // 9. Уменьшение количества товара
+                                                    const updateProductSql = 'UPDATE products SET quantity = quantity - ? WHERE productId = ?';
+                                                    connection.query(updateProductSql, [quantity, productId], (err) => {
                                                         if (err) {
                                                             return connection.rollback(() => reject(err));
                                                         }
-    
-                                                        resolve({
-                                                            success: true,
-                                                            purchaseId
+        
+                                                        // 10. Фиксируем транзакцию
+                                                        connection.commit((err) => {
+                                                            if (err) {
+                                                                return connection.rollback(() => reject(err));
+                                                            }
+        
+                                                            resolve({
+                                                                success: true,
+                                                                purchaseId
+                                                            });
                                                         });
                                                     });
                                                 });
@@ -287,7 +298,7 @@ const connection = require('../db.js');
                             });
                         });
                     });
-                });
+                })
             });
         });
     }

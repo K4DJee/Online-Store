@@ -1,12 +1,12 @@
 const connection = require('../db.js');
 
-async function createReviewProductSQL(productId, userId, rating, comment){
+async function createReviewProductSQL(productId, userId, sellerId, rating, comment){
     return new Promise((resolve,reject)=>{
         const sql = `
-        INSERT INTO reviews(productId, userId, rating, comment) 
-        VALUES(?,?,?,?)
+        INSERT INTO reviews(productId, userId, sellerId, rating, comment) 
+        VALUES(?,?,?,?,?)
         `;
-        connection.query(sql, [productId, userId, rating, comment], (err,row)=>{
+        connection.query(sql, [productId, userId, sellerId, rating, comment], (err,row)=>{
             if(err){
                 reject(err);
             }
@@ -117,8 +117,22 @@ async function averageProductRatingSQL(productId){
     });
 }
 
+async function sellerProductSQL(sellerName){
+    return new Promise((resolve,reject)=>{
+        const sql = `SELECT sellerId FROM sellers WHERE sellerName = ? LIMIT 1`
+        connection.query(sql,[sellerName],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row[0]);
+            }
+        })
+    });
+}
+
 
 module.exports = {createReviewProductSQL, allProductReviewsSQL, allUserReviewsSQL,
-    averageProductRatingSQL, changeReviewContentSQL, deleteUserReviewSQL, checkReviewOwnershipSQL
-    
+    averageProductRatingSQL, changeReviewContentSQL, deleteUserReviewSQL, checkReviewOwnershipSQL,
+    sellerProductSQL    
 };

@@ -11,9 +11,17 @@ const jwt = require('jsonwebtoken');
 
 const createBecomeSeller = async(req,res)=>{
     try{
-        const {token, sellerName, sellerEmail, sellerPassword, description} = req.body;
-        if(!token || !sellerName || !sellerEmail ||! sellerPassword || !description){
+        const authHeader = req.headers['authorization'];
+        const {sellerName, sellerEmail, sellerPassword, description} = req.body;
+        if(!sellerName || !sellerEmail ||! sellerPassword || !description){
             return res.status(400).json({message:'Wrong data', success:false});
+        }
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
+        if(!token){
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const decoded = jwt.verify(token,JWT_SECRET);
         if(!decoded || !decoded.userId){
@@ -21,13 +29,13 @@ const createBecomeSeller = async(req,res)=>{
         }
         const existingSeller = await findSellerSQL(sellerName);
         if(existingSeller){
-            return res.status(401).json({message:'Такой продавец уже существует', success:false})
+            return res.status(409).json({message:'Такой продавец уже существует', success:false})
         }
         const newSellerRow = await createBecomeSellerSQL(decoded.userId, 
             sellerName, sellerEmail, sellerPassword, description);
         if(!newSellerRow.sellerId || !newSellerRow.balance){
             console.log('Ошибка при регистрации');
-            return res.status(500).json({message:'Пользователь не зарегистрировался', success:false});
+            return res.status(500).json({message:'Пользователь не был зарегистрирован', success:false});
         }
         const sellerToken = jwt.sign({sellerId:newSellerRow.sellerId},
             JWT_SECRET, {expiresIn:'3h'});
@@ -69,9 +77,13 @@ const loginSeller = async (req,res)=>{
 
 const sellerData = async (req,res)=>{
     try{
-        const {sellerToken} = req.body;
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
         if(!sellerToken){
-           return res.status(400).json({message:'Token is required', success:false});
+           return res.status(400).json({message:'Token required', success:false});
         }
         const decoded = jwt.verify(sellerToken,JWT_SECRET);
         if(!decoded || !decoded.sellerId){
@@ -79,7 +91,7 @@ const sellerData = async (req,res)=>{
         }
         const sellerData = await sellerDataSQL(decoded.sellerId);
         if(!sellerData){
-            return res.status(401).json({message:'Продавец не найден', success:false})
+            return res.status(404).json({message:'Продавец не найден', success:false})
         }
         return res.status(200).json({message:'Success get sellerData', sellerData, success:true});
     }
@@ -91,35 +103,47 @@ const sellerData = async (req,res)=>{
 
 const validateSellerToken = async (req,res)=>{
     try {
-        const { sellerToken } = req.body;
-        if (!sellerToken) {
-            return res.status(400).json({ valid: false, message: 'sellerToken is required' });
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+           return res.status(400).json({message:'Token required', success:false});
         }
         else{
         jwt.verify(sellerToken, JWT_SECRET, (err, decoded) => {
             if (err) {
-                return res.status(401).json({ valid: false, message: 'Invalid or expired token' });
+                return res.status(401).json({ valid: false, message: 'Invalid or expired token', success:false });
             }
             else{
-                res.status(200).json({ valid: true });//seller: decoded
+                res.status(200).json({ valid: true, success:true });//seller: decoded
             }
         });
         }
     } catch (error) {
         console.error('Error validating token:', error.message);
-        res.status(500).json({ valid: false, message: 'Server error' });
+        res.status(500).json({ valid: false, message: 'Internal server error', success:false });
     }
 }
 
 const addProductBySeller = async(req,res)=>{
     try{
-        const {sellerToken, name, description, price, quantity, categoryId, imageUrl, isActive} = req.body;
-        if(!sellerToken || !name || !description || !price || !quantity || !categoryId || !imageUrl || !isActive){
+        const authHeader = req.headers['authorization'];
+        const { name, description, price, quantity, categoryId, imageUrl, isActive} = req.body;
+        if( !name || !description || !price || !quantity || !categoryId || !imageUrl || !isActive){
             return res.status(400).json({message:'Wrong data', success:false});
+        }
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+           return res.status(400).json({message:'Token required', success:false});
         }
         const decoded = jwt.verify(sellerToken,JWT_SECRET);
         if(!decoded || !decoded.sellerId){
-            return res.status(401).json({message:'Invalid token'});
+            return res.status(401).json({message:'Invalid token', success:false});
         }
         const priceINT = parseFloat(price);
         const quantityINT = parseInt(quantity, 10);
@@ -132,15 +156,19 @@ const addProductBySeller = async(req,res)=>{
     }
     catch(error){
         console.error('Error validating token:', error.message);
-        res.status(500).json({ valid: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 }
 
 const getAllSellerProducts = async (req,res)=>{
     try{
-        const {sellerToken} = req.body;
-        if (!sellerToken) {
-            return res.status(400).json({ valid: false, message: 'sellerToken is required' });
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+           return res.status(400).json({message:'Token required', success:false});
         }
         const decoded = jwt.verify(sellerToken,JWT_SECRET);
         if(!decoded || !decoded.sellerId){
@@ -158,7 +186,7 @@ const getAllSellerProducts = async (req,res)=>{
     }
     catch(error){
         console.error('Error validating token:', error.message);
-        res.status(500).json({ valid: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 }
 
@@ -166,11 +194,11 @@ const changeProductInfoBySeller = async (req,res)=>{
     try{
         const authHeader = req.headers['authorization'];
         if(!authHeader){
-            return res.status(401).json({message:'Token required', success:false}); 
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const sellerToken = authHeader.split(' ')[1];
         if(!sellerToken){
-            return res.status(401).json({message:'Token required', success:false}); 
+            return res.status(400).json({message:'Token required', success:false}); 
         }   
         console.log(sellerToken);
         const {productId, name, description, price, quantity, categoryId, imageUrl, isActive} = req.body;
@@ -204,15 +232,23 @@ const changeProductInfoBySeller = async (req,res)=>{
     }
     catch(error){
         console.error('Error validating token:', error.message);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Internal Server error' });
     }
 }
 
 const deleteProductBySeller = async (req,res)=>{
     try{
-        const {sellerToken, productId} = req.body;
-        if(!sellerToken || !productId){
+        const {productId} = req.body;
+        if(!productId){
             return res.status(400).json({message:'Wrong data', success:false});
+        }
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const decoded = jwt.verify(sellerToken,JWT_SECRET);
         if(!decoded || !decoded.sellerId){
@@ -233,7 +269,7 @@ const deleteProductBySeller = async (req,res)=>{
     }
     catch(error){
         console.error('Error validating token:', error.message);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 }
 

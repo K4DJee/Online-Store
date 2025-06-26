@@ -19,7 +19,7 @@ const loginUser  = async(req,res)=>{
         console.log(user);
         if(!user.username || !user.email || !user.password || !user.regDate || !user.role){
             console.log('Wrong user data!');
-            return res.status(400).json({message:'Wrong user data! All fields required.'});
+            return res.status(400).json({message:'Wrong user data! All fields required.', success:false});
         }
         const user_db = await loginUserSQL(user.username, user.email);
         if(!user_db[0]){
@@ -37,7 +37,7 @@ const loginUser  = async(req,res)=>{
     }
     catch(error){
         console.log(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 }
 
@@ -57,7 +57,7 @@ const registerUser = async(req,res)=>{
         const token = jwt.sign({userId:user_db.insertId, username:user.username}, JWT_SECRET, {expiresIn:'3h'});
         console.log('Succsess registered user. His token: ', token);
         if(!user_db.insertId){
-            return res.status(401).json({message:'Ошибка создания баланса'});
+            return res.status(500).json({message:'Ошибка создания баланса'});
         }
         const balance = await createUserBalanceSQL(user_db.insertId);
         console.log('balance row: ', balance);
@@ -65,7 +65,7 @@ const registerUser = async(req,res)=>{
     }
     catch(error){
         console.log(error.message);
-        return res.status(500).json({ message: 'Internal Server Error' });
+        return res.status(500).json({ message: 'Internal Server Error', success:false});
     }
 }
 
@@ -95,7 +95,7 @@ const validateToken =  async (req, res) => {
     try{
         const token = req.body.token;
         if(!token){
-            return res.status(401).json({message:'No token provided'});
+            return res.status(400).json({message:'No token provided'});
         }
         const decoded = jwt.verify(token,JWT_SECRET);
         if(!decoded || !decoded.userId){
@@ -115,7 +115,7 @@ const validateToken =  async (req, res) => {
     }
     catch(error){
         console.error('Error fetching user data:', error.message);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', success:false});
     }
 };
 
@@ -150,7 +150,7 @@ const recoverAccount = async(req,res)=>{
     }
     catch(error){
         console.error(error.message);
-        res.status(500).json({message:'Internal Server Error'});
+        res.status(500).json({message:'Internal Server Error', success:false});
     }
 
 }
@@ -181,7 +181,7 @@ const verifyRecoverAccount = async(req,res)=>{
     }
     catch(error){
         console.log(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 }
 

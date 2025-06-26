@@ -23,7 +23,7 @@ const {
     deleteProductBySeller
 } = require('./controllers/api-seller-controller');
 const {
-    refillUserBalance
+    refillUserBalance, getSellerBalance
 } = require('./controllers/api-balance-controller');
 //auth
 router.post('/api/login', loginUser);
@@ -60,4 +60,5 @@ router.put('/api/changeProductInfo',changeProductInfoBySeller);
 router.delete('/api/deleteProduct', deleteProductBySeller);
 //balance 
 router.post('/api/refillBalance',refillUserBalance);
+router.get('/api/sellerBalance', getSellerBalance);
 module.exports = router;

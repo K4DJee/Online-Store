@@ -1,7 +1,7 @@
 const {
     addProductInCartSQL, changeQuantityProductsInCartSQL, deleteProductInCartSQL,
     getProductsFromCartSQL, checkProductQuantitySQL, checkProductExistsSQL,
-    checkCartItemExistsSQL
+    checkCartItemExistsSQL, checkProductExistsSQL
 } = require('../models/cart');
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -9,9 +9,14 @@ const jwt = require('jsonwebtoken');
 
 const addProductInCart = async (req,res)=>{
     try{
-        const {token, productId, quantity, sellerId} = req.body;
+    const {productId, quantity, sellerId} = req.body;
+    const authHeader = req.headers['authorization'];
+    if(!authHeader){
+        return res.status(400).json({message:'Token required', success:false}); 
+    }
+    const token = authHeader.split(' ')[1];
     if(!token){
-        return res.status(401).json({message:'Token required', success:false});
+        return res.status(400).json({message:'Token required', success:false}); 
     }
     const decoded = jwt.verify(token,JWT_SECRET);
     if(!decoded || !decoded.userId){
@@ -49,9 +54,14 @@ const addProductInCart = async (req,res)=>{
 
 const changeQuantityProductsInCart = async (req,res)=>{
     try{
-        const {token, cartId, quantity} = req.body;
+        const { cartId, quantity} = req.body;
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
         if(!token){
-            return res.status(401).json({message:'Token required', success:false});
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const decoded = jwt.verify(token,JWT_SECRET);
         if(!decoded || !decoded.userId){
@@ -76,10 +86,10 @@ const changeQuantityProductsInCart = async (req,res)=>{
         }
         const changeQuantityProductsRow = await changeQuantityProductsInCartSQL(decoded.userId, cartId, quantity);
         if(changeQuantityProductsRow.affectedRows === 0){
-            return res.status(200).json({message:'Данный товар в корзине не найден', success:false});
+            return res.status(404).json({message:'Данный товар в корзине не найден', success:false});
         }
         if(changeQuantityProductsRow.changedRows === 0){
-            return res.status(200).json({message:'Данные товара в корзине не изменились', success:false});
+            return res.status(500).json({message:'Данные товара в корзине не изменились', success:false});
         }
         return res.status(200).json({message:'Данные товара успешно изменились', success:true, 
             changeQuantityProductsRow:changeQuantityProductsRow
@@ -93,9 +103,14 @@ const changeQuantityProductsInCart = async (req,res)=>{
 
 const deleteProductInCart = async (req,res)=>{
     try{
-        const {token, cartId} = req.body;
+        const {cartId} = req.body;
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
         if(!token){
-            return res.status(401).json({message:'Token required', success:false}); 
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const decoded = jwt.verify(token,JWT_SECRET);
         if(!decoded || !decoded.userId){
@@ -104,13 +119,16 @@ const deleteProductInCart = async (req,res)=>{
         if(!cartId){
             return res.status(400).json({message:'Wrong data', success:false});
         }
+        //Проверяем, есть ли такой товар
+        const existProduct = await checkProductExistsSQL(cartId);
+        if(!existProduct.cartId){
+            return res.status(404).json({message:'Товар в корзине не найден', success:false});
+        }
         const deleteProductInCartRow = await deleteProductInCartSQL(decoded.userId, cartId);
         if(deleteProductInCartRow.affectedRows === 0 || !deleteProductInCartRow){
             return res.status(500).json({message:'Ошибка удаления товара из корзина', success:false});
         }
-        return res.status(200).json({message:'Товар был успешно удалён из корзины', success:true, 
-            deleteProductInCartRow:deleteProductInCartRow
-        })
+        return res.status(200).json({message:'Товар был успешно удалён из корзины', success:true})
 
     }
     catch(error){
@@ -123,11 +141,11 @@ const getProductsFromCart = async (req,res)=>{
     try{
         const authHeader = req.headers['authorization'];
         if(!authHeader){
-            return res.status(401).json({message:'Token required', success:false}); 
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const token = authHeader.split(' ')[1];
         if(!token){
-            return res.status(401).json({message:'Token required', success:false}); 
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         const decoded = jwt.verify(token,JWT_SECRET);
         if(!decoded || !decoded.userId){
@@ -135,7 +153,7 @@ const getProductsFromCart = async (req,res)=>{
         }
         const cartProductsRow = await getProductsFromCartSQL(decoded.userId);
         if(cartProductsRow.length === 0 ){
-            return res.status(200).json({message:'Товаров не найдено', success:true, cartProductsRow:[]});
+            return res.status(200).json({message:'Товаров не найдено. Корзина пуста', success:true, cartProductsRow:[]});
         }
         return res.status(200).json({message:'Успешно выгружены товары', success:true, 
             cartProductsRow:cartProductsRow

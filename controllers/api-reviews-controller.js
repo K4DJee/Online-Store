@@ -1,7 +1,7 @@
 const {
     createReviewProductSQL, allProductReviewsSQL, averageProductRatingSQL,
     allUserReviewsSQL, deleteUserReviewSQL, changeReviewContentSQL, 
-    checkReviewOwnershipSQL
+    checkReviewOwnershipSQL, sellerProductSQL
 } = require('../models/review');
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -11,11 +11,16 @@ const jwt = require('jsonwebtoken');
 const newProductReview = async (req,res)=>{
     try{
         const {productId} = req.params;
-        const { token, rating, comment,} = req.body;
-    if(!token){
-        return res.status(401).json({message:'Token required', success:false});
-    }
-    if(!productId || !rating || !comment){
+        const {rating, comment, sellerName} = req.body;
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(401).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
+        if(!token){
+            return res.status(401).json({message:'Token required', success:false}); 
+        }
+    if(!productId || !rating || !comment || !sellerName){
         return res.status(400).json({message:'Wrong data. All fields required!', success:false})
     }
     if(rating > 5 || rating < 1) {
@@ -25,7 +30,12 @@ const newProductReview = async (req,res)=>{
     if(!decoded || !decoded.userId){
         return res.status(401).json({message:'Invalid token', success:false});
     }
-    const reviewRow = await createReviewProductSQL(productId, decoded.userId, rating, comment);
+
+    const sellerId = await sellerProductSQL(sellerName);
+    if(!sellerId){
+        return res.status(404).json({message:'Продавец товара не найден', success:false});
+    }
+    const reviewRow = await createReviewProductSQL(productId, decoded.userId, sellerId, rating, comment);
     if(!reviewRow.insertId){
         return res.status(500).json({message:'Ошибка создания отзыва', success:false});
     }
@@ -33,15 +43,20 @@ const newProductReview = async (req,res)=>{
     }
     catch(error){
         console.error(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 };
 
 const changeReviewContent = async(req,res)=>{
     try{
-        const {comment, rating, reviewId, token} = req.body;
+        const {comment, rating, reviewId} = req.body;
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
         if(!token){
-            return res.status(401).json({message:'Token required', success:false});
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         if(!comment || !rating || !reviewId){
             return res.status(400).json({message:'Wrong data', success:false});
@@ -68,15 +83,20 @@ const changeReviewContent = async(req,res)=>{
     }
     catch(error){
         console.error(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 };
 
 const deleteUserReview = async(req,res)=>{
     try{
-        const {reviewId, token} = req.body;
+        const {reviewId} = req.body;
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
         if(!token){
-            return res.status(401).json({message:'Token required', success:false});
+            return res.status(400).json({message:'Token required', success:false}); 
         }
         if(!reviewId){
             return res.status(400).json({message:'Wrong data', success:false});
@@ -87,7 +107,7 @@ const deleteUserReview = async(req,res)=>{
         }
         const checkReviewOwnershipRow = await checkReviewOwnershipSQL(reviewId, decoded.userId);
         if(checkReviewOwnershipRow.length === 0){
-            return res.status(403).json({message:'Вы не можете удалить данный отзыв', success:false});
+            return res.status(403).json({message:'Вы не можете удалить чужой отзыв', success:false});
         }
         const deletedReviewRow = await deleteUserReviewSQL(reviewId);
         if(deletedReviewRow.affectedRows === 0 || !deletedReviewRow){
@@ -106,41 +126,45 @@ const allProductReviews = async (req,res)=>{
     try{
         const {productId} = req.params;
     if(!productId){
-        return res.status(400).json({message:'Wrong data. ProductId required'});
+        return res.status(400).json({message:'Wrong data. ProductId required', success:false});
     }
     const reviewRows = await allProductReviewsSQL(productId);
     if(reviewRows.length === 0){
         res.status(200).json({message:'Отзывов у данного товара не найдено', success:true, reviewsRow:[]});
     }
     if(reviewRows.length > 0){
-        res.status(200).json({valid:true, reviewRows:reviewRows})
+        res.status(200).json({success:true, reviewRows:reviewRows})
     }
     }
     catch(error){
         console.error(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 }
 
 const allUserReviews = async(req,res)=>{
     try{
-        const {token} = req.body;
+    const authHeader = req.headers['authorization'];
+    if(!authHeader){
+        return res.status(400).json({message:'Token required', success:false}); 
+    }
+    const token = authHeader.split(' ')[1];
     if(!token){
-        res.status(400).json({message:'Wrong data. Token required'});
+        return res.status(400).json({message:'Token required', success:false}); 
     }
     const decoded = jwt.verify(token,JWT_SECRET);
     if(!decoded || !decoded.userId){
-        return res.status(401).json({message:'Invalid token', valid:false});
+        return res.status(401).json({message:'Invalid token', valid:false, success:false});
     }
     const userReviewsRows = await allUserReviewsSQL(decoded.userId);
     if(userReviewsRows.length === 0){
-        res.status(200).json({message:'У пользователя ещё нет отзывов', success:true, reviews:[]})
+        res.status(200).json({message:'У пользователя ещё нет отзывов', success:true, userReviewsRows:[]})
     }
-    res.status(200).json({userReviewsRows:userReviewsRows});
+    res.status(200).json({userReviewsRows:userReviewsRows, success:true});
     }
     catch(error){
         console.error(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 }
 
@@ -158,7 +182,7 @@ const averageProductRating = async (req,res)=>{
     }
     catch(error){
         console.error(error.message);
-        return res.status(500).json({message:'Internal Server Error'});
+        return res.status(500).json({message:'Internal Server Error', success:false});
     }
 }
 

@@ -104,8 +104,22 @@ const connection = require('../db.js');
         return rows.length > 0;
     }
 
+    async function checkProductExistsSQL(cartId){
+        return new Promise((resolve,reject)=>{
+            const sql = `SELECT * FROM carts WHERE cartId = ? LIMIT 1`
+            connection.query(sql,[cartId],(err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row[0]);
+                }
+            })
+        });
+    }
+
 module.exports = {
     addProductInCartSQL, changeQuantityProductsInCartSQL, deleteProductInCartSQL,
     getProductsFromCartSQL, checkProductQuantitySQL, checkProductExistsSQL,
-    checkCartItemExistsSQL
+    checkCartItemExistsSQL, checkProductExistsSQL
 };
