@@ -3,14 +3,22 @@ const {
     getProductsFromCartSQL, checkProductQuantitySQL, checkProductExistsSQL,
     checkCartItemExistsSQL, checkProductInCartExistsSQL
 } = require('../models/cart');
+
+const {
+    findSellerSQL
+} = require('../models/seller');
+require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 
 
 const addProductInCart = async (req,res)=>{
     try{
-    const {productId, quantity, sellerId} = req.body;
+    const {productId, quantity, sellerName} = req.body;
     const authHeader = req.headers['authorization'];
+    if(!productId || !quantity || !sellerName){
+        return res.status(400).json({message:'Wrong data', success:false});
+    }
     if(!authHeader){
         return res.status(400).json({message:'Token required', success:false}); 
     }
@@ -22,9 +30,11 @@ const addProductInCart = async (req,res)=>{
     if(!decoded || !decoded.userId){
         return res.status(401).json({message:'Invalid token', success:false});
     }
-    if(!productId || !quantity || !sellerId){
-        return res.status(400).json({message:'Wrong data', success:false});
+    const sellerRow = await findSellerSQL(sellerName);
+    if(!sellerRow.sellerId){
+        return res.status(404).json({message:"Продавец с таким именем не найден", success:false});
     }
+    const sellerId = sellerRow.sellerId;
     const productExists = await checkProductExistsSQL(productId);
         if (!productExists) {
             return res.status(404).json({ message: 'Товар не найден', success: false });
@@ -43,8 +53,7 @@ const addProductInCart = async (req,res)=>{
     if(!addProductInCartRow.insertId){
         return res.status(500).json({message:'Ошибка добавления товара в корзину', success:false});
     }
-    return res.status(200).json({message:'Товар успешно был добавлен в корзину', success:true, 
-        addProductInCartRow:addProductInCartRow});
+    return res.status(200).json({message:'Товар успешно был добавлен в корзину', success:true});
     }
     catch(error){
         console.error(error.message);

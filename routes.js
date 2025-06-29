@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { loginUser, registerUser, validateToken,
     userDataByToken, recoverAccount, verifyRecoverAccount,
-    changeUserPassword
+    changeUserPassword, deleteUserAccount, generateCodeForUserEmail, 
+    verifyCodeForChangeUserEmail, changeUserEmail
 } = require('./controllers/api-auth-controllers');
 const {
     getProducts, getProductPage,
@@ -20,11 +21,20 @@ const {
 const {
     createBecomeSeller, loginSeller, sellerData, validateSellerToken,
     addProductBySeller, getAllSellerProducts, changeProductInfoBySeller,
-    deleteProductBySeller
+    deleteProductBySeller, deleteSellerAccount, changeSalePriceBySeller
 } = require('./controllers/api-seller-controller');
 const {
     refillUserBalance, getSellerBalance
 } = require('./controllers/api-balance-controller');
+const {
+    getUserTransactions, getSellerTransactions
+} = require('./controllers/api-transaction-controller');
+const {
+    getUserPurchases
+} = require('./controllers/api-purchase-controller');
+const {
+    getAllProductCategories
+} = require('./controllers/api-category-controller');
 //auth
 router.post('/api/login', loginUser);
 router.post('/api/register', registerUser);
@@ -33,6 +43,10 @@ router.post('/api/userdata', userDataByToken);
 router.post('/api/account-recover', recoverAccount);
 router.post('/api/account-recover-code', verifyRecoverAccount);
 router.post('/api/changePassword', changeUserPassword);
+router.delete('/api/user/deleteAccount', deleteUserAccount);//new
+router.post('/api/1/changeUserEmail', generateCodeForUserEmail);//new
+router.post('/api/2/changeUserEmail', verifyCodeForChangeUserEmail);//new
+router.put('/api/3/changeUserEmail', changeUserEmail);//new
 //products
 router.get('/api/products', getProducts);
 router.get('/api/product/:productId', getProductPage);
@@ -54,11 +68,21 @@ router.post('/api/auth/login/seller',loginSeller);
 router.post('/api/auth/register/seller', createBecomeSeller);
 router.post('/api/auth/sellerData', sellerData);
 router.post('/api/auth/validateSellerToken', validateSellerToken);
-router.post('/api/addProduct', addProductBySeller);
+router.post('/api/createNewProduct', addProductBySeller);
 router.get('/api/getSellerProducts', getAllSellerProducts);
 router.put('/api/changeProductInfo',changeProductInfoBySeller);
 router.delete('/api/deleteProduct', deleteProductBySeller);
+router.delete('/api/seller/deleteAccount', deleteSellerAccount);//new
+router.put('/api/changeSalePrice', changeSalePriceBySeller);//new
 //balance 
 router.post('/api/refillBalance',refillUserBalance);
 router.get('/api/sellerBalance', getSellerBalance);
+//transactions
+router.get('/api/user/transactions', getUserTransactions);//new
+router.get('/api/seller/transactions', getSellerTransactions);//new
+//purchases
+router.get('/api/purchases', getUserPurchases);//new
+//category
+router.get('/api/allCategories', getAllProductCategories);//new
+
 module.exports = router;

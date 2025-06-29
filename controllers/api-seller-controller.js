@@ -1,10 +1,12 @@
 const {createBecomeSellerSQL, loginSellerSQL, findSellerSQL,
-    sellerDataSQL 
+    sellerDataSQL, deleteSellerAccountSQL
 } = require('../models/seller');
 const {addProductBySellerSQL, getAllSellerProductsSQL, checkProductOwnerSQL,
-    changeProductInfoBySellerSQL, deleteProductBySellerSQL
+    changeProductInfoBySellerSQL, deleteProductBySellerSQL,
+    changeSalePriceBySellerSQL
 } = require('../models/product');
 const {comparePassword} = require('../models/user');
+require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 
@@ -64,7 +66,7 @@ const loginSeller = async (req,res)=>{
         if(seller_db && isPasswordValid){
             const sellerToken = jwt.sign({sellerId:seller_db.sellerId, 
                 sellerName: seller_db.sellerName
-            }, JWT_SECRET, {expiresIn:'3h'});
+            }, JWT_SECRET, {expiresIn:'124h'});
             console.log('Succsess login seller. His token: ', sellerToken);
             return res.status(200).json({sellerToken});
         } 
@@ -201,11 +203,12 @@ const changeProductInfoBySeller = async (req,res)=>{
             return res.status(400).json({message:'Token required', success:false}); 
         }   
         console.log(sellerToken);
-        const {productId, name, description, price, quantity, categoryId, imageUrl, isActive} = req.body;
-        if (!sellerToken || !productId || !name || !description || !price || !quantity || !categoryId || !imageUrl || !isActive) {
+        const {productId, name, description, price, salePrice, quantity, categoryId, imageUrl, isActive} = req.body;
+        if (!sellerToken || !productId || !name || !description || !price || !salePrice || !quantity || !categoryId || !imageUrl || !isActive) {
             return res.status(400).json({ success: false, message: 'Wrong data' });
         }
         var price2 = parseFloat(price);
+        var salePrice2 = parseFloat(salePrice);
         var quantity2 = parseInt(quantity, 10);
         var isActive2 = parseInt(isActive);
         const decoded = jwt.verify(sellerToken,JWT_SECRET);
@@ -222,7 +225,7 @@ const changeProductInfoBySeller = async (req,res)=>{
             isActive2 = 0;
         }
         const changeProductRow = await changeProductInfoBySellerSQL(
-            name, description, price2, quantity2, categoryId, imageUrl, isActive2, decoded.sellerId, productId
+            name, description, price2, salePrice2, quantity2, categoryId, imageUrl, isActive2, decoded.sellerId, productId
         );
         if(changeProductRow.affectedRows === 0){
             return res.status(500).json({message:'Не удалось изменить данные товара', success:false});
@@ -271,10 +274,68 @@ const deleteProductBySeller = async (req,res)=>{
         console.error('Error validating token:', error.message);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
+};
+
+const deleteSellerAccount = async (req,res)=>{
+    try{
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const decoded = jwt.verify(sellerToken,JWT_SECRET);
+        if(!decoded || !decoded.sellerId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        const deleteSellerAccountRow = await deleteSellerAccountSQL(decoded.sellerId);
+        if(deleteSellerAccountRow.affectedRows === 0 || !deleteSellerAccountRow){
+            return res.status(500).json({message:'Ошибка удаления аккаунта', success:false});
+        }
+        return res.status(200).json({message:'Аккаунт удалён', success:true});
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+const changeSalePriceBySeller = async(req,res)=>{
+    try{
+        const {salePrice, productId} = req.body;
+        if(!salePrice || !productId){
+            return res.status(400).json({message:'Wrong data', success:false});
+        }
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const sellerToken = authHeader.split(' ')[1];
+        if(!sellerToken){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const decoded = jwt.verify(sellerToken,JWT_SECRET);
+        if(!decoded || !decoded.sellerId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        var salePrice2 = parseFloat(salePrice);
+        const changedRow = await changeSalePriceBySellerSQL(salePrice2, decoded.sellerId, productId);
+        if(changedRow.affectedRows === 0){
+            console.log(changedRow);
+            return res.status(500).json({message:'Ошибка изменения скидочной цены', success:false});
+        }
+        return res.status(200).json({message:'Успешное изменение скидочной цены', success:true})
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' }); 
+    }
 }
 
 module.exports = {
     createBecomeSeller, loginSeller, sellerData, validateSellerToken,
     addProductBySeller, getAllSellerProducts, changeProductInfoBySeller,
-    deleteProductBySeller
+    deleteProductBySeller, deleteSellerAccount, changeSalePriceBySeller
 }

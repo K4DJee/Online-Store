@@ -52,13 +52,15 @@ const connection = require('../db.js');
         return new Promise((resolve,reject)=>{
             const sql = `
             SELECT carts.cartId, carts.productId, carts.quantity, carts.addedAt,
+            sellers.sellerName AS sellerName,
             products.name AS productName,
             products.description AS productDescription,
             products.price AS productPrice,
             products.imageUrl AS imageUrl
             FROM carts 
             LEFT JOIN products ON carts.productId = products.productId
-            WHERE userId = ?
+            LEFT JOIN sellers ON carts.sellerId = sellers.sellerId
+            WHERE carts.userId = ?
             `;
             connection.query(sql,[userId], (err,rows)=>{
                 if(err){

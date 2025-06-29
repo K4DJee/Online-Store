@@ -88,8 +88,23 @@ async function sellerDataSQL(sellerId){
             }
         });
     })
+};
+
+async function deleteSellerAccountSQL(sellerId){
+    return new Promise((resolve,reject)=>{
+        const sql = `DELETE FROM sellers WHERE sellerId = ? `
+        connection.query(sql,[sellerId],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row)
+            }
+        });
+    });
 }
 
 module.exports = {
-    createBecomeSellerSQL, loginSellerSQL, findSellerSQL, sellerDataSQL
+    createBecomeSellerSQL, loginSellerSQL, findSellerSQL, sellerDataSQL,
+    deleteSellerAccountSQL
 }

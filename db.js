@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+    salePrice DECIMAL(10, 2) DEFAULT NULL CHECK (salePrice >= 0), -- Цена со скидкой (опционально) 
     quantity INT DEFAULT 0 CHECK (quantity >= 0),
     categoryId INT DEFAULT NULL,
     imageUrl VARCHAR(512),

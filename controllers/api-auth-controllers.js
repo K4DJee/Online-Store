@@ -7,7 +7,8 @@ const recoveryCodes = require('../storage.js');
 const {
     loginUserSQL, comparePassword, registerUserSQL, 
     findUserByIdSQL, createUserBalanceSQL, findUserSQL,
-    getBalanceByIdSQL, checkExistSQL, changePassUserSQL   
+    getBalanceByIdSQL, checkExistSQL, changePassUserSQL,
+    deleteUserAccountSQL, changeUserEmailSQL
 } = require('../models/user');
 
 
@@ -213,7 +214,147 @@ const verifyRecoverAccount = async(req,res)=>{
         console.error(error.message);
     }
 }
+
+const generateCodeForUserEmail = async (req,res)=>{
+    try{
+        const {email} = req.body;
+        if(!email){
+            return res.status(400).json({message:'email required', valid:false});
+        }
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
+        if(!token){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const decoded = jwt.verify(token,JWT_SECRET);
+        if(!decoded || !decoded.userId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        const valid_user = await checkExistSQL(email);
+        if(valid_user.length > 0){
+            const code = Math.floor(100000 + Math.random() * 900000);//Generate 6 symbols code
+            const expiresAt = Date.now() + 5 * 60 * 1000;// 5 minutes expires
+            recoveryCodes.set(code.toString(), { email, expiresAt });
+                const info = await transporter.sendMail({
+                from: '"KLANSHOP" <klanshopk4dje@mail.ru>',
+                to: `${email}`,
+                subject: "Смена почты аккаунта",
+                text: "Сгенерированный код для смены почты.",
+                html: `
+                <b>Сгенерированный код:  ${code}. Вам нужно ввести его для смены почты</b>
+                <b>Не присылайте его никому!🤫</b>
+                ` // html body
+                });
+                console.log("Message sent: %s", info.messageId);
+                if(!info.messageId){
+                    return res.status(500).json({message:'Send error', success:false});
+                }
+            return res.status(200).json({success:true, message:'Код был успешно отправлен'});
+        }
+        else{
+            return res.status(404).json({message:'This email not exist', success:false});
+        }
+    }
+    catch(error){
+        console.error(error.message);
+        return res.status(500).json({message:'Internal Server Error', success:false}); 
+    }
+};
+
+const verifyCodeForChangeUserEmail = async(req,res)=>{
+    try{
+        const {code} = req.body;
+        if(!code){
+            return res.status(400).json({message: 'code empty', success:false});
+        }
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
+        if(!token){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const decoded = jwt.verify(token,JWT_SECRET);
+        if(!decoded || !decoded.userId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        const entry = recoveryCodes.get(code);
+        if(!entry){
+        return res.status(401).json({message:'Invalid or expired code', success:false});
+        }
+        if (Date.now() > entry.expiresAt) {
+            recoveryCodes.delete(code); // Очистка просроченного кода
+            return res.status(419).json({ message: 'Code has expired', success: false });
+        }
+        recoveryCodes.delete(code);//delete success code
+        const changeToken = jwt.sign({userId:decoded.userId, action:'changeEmail'}, JWT_SECRET, {expiresIn:'5min'})
+        if(!changeToken){
+            res.status(500).json({message:'Ошибка создания токена', success:false});
+        }
+        return res.status(200).json({message: 'Success verify code', success:true, changeToken:changeToken});
+    }
+    catch(error){
+        console.log(error.message);
+        return res.status(500).json({message:'Internal Server Error', success:false});
+    }
+}
+
+const changeUserEmail = async(req,res)=>{
+    try{
+        const {newEmail, changeToken} = req.body;
+        if(!newEmail || !changeToken){
+            return res.status(400).json({message:'email required', success:false});
+        }
+        const decoded = jwt.verify(changeToken,JWT_SECRET);
+        if(!decoded || !decoded.userId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+
+        const changeUserEmailRow = await changeUserEmailSQL(newEmail, decoded.userId);
+        if(changeUserEmailRow.affectedRows === 0){
+            return res.status(500).json({message:'Ошибка смены почты',success:false})
+        }
+        return res.status(200).json({message:'Успешная смена почты аккаунта', success:true});
+    }
+    catch(error){
+        console.error(error.message);
+        return res.status(500).json({message:'Internal Server Error', success:false}); 
+    }
+}
+
+const deleteUserAccount = async (req,res)=>{
+    try{
+        const authHeader = req.headers['authorization'];
+        if(!authHeader){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const token = authHeader.split(' ')[1];
+        if(!token){
+            return res.status(400).json({message:'Token required', success:false}); 
+        }
+        const decoded = jwt.verify(token,JWT_SECRET);
+        if(!decoded || !decoded.userId){
+            return res.status(401).json({message:'Invalid token', success:false});
+        }
+        const deleteUserAccountRow = await deleteUserAccountSQL(decoded.userId);
+        if(deleteUserAccountRow.affectedRows === 0 || !deleteUserAccountRow){
+            return res.status(500).json({message:'Ошибка удаления аккаунта', success:false});
+        }
+        return res.status(200).json({message:'Аккаунт удалён', success:true});
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+}
+
 module.exports = {
     loginUser, registerUser, validateToken, userDataByToken,
-    recoverAccount, verifyRecoverAccount, changeUserPassword
+    recoverAccount, verifyRecoverAccount, changeUserPassword,
+    deleteUserAccount, generateCodeForUserEmail, verifyCodeForChangeUserEmail,
+    changeUserEmail
     };

@@ -127,8 +127,36 @@ async function comparePassword(candidatePassword, storedPassword) {
     return await bcrypt.compare(candidatePassword, storedPassword);
 }
 
+async function deleteUserAccountSQL(userId){
+    return new Promise((resolve,reject)=>{
+        const sql = `DELETE FROM users WHERE userId = ? `
+        connection.query(sql,[userId],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row);
+            } 
+        })
+    });
+};
+
+async function changeUserEmailSQL(email, userId){
+    return new Promise((resolve,reject)=>{
+        const sql = `UPDATE klanUsers SET email = ? WHERE userId = ?`
+        connection.query(sql,[email,userId],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row);
+            }
+        })
+    })
+}
+
 module.exports = {
     loginUserSQL, comparePassword,registerUserSQL, findUserByIdSQL,
     createUserBalanceSQL, findUserSQL, getBalanceByIdSQL, checkExistSQL,
-    changePassUserSQL
+    changePassUserSQL, deleteUserAccountSQL, changeUserEmailSQL
 };

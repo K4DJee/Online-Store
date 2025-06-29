@@ -1,12 +1,28 @@
 const connection = require('../db.js');
+const { connect } = require('../routes.js');
+const { createReviewProductSQL } = require('./review.js');
 
     async function getProductsSQL(){
         return new Promise((resolve,reject)=>{
-            const sql = `SELECT products.*,
+            const sql = `SELECT
+            products.productId,
+            products.name,
+            products.description,
+            products.price,
+            products.salePrice,
+            products.quantity,
+            categories.categoryName AS productCategory,
+            products.imageUrl,
+            products.createdAt,
+            products.updatedAt,
+            products.isActive,
+            sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating), 1), 0) AS averageRating,
             COUNT (reviews.reviewId) AS reviewCount
             FROM products
             LEFT JOIN reviews ON products.productId = reviews.productId
+            LEFT JOIN sellers ON products.sellerId = sellers.sellerId
+            LEFT JOIN categories ON products.categoryId = categories.categoryId
             WHERE isActive = 1
             GROUP BY products.productId`; 
             connection.query(sql,(err,rows)=>{
@@ -23,11 +39,25 @@ const connection = require('../db.js');
 
     async function  getProductByIdSQL(productId){
         return new Promise((resolve,reject)=>{
-            const sql = `SELECT products.*,
+            const sql = `SELECT
+            products.productId,
+            products.name,
+            products.description,
+            products.price,
+            products.salePrice,
+            products.quantity,
+            categories.categoryName AS productCategory,
+            products.imageUrl,
+            products.createdAt,
+            products.updatedAt,
+            products.isActive,
+            sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
             COUNT (reviews.reviewId) AS reviewCount
             FROM products
             LEFT JOIN reviews ON products.productId = reviews.productId
+            LEFT JOIN sellers ON products.sellerId = sellers.sellerId
+            LEFT JOIN categories ON products.categoryId = categories.categoryId
             WHERE products.productId = ?
             GROUP BY products.productId`;
             connection.query(sql, [productId], (err,row)=>{
@@ -95,9 +125,27 @@ const connection = require('../db.js');
 
     async function getAllSellerProductsSQL(sellerId){
         return new Promise((resolve,reject)=>{
-            const sql = `
-            SELECT * FROM products WHERE sellerId = ?
-            `;
+            const sql = `SELECT
+            products.productId,
+            products.name,
+            products.description,
+            products.price,
+            products.salePrice,
+            products.quantity,
+            categories.categoryName AS productCategory,
+            products.imageUrl,
+            products.createdAt,
+            products.updatedAt,
+            products.isActive,
+            sellers.sellerName as sellerName,
+            IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
+            COUNT (reviews.reviewId) AS reviewCount
+            FROM products
+            LEFT JOIN reviews ON products.productId = reviews.productId
+            LEFT JOIN sellers ON products.sellerId = sellers.sellerId
+            LEFT JOIN categories ON products.categoryId = categories.categoryId
+            WHERE products.sellerId = ?
+            GROUP BY products.productId`;
             connection.query(sql,[sellerId],(err,rows)=>{
                 if(err){
                     reject(err);
@@ -109,14 +157,15 @@ const connection = require('../db.js');
         })
     }
 
-    async function changeProductInfoBySellerSQL(name, description, price, quantity, categoryId, imageUrl, isActive,sellerId, productId){
+    async function changeProductInfoBySellerSQL(name, description, price, salePrice, quantity, categoryId, imageUrl, isActive,sellerId, productId){
         return new Promise((resolve,reject)=>{
             const sql = `   
             UPDATE products SET name = ?, description = ?, price = ?, 
+            salePrice = ?,
             quantity = ?, categoryId = ?, imageUrl = ?, isActive = ?
             WHERE sellerId = ? AND productId = ?
             `;
-            connection.query(sql,[name, description, price, quantity, categoryId, imageUrl, isActive, sellerId, productId],(err,row)=>{
+            connection.query(sql,[name, description, price, salePrice, quantity, categoryId, imageUrl, isActive, sellerId, productId],(err,row)=>{
                 if(err){
                     reject(err);
                 }
@@ -301,11 +350,26 @@ const connection = require('../db.js');
                 })
             });
         });
+    };
+
+    async function changeSalePriceBySellerSQL(salePrice, sellerId, productId){
+        return new Promise((resolve,reject)=>{
+            const sql = `UPDATE products SET salePrice = ? WHERE sellerId = ? AND productId = ?`
+            connection.query(sql,[salePrice, sellerId, productId],(err,row)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(row);
+                }
+            })
+        })
     }
 
 module.exports = {
     getProductsSQL, getProductByIdSQL, addProductBySellerSQL, checkProductOwnerSQL,
     getAllSellerProductsSQL, changeProductInfoBySellerSQL, deleteProductBySellerSQL,
+    changeSalePriceBySellerSQL,
 
     buyProductTransactionSQL
 }
