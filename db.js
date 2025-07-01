@@ -1,12 +1,12 @@
 const mysql = require('mysql2');
 require('dotenv').config();
-
 const connection = mysql.createConnection({
     host:'MySQL-5.7',
     user:'root',
     database:'klan_db',
     password: ''
 });
+
 
 const createUsersTable = `
 CREATE TABLE IF NOT EXISTS klanUsers (
@@ -70,6 +70,17 @@ CREATE TABLE IF NOT EXISTS carts (
     FOREIGN KEY (productId) REFERENCES products(productId)
 ) ENGINE=InnoDB;
 `;//Корзина
+const createFavouriteTable = `
+CREATE TABLE IF NOT EXISTS favourite (
+    favouriteId INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    productId INT NOT NULL,
+    sellerId INT NOT NULL,
+    addedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES klanUsers(userId),
+    FOREIGN KEY (productId) REFERENCES products(productId)
+) ENGINE=InnoDB;
+`;//Избранное
 const createProductImgsTable = `
 CREATE TABLE IF NOT EXISTS product_imgs (
     imageId INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -103,6 +114,7 @@ CREATE TABLE IF NOT EXISTS purchases(
     sellerName VARCHAR(255) NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
     price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    received BOOLEAN NOT NULL DEFAULT FALSE,
     purchasedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES klanUsers(userId) ON DELETE CASCADE,
     FOREIGN KEY (sellerId) REFERENCES sellers(sellerId) ON DELETE CASCADE
@@ -130,8 +142,9 @@ CREATE TABLE IF NOT EXISTS shippings(
     productId INT NOT NULL,
     purchaseId INT NOT NULL,
     sellerId INT NOT NULL,
+    userId INT NOT NULL,
     receivedDate DATE,
-    received BOOLEAN DEFAULT FALSE,
+    received BOOLEAN  NOT NULL DEFAULT FALSE,
     shippedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (productId) REFERENCES products(productId) ON DELETE CASCADE,
     FOREIGN KEY (purchaseId) REFERENCES purchases(purchaseId) ON DELETE CASCADE,
@@ -174,7 +187,9 @@ async function setupDatabase() {
         await createTable(createShippingsTable);     // 9. shippings
         await createTable(createBalanceTable);       // 10. balance
         await createTable(createTransactionsTable);  // 11. transactions
+        await createTable(createFavouriteTable);     // 12. favourite
         console.log("✅ Все таблицы успешно созданы!");
+
     } catch (error) {
         console.error("❌ Ошибка при настройке БД:", error);
     }

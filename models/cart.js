@@ -56,6 +56,7 @@ const connection = require('../db.js');
             products.name AS productName,
             products.description AS productDescription,
             products.price AS productPrice,
+            products.salePrice AS salePrice,
             products.imageUrl AS imageUrl
             FROM carts 
             LEFT JOIN products ON carts.productId = products.productId

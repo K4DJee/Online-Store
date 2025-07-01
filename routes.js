@@ -35,6 +35,12 @@ const {
 const {
     getAllProductCategories
 } = require('./controllers/api-category-controller');
+const {
+    addToFavorite, getAllProductsInFavorite
+} = require('./controllers/api-favourite-controller');
+const {
+    receiveShippingProduct, getAllShippingProducts
+} = require('./controllers/api-shipping-controller');
 //auth
 router.post('/api/login', loginUser);
 router.post('/api/register', registerUser);
@@ -84,5 +90,10 @@ router.get('/api/seller/transactions', getSellerTransactions);//new
 router.get('/api/purchases', getUserPurchases);//new
 //category
 router.get('/api/allCategories', getAllProductCategories);//new
-
+//favourite
+router.post('/api/addToFavourite', addToFavorite);//new
+router.get('/api/favourite', getAllProductsInFavorite);//new
+//shipping
+router.get('/api/shippings', getAllShippingProducts);//new
+router.put('/api/receiveProduct', receiveShippingProduct);//new
 module.exports = router;

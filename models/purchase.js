@@ -6,7 +6,8 @@ async function getUserPurchasesSQL(userId){
         sellerName,
         quantity,
         price, 
-        purchasedAt 
+        purchasedAt,
+        received
         FROM purchases WHERE userId = ?`;
         connection.query(sql,[userId],(err,rows)=>{
             if(err){

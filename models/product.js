@@ -258,13 +258,14 @@ const { createReviewProductSQL } = require('./review.js');
         
                                 // 4. Запись доставки
                                 const shippingSql = `
-                                    INSERT INTO shippings(productId, purchaseId, sellerId, receivedDate)
-                                    VALUES (?, ?, ?, ?)
+                                    INSERT INTO shippings(productId, purchaseId, sellerId, userId, receivedDate)
+                                    VALUES (?, ?, ?, ?, ?)
                                 `;
                                 connection.query(shippingSql, [
                                     productId,
                                     purchaseId,
                                     sellerId,
+                                    userId,
                                     receivedDate
                                 ], (err, shippingResult) => {
                                     if (err) {
