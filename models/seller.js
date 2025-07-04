@@ -102,9 +102,33 @@ async function deleteSellerAccountSQL(sellerId){
             }
         });
     });
+};
+
+
+async function getSellerPageInfoSQL(sellerName){
+    return new Promise((resolve,reject)=>{
+        const sql = `SELECT 
+        sellers.sellerName,
+        sellers.description,
+        sellers.createdAt,
+        IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
+        COUNT (reviews.reviewId) AS reviewCount
+        FROM sellers 
+        LEFT JOIN reviews ON sellers.sellerId = reviews.sellerId
+        WHERE sellers.sellerName = ?
+        GROUP BY sellers.sellerId`
+        connection.query(sql,[sellerName],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row[0]);
+            }
+        })
+    })
 }
 
 module.exports = {
     createBecomeSellerSQL, loginSellerSQL, findSellerSQL, sellerDataSQL,
-    deleteSellerAccountSQL
+    deleteSellerAccountSQL, getSellerPageInfoSQL
 }

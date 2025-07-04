@@ -3,7 +3,7 @@ const router = express.Router();
 const { loginUser, registerUser, validateToken,
     userDataByToken, recoverAccount, verifyRecoverAccount,
     changeUserPassword, deleteUserAccount, generateCodeForUserEmail, 
-    verifyCodeForChangeUserEmail, changeUserEmail
+    verifyCodeForChangeUserEmail, changeUserEmail, getUserPageInfo
 } = require('./controllers/api-auth-controllers');
 const {
     getProducts, getProductPage,
@@ -21,7 +21,8 @@ const {
 const {
     createBecomeSeller, loginSeller, sellerData, validateSellerToken,
     addProductBySeller, getAllSellerProducts, changeProductInfoBySeller,
-    deleteProductBySeller, deleteSellerAccount, changeSalePriceBySeller
+    deleteProductBySeller, deleteSellerAccount, changeSalePriceBySeller,
+    sellerPageInfo
 } = require('./controllers/api-seller-controller');
 const {
     refillUserBalance, getSellerBalance
@@ -41,6 +42,13 @@ const {
 const {
     receiveShippingProduct, getAllShippingProducts
 } = require('./controllers/api-shipping-controller');
+const {
+    stripeWebhook
+} = require('./stripeWebhook');
+const {
+    createTopUpSession
+} = require('./controllers/api-stripe-controller.js');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 //auth
 router.post('/api/login', loginUser);
 router.post('/api/register', registerUser);
@@ -53,6 +61,7 @@ router.delete('/api/user/deleteAccount', deleteUserAccount);//new
 router.post('/api/1/changeUserEmail', generateCodeForUserEmail);//new
 router.post('/api/2/changeUserEmail', verifyCodeForChangeUserEmail);//new
 router.put('/api/3/changeUserEmail', changeUserEmail);//new
+router.get('/api/user/:username', getUserPageInfo);//new
 //products
 router.get('/api/products', getProducts);
 router.get('/api/product/:productId', getProductPage);
@@ -80,6 +89,7 @@ router.put('/api/changeProductInfo',changeProductInfoBySeller);
 router.delete('/api/deleteProduct', deleteProductBySeller);
 router.delete('/api/seller/deleteAccount', deleteSellerAccount);//new
 router.put('/api/changeSalePrice', changeSalePriceBySeller);//new
+router.get('/api/seller/:sellerName', sellerPageInfo)//new
 //balance 
 router.post('/api/refillBalance',refillUserBalance);
 router.get('/api/sellerBalance', getSellerBalance);
@@ -96,4 +106,35 @@ router.get('/api/favourite', getAllProductsInFavorite);//new
 //shipping
 router.get('/api/shippings', getAllShippingProducts);//new
 router.put('/api/receiveProduct', receiveShippingProduct);//new
+//stripe
+router.post('/api/createTopUpSession',createTopUpSession)//new
+//temporarily
+router.get('/success', async (req, res) => {
+    const sessionId = req.query.session_id;
+
+    if (!sessionId) {
+        return res.status(400).send('Нет session_id');
+    }
+
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        // Здесь можно получить данные о пользователе, товаре и т.д.
+        res.send(`
+            <h1>✅ Спасибо за покупку, ${session.client_reference_id}!</h1>
+            <p>Оплата прошла успешно.</p>
+            <a href="/">На главную</a>
+        `);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Ошибка при получении данных сессии');
+    }
+});
+
+router.get('/cancel', (req, res) => {
+    res.send(`
+        <h1>❌ Оплата отменена</h1>
+        <p>Вы можете попробовать снова.</p>
+        <a href="/">Вернуться на главную</a>
+    `);
+});
 module.exports = router;

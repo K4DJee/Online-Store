@@ -62,9 +62,30 @@ async function findUserSQL(username, email){
     })
 }
 
+
 async function findUserByIdSQL(userId){
     return new Promise((resolve,reject)=>{
-        const sql = `SELECT * FROM klanUsers WHERE userId = ?`;
+        const sql = `SELECT 
+        klanUsers.userId,
+        klanUsers.username,
+        klanUsers.email,
+        klanUsers.regDate,
+        klanUsers.role,
+        COALESCE(carts.productsInCart) AS productsInCart,
+        COALESCE(reviews.reviewCount, 0) AS reviewCount
+        FROM klanUsers
+        LEFT JOIN (
+            SELECT userId, COUNT(reviewId) AS reviewCount
+            FROM reviews
+            GROUP BY userId
+        ) reviews ON klanUsers.userId = reviews.userId
+        LEFT JOIN (
+            SELECT userId, COUNT(cartId) AS productsInCart
+            FROM carts
+            GROUP BY userId
+        ) carts ON klanUsers.userId = carts.userId
+        WHERE klanUsers.userId = ?
+        GROUP BY klanUsers.userId`;
         connection.query(sql,[userId],(err,row)=>{
             if(err){
                 reject(err);
@@ -153,10 +174,33 @@ async function changeUserEmailSQL(email, userId){
             }
         })
     })
+};
+
+
+async function getUserPageInfoSQL(username){
+    return new Promise((resolve,reject)=>{
+        const sql = `SELECT 
+        username,
+        regDate,
+        COUNT (reviews.reviewId) AS reviewCount
+        FROM klanUsers 
+        LEFT JOIN reviews ON klanUsers.userId = reviews.userId
+        WHERE username = ?
+        GROUP BY klanUsers.userId`
+        connection.query(sql,[username],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row[0]);
+            }
+        })
+    })
 }
 
 module.exports = {
     loginUserSQL, comparePassword,registerUserSQL, findUserByIdSQL,
     createUserBalanceSQL, findUserSQL, getBalanceByIdSQL, checkExistSQL,
-    changePassUserSQL, deleteUserAccountSQL, changeUserEmailSQL
+    changePassUserSQL, deleteUserAccountSQL, changeUserEmailSQL,
+    getUserPageInfoSQL
 };

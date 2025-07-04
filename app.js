@@ -4,6 +4,11 @@ const port = 8000;
 const router = require('./routes');
 const cors = require('cors');
 app.use(express.urlencoded({extended:true}));
+const { stripeWebhook } = require('./stripeWebhook');
+app.post('/stripe-webhook',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
 app.use(express.json());
 app.use(cors()); // Разрешает все домены
 app.use(router);

@@ -8,7 +8,8 @@ const {
     loginUserSQL, comparePassword, registerUserSQL, 
     findUserByIdSQL, createUserBalanceSQL, findUserSQL,
     getBalanceByIdSQL, checkExistSQL, changePassUserSQL,
-    deleteUserAccountSQL, changeUserEmailSQL
+    deleteUserAccountSQL, changeUserEmailSQL,
+    getUserPageInfoSQL
 } = require('../models/user');
 
 
@@ -31,7 +32,7 @@ const loginUser  = async(req,res)=>{
             return res.status(401).json({message:'Wrong user password'});
         }
         if(user_db.length > 0 && isPasswordValid){
-            const token = jwt.sign({userId:user_db[0].userId, username:user_db[0].username}, JWT_SECRET, {expiresIn:'3h'});
+            const token = jwt.sign({userId:user_db[0].userId, username:user_db[0].username}, JWT_SECRET, {expiresIn:'123h'});
             console.log('Succsess login user. His token: ', token);
             return res.status(200).json({token});
         }
@@ -350,11 +351,29 @@ const deleteUserAccount = async (req,res)=>{
         console.error('Error validating token:', error.message);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
+};
+
+const getUserPageInfo = async(req,res)=>{
+    try{
+        const { username} = req.params;
+        if(!username){
+            return res.status(400).json({message:'Wrong data. Username required', success:false});
+        }
+        const userPageInfoRow = await getUserPageInfoSQL(username);
+        if(!userPageInfoRow){
+            return res.statuS(404).json({message:'Пользователь не найден', success:false});
+        }
+        return res.status(200).json({message:'Пользователь успешно был найден', success:true,userPageInfo:userPageInfoRow})
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
 }
 
 module.exports = {
     loginUser, registerUser, validateToken, userDataByToken,
     recoverAccount, verifyRecoverAccount, changeUserPassword,
     deleteUserAccount, generateCodeForUserEmail, verifyCodeForChangeUserEmail,
-    changeUserEmail
+    changeUserEmail, getUserPageInfo
     };

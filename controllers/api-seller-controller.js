@@ -1,5 +1,6 @@
 const {createBecomeSellerSQL, loginSellerSQL, findSellerSQL,
-    sellerDataSQL, deleteSellerAccountSQL
+    sellerDataSQL, deleteSellerAccountSQL,
+    getSellerPageInfoSQL
 } = require('../models/seller');
 const {addProductBySellerSQL, getAllSellerProductsSQL, checkProductOwnerSQL,
     changeProductInfoBySellerSQL, deleteProductBySellerSQL,
@@ -332,10 +333,29 @@ const changeSalePriceBySeller = async(req,res)=>{
         console.error('Error validating token:', error.message);
         res.status(500).json({ success: false, message: 'Internal Server Error' }); 
     }
+};
+
+const sellerPageInfo = async (req,res)=>{
+    try{
+        const {sellerName} = req.params;
+        if(!sellerName){
+            return res.status(400).json({message:'Wrong data. SellerName required', success:false});
+        }
+        const sellerPageInfoRow = await getSellerPageInfoSQL(sellerName);
+        if(!sellerPageInfoRow){
+            return res.status(404).json({message:'Продавец не найден', success:false});
+        }
+        return res.status(200).json({message:'Продавец успешно был найден', success:true, sellerPageInfo:sellerPageInfoRow});
+    }
+    catch(error){
+        console.error('Error validating token:', error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' }); 
+    }
 }
 
 module.exports = {
     createBecomeSeller, loginSeller, sellerData, validateSellerToken,
     addProductBySeller, getAllSellerProducts, changeProductInfoBySeller,
-    deleteProductBySeller, deleteSellerAccount, changeSalePriceBySeller
+    deleteProductBySeller, deleteSellerAccount, changeSalePriceBySeller,
+    sellerPageInfo
 }

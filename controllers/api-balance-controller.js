@@ -9,8 +9,8 @@ const jwt = require('jsonwebtoken');
 const refillUserBalance = async(req,res) =>{
     try{
         const { amount} = req.body;
-        if(!amount){
-            res.status(400).json({message:'Wrong data', success:false});
+        if(!amount || typeof amount!= 'number' || !amount <=0){
+            res.status(400).json({message:'Укажите корректную сумму пополнения', success:false});
         }
         const authHeader = req.headers['authorization'];
         if(!authHeader){
@@ -24,7 +24,6 @@ const refillUserBalance = async(req,res) =>{
         if(!decoded || !decoded.userId){
             return res.status(401).json({message:'Invalid token'});
         }
-        
         const refillBalanceRow = await refillUserBalanceSQL(decoded.userId, amount);
         if(refillBalanceRow.affectedRows === 0){
             console.log(refillBalanceRow)

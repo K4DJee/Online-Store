@@ -125,7 +125,7 @@ async function sellerProductSQL(sellerName){
                 reject(err);
             }
             else{
-                resolve(row[0]);
+                resolve(row[0].sellerId);
             }
         })
     });
