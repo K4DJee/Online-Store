@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import axios, {AxiosError} from 'axios';
 import {ref, provide} from 'vue';
     const email = ref('');
     const nextStage = ref(false);

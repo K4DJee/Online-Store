@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import axios from 'axios';
 import {ref, provide} from 'vue';
     // const code = ref('');
     const nextStage = ref(false);

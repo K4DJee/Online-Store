@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import type { IProduct } from '~/types/types'
-import axios from 'axios'
+
 
 const { addToCart } = useCart()
+
+interface responseProducts {
+	products: [IProduct],
+    success: boolean
+}
 
 const products = ref<IProduct[]>([])
 const profileStore = useProfileStore()
@@ -10,19 +15,32 @@ const isAuthenticated = computed(() => profileStore.isAuthenticated)
 const isAuthModal = ref(false);
 async function fetchProducts() {
 	try {
-		const response = await axios.get('http://localhost:8000/api/products')
-
-		products.value = response.data.products
-	} catch (error) {
-		console.log('Error: ', error)
+		const response = await $fetch<responseProducts>('http://localhost:8000/api/products', {
+			method:'GET',
+		})
+		if(response?.products){
+			products.value = response.products
+			return products.value;
+        }
+		console.log('products:',response.products);
+	} catch(error: any){
+		const status = error?.status;
+		switch (status) {
+	case 500:
+		console.log('Ошибка сервера.');
+	break;
+	default:
+		console.log('Произошла неизвестная ошибка.');
+	break;
 	}
+		}
 }
 
 async function handleAddProduct(productId: number) {
 	console.log('productId: ', productId)
 	// if(isAuthenticated.value === true){
 	// 	isAuthModal.value = false;
-		addToCart(productId);
+		// addToCart(productId);
 	// }
 	// else{
 	// 	isAuthModal.value = true;

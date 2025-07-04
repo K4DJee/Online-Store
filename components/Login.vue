@@ -2,7 +2,7 @@
 import type { AuthState } from '../types/types'
 import type { IUser } from '~/types/types'
 
-import axios, { AxiosError } from 'axios'
+
 import { ref, inject } from 'vue'
 
 const router = useRouter()

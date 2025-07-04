@@ -61,7 +61,7 @@ async function fetchUserData(actualToken: string) {
 				},
 			}
 		)
-		currentUser.value = userResponse
+		// currentUser.value = userResponse
 		profileStore.user = userResponse
 		// profileStore.setUser(userResponse)
 		console.log(userResponse)

@@ -2,7 +2,6 @@
 const recover_token = useCookie('recover_token');
 const recover = useCookie('recover');
 const router = useRouter();
-import axios from 'axios';
 import {ref} from 'vue';
 const password = ref('');
 const confirmPassword = ref('');
