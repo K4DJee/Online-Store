@@ -14,14 +14,13 @@ export const useCart = () => {
 
 		try {
 			console.log('Попытка добавления товара в корзину')
-			const { data, error } = await useFetch<responseAddToCart | null>(
+			const data = await $fetch<responseAddToCart | null>(
 				'http://localhost:8000/api/add-product-cart',
 				{
 					method: 'POST',
 					body: {
 						productId,
 						quantity,
-						token:token.value,
 						sellerName
 					},
 					headers:{
@@ -29,9 +28,9 @@ export const useCart = () => {
 					}
 				}
 			)
-			if (data.value?.success === true) {
+			if (data?.success === true) {
 				console.log('Успешно добавлено!!!')
-				return data.value
+				return data;
 			}
 		} catch (error: any) {
 			const status = error?.status

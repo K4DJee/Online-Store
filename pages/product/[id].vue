@@ -7,7 +7,8 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
     const profileStore = useProfileStore()
 	const isAuthenticated = profileStore.isAuthenticated
 	const isAuthModal = ref(false);
-	const { addToCart } = useCart()
+	const { addToCart } = useCart();
+	const {addToFavourite} = useFavourite();
     async function fetchProductPageInfo(){
 		try{
                 const data =  await $fetch<responseProductPageInfo>(`http://localhost:8000/api/product/${productId}`,{
@@ -324,7 +325,7 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 									<span>Купить сейчас</span>
 								</button>
 
-								<button class="btn btn-favorite">
+								<button class="btn btn-favorite" @click.prevent="addToFavourite(data?.productRow.productId, data?.productRow.sellerName)">
 									<svg
 										width="17"
 										height="14"
