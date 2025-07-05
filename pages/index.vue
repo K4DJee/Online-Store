@@ -2,7 +2,7 @@
 import type { IProduct } from '~/types/types'
 
 
-const { addToCart } = useCart()
+// const { addToCart } = useCart()
 
 interface responseProducts {
 	products: [IProduct],
@@ -40,7 +40,7 @@ async function handleAddProduct(productId: number) {
 	console.log('productId: ', productId)
 	// if(isAuthenticated.value === true){
 	// 	isAuthModal.value = false;
-		// addToCart(productId);
+		// addToCart(productId,);
 	// }
 	// else{
 	// 	isAuthModal.value = true;
@@ -82,7 +82,7 @@ onMounted(async () => {
 					v-for="(product, index) in products"
 					:key="index"
 					:product="product"
-					@add-to-cart="handleAddProduct"
+					
 				/>
 			</div>
 

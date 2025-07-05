@@ -1,5 +1,8 @@
 export interface basketResponse{
-    cartProductsRow:{
+        cartProductsRow:basketProduct[]
+};
+
+export interface basketProduct{
         cartId:number,
         productId:number,
         quantity:number,
@@ -8,7 +11,9 @@ export interface basketResponse{
         productDescription:string,
         productPrice:number,
         imageUrl:string,
-    }
+        isActive: number
+        sellerName:string
+        productSalePrice: number
 }
 
 export interface addProductInBasket{

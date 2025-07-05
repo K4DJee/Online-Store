@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pluralizeReviews } from '~/entities/helpers/pluralize';
+import { pluralize } from '~/entities/helpers/pluralize';
 import type {responseProductPageInfo, responseProductPageReviews} from '../../types/productTypes'
     const route = useRoute();
     const productId = route.params.id;
@@ -74,9 +74,9 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 	// else{
 	// 	isAuthModal.value = true;
 	// }
-	if( data.value?.productRow?.sellerId){
-		addToCart(productId, data.value?.productRow?.sellerId);
-	}
+	// if( data.value?.productRow?.sellerId){
+	// 	addToCart(productId, data.value?.productRow?.);
+	// }
 }
 
     const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
@@ -157,7 +157,7 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 									</svg>
 									<span class="rating-score">{{ data?.productRow?.averageRating }}</span>
 								</div>
-								<span class="reviews-count">{{ pluralizeReviews(data?.productRow?.reviewCount) }}</span>
+								<span class="reviews-count">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</span>
 							</div>
 						</div>
 
@@ -208,7 +208,7 @@ import type {responseProductPageInfo, responseProductPageReviews} from '../../ty
 										fill="#FFAC33"
 									/>
 								</svg>
-								<span class="seller-rating-score">{{ pluralizeReviews(data?.productRow?.reviewCount) }}</span>
+								<span class="seller-rating-score">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</span>
 							</div>
 						</div>
 					</div>

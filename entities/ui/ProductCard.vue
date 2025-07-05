@@ -63,7 +63,7 @@
 					}}</span>
 				</div>
 				<span class="text-gray-500">{{
-					pluralizeReviews(product.reviewCount)
+					pluralize(product.reviewCount, 'отзыв')
 				}}</span>
 			</div>
 			<div class="flex items-center justify-between mt-2">
@@ -73,7 +73,7 @@
 				<button
 					class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-lime-500 to-lime-600 rounded-lg text-white transition-transform duration-200 ease-in-out hover:from-lime-600 hover:to-lime-700 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
 					:disabled="product.quantity === 0 || !product.isActive"
-					@click.prevent="addToCart"
+					@click.prevent="addToCartClick"
 				>
 					<svg
 						v-if="product.quantity > 0 && product.isActive"
@@ -128,10 +128,9 @@
 </template>
 
 <script setup lang="ts">
-import { pluralizeReviews } from '~/entities/helpers/pluralize'
-import type { addProductInBasket } from '~/types/basketTypes'
+import { pluralize } from '~/entities/helpers/pluralize'
 import type { IProduct } from '~/types/types'
-
+const { addToCart } = useCart()
 const props = defineProps<{
 	product: IProduct
 }>()
@@ -150,13 +149,13 @@ const isNewProduct = computed(() => {
 const formatPrice = (price: string) => parseInt(price).toLocaleString('ru-RU')
 
 // Добавление в корзину
-const addToCart = () => {
+const addToCartClick = () => {
 	if (product.value.quantity === 0 || !product.value.isActive) return
-	emit('add-to-cart', product.value.productId)
+	addToCart(product.value.productId, product.value.sellerName, 1);
 	console.log('Добавлен в корзину:', product.value.name)
 }
 
 const emit = defineEmits<{
-	(e: 'add-to-cart', sellerId:number, productId: number,): void
+	(e: 'add-to-cart'): void
 }>()
 </script>

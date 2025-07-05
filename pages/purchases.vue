@@ -1,14 +1,16 @@
 <template>
-Delivery
-{{ data?.shippingProducts }}
+	<section class="min-h-screen bg-gray-50">
+		<h1>Purchases</h1>
+		{{ data?.userPurchases }}
+	</section>
 </template>
 
 <script setup lang="ts">
-import type {responceShippingProducts} from '~/types/shippingTypes';
+import type { responsePurchases } from '~/types/purchaseTypes';
 const token = useCookie('token');
-async function fetchShippingProducts(): Promise<responceShippingProducts>{
+async function fetchUserPurchases(): Promise<responsePurchases>{
 		try{
-                const data =  await $fetch<responceShippingProducts >(`http://localhost:8000/api/shippings`,{
+                const data =  await $fetch<responsePurchases >(`http://localhost:8000/api/purchases`,{
                 method:'GET',
                 headers:{
                     Authorization: `Bearer ${token.value}`
@@ -17,7 +19,7 @@ async function fetchShippingProducts(): Promise<responceShippingProducts>{
             if(data?.success){
                 return data;
             }
-            return { shippingProducts:[], message:'Товары не найдены', success:false};
+            return { userPurchases:[], message:'Товары не найдены', success:false};
             }
             catch(error: any){
                 const status = error?.status;
@@ -37,11 +39,13 @@ async function fetchShippingProducts(): Promise<responceShippingProducts>{
             break;
             }
 
-            return { shippingProducts:[], message:'Товары не найдены', success:false};
+            return { userPurchases:[], message:'Товары не найдены', success:false};
             }
 	}
-    const {data, pending} = useAsyncData<responceShippingProducts >(
-        `delivery`,
-		fetchShippingProducts
+    const {data, pending} = useAsyncData<responsePurchases >(
+        `purchases`,
+		fetchUserPurchases
 	);
 </script>
+
+<style scoped></style>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { IUser } from '~/types/types'
-
 export const useProfileStore = defineStore('profileStore', () => {
+	const token = useCookie('token');
 	//state
 	const user = ref<IUser | null>(null)
 	const isAuthenticated = ref(false);
@@ -10,9 +10,10 @@ export const useProfileStore = defineStore('profileStore', () => {
 		user.value = userData;
 		isAuthenticated.value = true;
 	}
-	const clearUser = ()=>{
+	const useLogout = ()=>{
 		user.value = null;
-		isAuthenticated.value = false
+		isAuthenticated.value = false;
+		token.value = null;
 	}
 	//getters
 	const isAdmin = computed(() => user.value?.role === 'admin');
@@ -20,7 +21,7 @@ export const useProfileStore = defineStore('profileStore', () => {
 	return {
 		user, isAuthenticated,
 
-		setUser, clearUser,
+		setUser, useLogout,
 
 		isAdmin
 	}

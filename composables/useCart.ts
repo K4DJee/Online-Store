@@ -4,7 +4,7 @@ interface responseAddToCart {
 	success: boolean
 }
 export const useCart = () => {
-	const addToCart = async (productId: number, sellerId:number, quantity: number = 1) => {
+	const addToCart = async (productId: number, sellerName:string, quantity: number = 1) => {
 		const token = useCookie('token')
 
 		if (!token.value) {
@@ -22,9 +22,11 @@ export const useCart = () => {
 						productId,
 						quantity,
 						token:token.value,
-						sellerId
+						sellerName
 					},
-					server: false,
+					headers:{
+						Authorization:`Bearer ${token.value}`
+					}
 				}
 			)
 			if (data.value?.success === true) {

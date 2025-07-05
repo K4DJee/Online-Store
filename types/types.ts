@@ -12,20 +12,23 @@ export interface IUser {
 	role: string
 	userId: number
 	username: string
+	productsInCart: number
+	reviewCount: number
 }
 
 export interface IProduct {
-	categoryId: number
-	createdAt: string
-	description: string
-	imageUrl: string
-	isActive: number
-	name: string
-	price: string
-	productId: number
+	productId: number,
+	name: string,
+	description: string,
+	price: number,
+	salePrice: number,
 	quantity: number
-	updatedAt: string
-	averageRating: number
-	reviewCount: number,
-	sellerId: number
+	productCategory: string,
+	imageUrl: string,
+	createdAt: Date,
+	updatedAt: Date,
+	isActive: number,
+	sellerName: string,
+	averageRating: number,
+	reviewCount: number
 }

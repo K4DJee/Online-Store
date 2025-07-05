@@ -32,11 +32,11 @@ export const sidebarConfig: SidebarGroup[] = [
 		],
 	},
 	{
-		title: 'Заказы',
+		title: 'Покупки',
 		items: [
 			{
-				title: 'Мои заказы',
-				route: '/orders',
+				title: 'Мои покупки',
+				route: '/purchases',
 				icon: '/icons/profile/orders_gray.png',
 				type: 'link',
 			},

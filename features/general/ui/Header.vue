@@ -26,12 +26,12 @@
 
 				<!-- Orders -->
 				<NuxtLink
-					to="/orders"
+					to="/favourite"
 					class="flex items-center p-2 justify-center gap-3 rounded-xl text-white hover:text-lime-100 transition-colors duration-200"
-					:class="[{ 'bg-lime-500': isOrdersActive }]"
+					:class="[{ 'bg-lime-500': isFavouriteActive }]"
 				>
 					<NuxtImg src="/icons/package.png" class="size-6"></NuxtImg>
-					<span class="font-medium">Заказы</span>
+					<span class="font-medium">Избранное</span>
 				</NuxtLink>
 
 				<!-- Shopping basket -->
@@ -52,7 +52,7 @@
 				>
 					<NuxtImg src="/icons/profile.png" class="size-6"></NuxtImg>
 					<span class="font-medium">{{
-						isAuthUser ? 'Профиль' : 'Войти'
+						profileStore.isAuthenticated ? 'Профиль' : 'Войти'
 					}}</span>
 				</button>
 			</nav>
@@ -156,12 +156,12 @@
 					<!-- Orders -->
 					<li>
 						<NuxtLink
-							to="/orders"
+							to="/favourite"
 							class="flex items-center rounded-xl p-2 cursor-pointer gap-3 text-white hover:text-lime-100 transition-colors duration-200"
-							:class="[{ 'bg-lime-600': isOrdersActive }]"
+							:class="[{ 'bg-lime-600': isFavouriteActive }]"
 						>
 							<NuxtImg src="/icons/package.png" class="w-6 h-6" />
-							Заказы
+							Избранное
 						</NuxtLink>
 					</li>
 
@@ -185,7 +185,7 @@
 							:class="[{ 'bg-lime-600': isProfileActive }]"
 						>
 							<NuxtImg src="/icons/profile.png" class="w-6 h-6" />
-							{{ isAuthUser ? 'Профиль' : 'Войти' }}
+							{{ profileStore.isAuthenticated ? 'Профиль' : 'Войти' }}
 						</button>
 					</li>
 				</ul>
@@ -204,6 +204,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '#imports'
 
 const appStore = useAppStore()
+const profileStore = useProfileStore();
 
 const route = useRoute()
 const router = useRouter()
@@ -231,12 +232,12 @@ const toggleMobileMenu = () => {
 
 const isMainActive = computed(() => route.path === '/')
 const isDeliveryActive = computed(() => route.path === '/delivery')
-const isOrdersActive = computed(() => route.path === '/orders')
+const isFavouriteActive = computed(() => route.path === '/favourite')
 const isBasketActive = computed(() => route.path === '/basket')
 const isProfileActive = computed(() => route.path === '/profile')
 
 function onProfileClick() {
-	if (isAuthUser.value) {
+	if (profileStore.isAuthenticated) {
 		router.push('/profile')
 	} else {
 		isAuthModal.value = true
