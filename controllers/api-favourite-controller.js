@@ -1,5 +1,5 @@
 const {
-    addToFavoriteSQL, getFavoriteProductsSQL, existProductInFavoriteSQL
+    addToFavoriteSQL, getFavoriteProductsSQL, existProductInFavoriteSQL, deleteProductInFavoriteSQL
 } = require('../models/favourite');
 const {
     findSellerSQL
@@ -69,7 +69,7 @@ const getAllProductsInFavorite = async (req,res)=>{
     }
 };
 
-const deleteProductInFavorite = async (req,res)=>{
+const deleteProductFromFavorite = async (req,res)=>{
     try{
         const {favouriteId} = req.body;
         if(!favouriteId){
@@ -106,5 +106,5 @@ const deleteProductInFavorite = async (req,res)=>{
 }
 
 module.exports = {
-    addToFavorite, getAllProductsInFavorite, deleteProductInFavorite
+    addToFavorite, getAllProductsInFavorite, deleteProductFromFavorite
 }

@@ -37,7 +37,7 @@ const {
     getAllProductCategories
 } = require('./controllers/api-category-controller');
 const {
-    addToFavorite, getAllProductsInFavorite
+    addToFavorite, getAllProductsInFavorite, deleteProductFromFavorite
 } = require('./controllers/api-favourite-controller');
 const {
     receiveShippingProduct, getAllShippingProducts
@@ -103,6 +103,7 @@ router.get('/api/allCategories', getAllProductCategories);//new
 //favourite
 router.post('/api/addToFavourite', addToFavorite);//new
 router.get('/api/favourite', getAllProductsInFavorite);//new
+router.delete('/api/removeFromFavourite', deleteProductFromFavorite)//new
 //shipping
 router.get('/api/shippings', getAllShippingProducts);//new
 router.put('/api/receiveProduct', receiveShippingProduct);//new

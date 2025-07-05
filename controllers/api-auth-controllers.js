@@ -361,7 +361,7 @@ const getUserPageInfo = async(req,res)=>{
         }
         const userPageInfoRow = await getUserPageInfoSQL(username);
         if(!userPageInfoRow){
-            return res.statuS(404).json({message:'Пользователь не найден', success:false});
+            return res.status(404).json({message:'Пользователь не найден', success:false});
         }
         return res.status(200).json({message:'Пользователь успешно был найден', success:true,userPageInfo:userPageInfoRow})
     }

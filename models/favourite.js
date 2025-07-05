@@ -18,6 +18,8 @@ async function addToFavoriteSQL(userId, productId, sellerId){
 async function getFavoriteProductsSQL(userId){
     return new Promise((resolve,reject)=>{
         const sql = `SELECT
+        favouriteId,
+        favourite.productId,
         products.name AS productName,
         products.description AS productDescription,
         products.price AS productPrice,
@@ -69,5 +71,5 @@ async function existProductInFavoriteSQL(favouriteId){
 }
 
 module.exports = {
-    addToFavoriteSQL, getFavoriteProductsSQL, deleteProductInFavoriteSQL
+    addToFavoriteSQL, getFavoriteProductsSQL, deleteProductInFavoriteSQL, existProductInFavoriteSQL
 }
