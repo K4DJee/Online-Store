@@ -57,7 +57,8 @@ const connection = require('../db.js');
             products.description AS productDescription,
             products.price AS productPrice,
             products.salePrice AS salePrice,
-            products.imageUrl AS imageUrl
+            products.imageUrl AS imageUrl,
+            products.isActive AS isActive
             FROM carts 
             LEFT JOIN products ON carts.productId = products.productId
             LEFT JOIN sellers ON carts.sellerId = sellers.sellerId
