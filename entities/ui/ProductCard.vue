@@ -1,7 +1,7 @@
 <template>
 	<NuxtLink
 		:to="`/product/${product.productId}`"
-		class="block bg-white rounded-[16px] overflow-hidden shadow-sm border border-gray-100 relative transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-md hover:border-lime-500 flex-1 min-w-[250px] group"
+		class="bg-white rounded-[16px] overflow-hidden shadow-sm border border-gray-100 relative transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-md hover:border-lime-500 flex-1 min-w-[250px] h-full flex justify-between flex-col group"
 	>
 		<!-- Product image -->
 		<div
@@ -33,17 +33,22 @@
 		</div>
 
 		<!-- product info -->
-		<div class="p-5 flex flex-col gap-3">
+		<div class="p-5 flex flex-col justify-between gap-3 flex-grow">
+			<!-- Name -->
 			<h3
-				class="text-base font-semibold text-slate-800 leading-tight line-clamp-2"
+				class="text-base font-semibold text-slate-800 leading-tight line-clamp-2 h-[1lh]"
 			>
 				{{ product.name }}
 			</h3>
+
+			<!-- desc -->
 			<p
-				class="text-sm text-gray-500 leading-relaxed line-clamp-2 h-[46px]"
+				class="text-sm text-gray-500 leading-relaxed line-clamp-2 h-[2lh]"
 			>
 				{{ product.description }}
 			</p>
+
+			<!-- rating -->
 			<div class="flex items-center justify-between text-sm">
 				<div class="flex items-center gap-1.5">
 					<svg
@@ -66,12 +71,15 @@
 					pluralize(product.reviewCount, 'отзыв')
 				}}</span>
 			</div>
+
+			<!-- price -->
 			<div class="flex items-center justify-between mt-2">
 				<span class="text-xl font-bold text-slate-800"
-					>{{ formatPrice(product.price) }} ₽</span
+					>{{ formatPrice(String(product.price)) }} ₽</span
 				>
+				<!-- buy button -->
 				<button
-					class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-lime-500 to-lime-600 rounded-lg text-white transition-transform duration-200 ease-in-out hover:from-lime-600 hover:to-lime-700 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
+					class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-lime-500 to-lime-600 rounded-lg text-white transition-transform duration-200 ease-in-out hover:from-lime-600 cursor-pointer hover:to-lime-700 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
 					:disabled="product.quantity === 0 || !product.isActive"
 					@click.prevent="addToCartClick"
 				>
@@ -109,33 +117,25 @@
 					</svg>
 				</button>
 			</div>
-			<div
-				v-if="product.quantity > 0 && product.quantity <= 10"
-				class="flex flex-col gap-1 mt-2"
-			>
-				<div class="w-full h-1 bg-gray-200 rounded overflow-hidden">
-					<div
-						class="h-full bg-gradient-to-r from-lime-500 to-lime-600 transition-all duration-300 rounded"
-						:style="{ width: `${(product.quantity / 10) * 100}%` }"
-					></div>
-				</div>
-				<span class="text-xs text-gray-500 font-medium">
-					В наличии: {{ product.quantity }} шт.
-				</span>
-			</div>
 		</div>
 	</NuxtLink>
 </template>
 
 <script setup lang="ts">
-import { pluralize } from '~/entities/helpers/pluralize'
 import type { IProduct } from '~/types/types'
+
+import { pluralize } from '~/entities/helpers/pluralize'
+import { useProfileStore } from '#imports'
+
 const { addToCart } = useCart()
+const profileStore = useProfileStore()
+
 const props = defineProps<{
 	product: IProduct
 }>()
 
 const product = computed(() => props.product)
+const emit = defineEmits(['add-to-cart'])
 
 // Новинка (менее 30 дней)
 const isNewProduct = computed(() => {
@@ -151,11 +151,10 @@ const formatPrice = (price: string) => parseInt(price).toLocaleString('ru-RU')
 // Добавление в корзину
 const addToCartClick = () => {
 	if (product.value.quantity === 0 || !product.value.isActive) return
-	addToCart(product.value.productId, product.value.sellerName, 1);
-	console.log('Добавлен в корзину:', product.value.name)
-}
+	addToCart(product.value.productId, product.value.sellerName, 1)
 
-const emit = defineEmits<{
-	(e: 'add-to-cart'): void
-}>()
+	if (profileStore.isAuthenticated) {
+		emit('add-to-cart', product.value)
+	}
+}
 </script>

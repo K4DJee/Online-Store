@@ -1,28 +1,31 @@
 import { defineStore } from 'pinia'
 import type { IUser } from '~/types/types'
 export const useProfileStore = defineStore('profileStore', () => {
-	const token = useCookie('token');
+	const token = useCookie('token')
 	//state
 	const user = ref<IUser | null>(null)
-	const isAuthenticated = ref(false);
+	const isAuthenticated = ref(false)
 	//actions
-	const setUser = (userData:IUser) =>{
-		user.value = userData;
-		isAuthenticated.value = true;
+	const setUser = (userData: IUser) => {
+		user.value = userData
+		isAuthenticated.value = true
 	}
-	const useLogout = ()=>{
-		user.value = null;
-		isAuthenticated.value = false;
-		token.value = null;
+	const useLogout = () => {
+		user.value = null
+		isAuthenticated.value = false
+		token.value = null
 	}
 	//getters
-	const isAdmin = computed(() => user.value?.role === 'admin');
-	
+	const isAdmin = computed(() => user.value?.role === 'admin')
+
 	return {
-		user, isAuthenticated,
+		token,
+		user,
+		isAuthenticated,
 
-		setUser, useLogout,
+		setUser,
+		useLogout,
 
-		isAdmin
+		isAdmin,
 	}
 })

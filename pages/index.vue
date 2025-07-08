@@ -1,58 +1,3 @@
-<script setup lang="ts">
-import type { IProduct } from '~/types/types'
-
-
-// const { addToCart } = useCart()
-
-interface responseProducts {
-	products: [IProduct],
-    success: boolean
-}
-
-const products = ref<IProduct[]>([])
-const profileStore = useProfileStore()
-const isAuthenticated = computed(() => profileStore.isAuthenticated)
-const isAuthModal = ref(false);
-async function fetchProducts() {
-	try {
-		const response = await $fetch<responseProducts>('http://localhost:8000/api/products', {
-			method:'GET',
-		})
-		if(response?.products){
-			products.value = response.products
-			return products.value;
-        }
-		console.log('products:',response.products);
-	} catch(error: any){
-		const status = error?.status;
-		switch (status) {
-	case 500:
-		console.log('Ошибка сервера.');
-	break;
-	default:
-		console.log('Произошла неизвестная ошибка.');
-	break;
-	}
-		}
-}
-
-async function handleAddProduct(productId: number) {
-	console.log('productId: ', productId)
-	// if(isAuthenticated.value === true){
-	// 	isAuthModal.value = false;
-		// addToCart(productId,);
-	// }
-	// else{
-	// 	isAuthModal.value = true;
-	// }
-}
-
-onMounted(async () => {
-	await fetchProducts()
-	console.log(products.value)
-})
-</script>
-
 <template>
 	<div class="mt-6 m-auto max-w-[1350px]">
 		<section class="mb-4">
@@ -61,12 +6,13 @@ onMounted(async () => {
 			>
 				<h2 class="text-4xl font-bold mb-4">Лучшие технологии</h2>
 				<p class="text-lime-100 text-lg mb-6">
-					Откройте для себя новейшие гаджеты и электронику по лучшим ценам
+					Откройте для себя новейшие гаджеты и электронику по лучшим
+					ценам
 				</p>
 				<button
 					class="bg-white text-lime-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors"
 				>
-				Посмотреть каталог
+					Посмотреть каталог
 				</button>
 			</div>
 		</section>
@@ -76,21 +22,96 @@ onMounted(async () => {
 		<section class="max-w-[1350px] mx-auto px-4">
 			<div
 				v-if="products.length > 0"
-				class="grid gap-[50px] justify-center items-start grid-cols-[repeat(auto-fit,minmax(250px,1fr))]"
+				class="grid gap-[50px] justify-center items-stretch grid-cols-[repeat(auto-fit,minmax(250px,1fr))]"
 			>
 				<product-card
 					v-for="(product, index) in products"
+					@add-to-cart="showToast"
 					:key="index"
 					:product="product"
-					
 				/>
 			</div>
 
 			<Loader v-else />
 		</section>
 	</div>
+
 	<AuthModal :is-open="isAuthModal" @close="isAuthModal = false"></AuthModal>
 </template>
+
+<script setup lang="ts">
+import type { IProduct } from '~/types/types'
+
+interface responseProducts {
+	products: [IProduct]
+	success: boolean
+}
+
+const products = ref<IProduct[]>([])
+const profileStore = useProfileStore()
+const isAuthenticated = computed(() => profileStore.isAuthenticated)
+const isAuthModal = ref(false)
+async function fetchProducts() {
+	try {
+		const response = await $fetch<responseProducts>(
+			'http://localhost:8000/api/products',
+			{
+				method: 'GET',
+			}
+		)
+		if (response?.products) {
+			products.value = response.products
+			return products.value
+		}
+		console.log('products:', response.products)
+	} catch (error: any) {
+		const status = error?.status
+		switch (status) {
+			case 500:
+				console.log('Ошибка сервера.')
+				break
+			default:
+				console.log('Произошла неизвестная ошибка.')
+				break
+		}
+	}
+}
+
+const toast = useToast()
+
+function showToast(product: IProduct) {
+	console.log(product.name)
+
+	toast.settings({
+		color: '#000000',
+		titleColor: '#000000',
+		messageColor: '#000000',
+		backgroundColor: '#9AE600',
+	})
+
+	toast.success({
+		title: 'Отлично!',
+		message: `Товар успешно добавлен в корзину!`,
+	})
+
+	console.log(toast)
+}
+
+async function handleAddProduct(productId: number) {
+	console.log('productId: ', productId)
+	// if(isAuthenticated.value === true){
+	// 	isAuthModal.value = false;
+	// addToCart(productId,);
+	// }
+	// else{
+	// 	isAuthModal.value = true;
+	// }
+}
+
+onMounted(async () => {
+	await fetchProducts()
+})
+</script>
 
 <style>
 .products-title {

@@ -16,15 +16,15 @@
 			<nav class="hidden md:flex items-center gap-8">
 				<!-- Delivery -->
 				<NuxtLink
-					to="/delivery"
+					to="/orders"
 					class="flex items-center p-2 justify-center gap-3 rounded-xl text-white hover:text-lime-100 transition-colors duration-200"
-					:class="[{ 'bg-lime-500': isDeliveryActive }]"
+					:class="[{ 'bg-lime-500': isOrdersActive }]"
 				>
 					<NuxtImg src="/icons/delivery.png" class="size-6"></NuxtImg>
-					<span class="font-medium">Доставка</span>
+					<span class="font-medium">Заказы</span>
 				</NuxtLink>
 
-				<!-- Orders -->
+				<!-- Favorite -->
 				<NuxtLink
 					to="/favourite"
 					class="flex items-center p-2 justify-center gap-3 rounded-xl text-white hover:text-lime-100 transition-colors duration-200"
@@ -138,12 +138,12 @@
 						</NuxtLink>
 					</li>
 
-					<!-- Delivery -->
+					<!-- Orders -->
 					<li>
 						<NuxtLink
 							to="/delivery"
 							class="flex items-center rounded-xl p-2 cursor-pointer gap-3 text-white hover:text-lime-100 transition-colors duration-200"
-							:class="[{ 'bg-lime-600': isDeliveryActive }]"
+							:class="[{ 'bg-lime-600': isOrdersActive }]"
 						>
 							<NuxtImg
 								src="/icons/delivery.png"
@@ -153,7 +153,7 @@
 						</NuxtLink>
 					</li>
 
-					<!-- Orders -->
+					<!-- Favorite -->
 					<li>
 						<NuxtLink
 							to="/favourite"
@@ -185,7 +185,11 @@
 							:class="[{ 'bg-lime-600': isProfileActive }]"
 						>
 							<NuxtImg src="/icons/profile.png" class="w-6 h-6" />
-							{{ profileStore.isAuthenticated ? 'Профиль' : 'Войти' }}
+							{{
+								profileStore.isAuthenticated
+									? 'Профиль'
+									: 'Войти'
+							}}
 						</button>
 					</li>
 				</ul>
@@ -195,7 +199,10 @@
 
 	<!-- Auth Modal -->
 
-	<AuthModal :is-open="isAuthModal" @close="isAuthModal = false"></AuthModal>
+	<AuthModal
+		:is-open="appStore.isAuthModal"
+		@close="appStore.toggleAuthModal()"
+	></AuthModal>
 </template>
 
 <script setup lang="ts">
@@ -204,7 +211,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '#imports'
 
 const appStore = useAppStore()
-const profileStore = useProfileStore();
+const profileStore = useProfileStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -215,8 +222,6 @@ watch(
 		mobileMenuOpen.value = false
 	}
 )
-
-const isAuthModal = ref(false)
 
 type AuthState = {
 	isAuthUser: Ref<boolean>
@@ -231,7 +236,7 @@ const toggleMobileMenu = () => {
 }
 
 const isMainActive = computed(() => route.path === '/')
-const isDeliveryActive = computed(() => route.path === '/delivery')
+const isOrdersActive = computed(() => route.path === '/orders')
 const isFavouriteActive = computed(() => route.path === '/favourite')
 const isBasketActive = computed(() => route.path === '/basket')
 const isProfileActive = computed(() => route.path === '/profile')
@@ -240,7 +245,7 @@ function onProfileClick() {
 	if (profileStore.isAuthenticated) {
 		router.push('/profile')
 	} else {
-		isAuthModal.value = true
+		appStore.toggleAuthModal()
 		mobileMenuOpen.value = false
 	}
 }

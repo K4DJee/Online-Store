@@ -1,22 +1,136 @@
 <template>
-<div class="favourite-item">
-    <div class="favourite-btn" @click.prevent="removeFromFavourite(favouriteProduct.favouriteId)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/></svg>
-    </div>
-    <div class="favourite-img-container">
-        <NuxtImg class="favourite-img" :src="favouriteProduct.productImage" :alt="favouriteProduct.productName"></NuxtImg>
-    </div>
-    <div class="favourite-overview-container">
-        <div class="favourite-title">{{ favouriteProduct.productName }}</div>
-        <div class="favourite-description">{{ favouriteProduct.productDescription }}</div>
-        <div class="favourite-price-container">{{ favouriteProduct.productSalePrice }} {{ favouriteProduct.productPrice }}</div>
-    </div>
-    <div class="favourite-btn-container">
-        <button class="addToCartBtn" @click.prevent ="addToCart(favouriteProduct.productId, favouriteProduct.sellerName)">В корзину</button>
-    </div>
-</div>
+	<div
+		class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
+	>
+		<!-- Product Image -->
+		<div class="relative aspect-square overflow-hidden">
+			<img
+				:src="product.imageUrl"
+				:alt="product.name"
+				class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+				@click="handleViewProduct"
+			/>
+
+			<!-- Discount Badge -->
+			<div
+				v-if="getDiscountPercentage() > 0"
+				class="absolute top-2 left-2"
+			>
+				<span
+					class="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold"
+				>
+					-{{ getDiscountPercentage() }}%
+				</span>
+			</div>
+
+			<!-- Remove from Favourites Button -->
+			<div class="absolute top-2 right-2">
+				<button
+					@click="handleRemoveFromFavourites"
+					class="w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-red-500 hover:text-red-600 transition-colors shadow-sm"
+				>
+					<svg
+						class="w-4 h-4"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+						/>
+					</svg>
+				</button>
+			</div>
+		</div>
+
+		<!-- Product Info -->
+		<div class="p-3">
+			<!-- Product Name -->
+			<h3
+				class="font-medium text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors cursor-pointer text-sm"
+				@click="handleViewProduct"
+			>
+				{{ product.name }}
+			</h3>
+
+			<!-- Seller -->
+			<div class="text-xs text-gray-500 mb-2">
+				{{ product.sellerName }}
+			</div>
+
+			<!-- Price -->
+			<div class="flex items-center space-x-2">
+				<span class="text-lg font-bold text-gray-900"
+					>{{ formatPrice(product.salePrice) }} ₽</span
+				>
+				<span
+					v-if="product.salePrice < product.price"
+					class="text-xs text-gray-500 line-through"
+				>
+					{{ formatPrice(product.price) }} ₽
+				</span>
+			</div>
+		</div>
+	</div>
 </template>
+
 <script setup lang="ts">
+import { ref } from 'vue'
+
+export interface IProduct {
+	productId: number
+	name: string
+	description: string
+	price: number
+	salePrice: number
+	quantity: number
+	productCategory: string
+	imageUrl: string
+	createdAt: Date
+	updatedAt: Date
+	isActive: number
+	sellerName: string
+	averageRating: number
+	reviewCount: number
+}
+
+interface Props {
+	product: IProduct
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+	removeFromFavourites: [productId: number]
+	viewProduct: [productId: number]
+}>()
+
+const handleRemoveFromFavourites = () => {
+	emit('removeFromFavourites', props.product.productId)
+}
+
+const handleViewProduct = () => {
+	emit('viewProduct', props.product.productId)
+}
+
+const formatPrice = (price: number) => {
+	return price.toLocaleString('ru-RU')
+}
+
+const getDiscountPercentage = () => {
+	if (props.product.salePrice >= props.product.price) return 0
+	return Math.round((1 - props.product.salePrice / props.product.price) * 100)
+}
+</script>
+
+<style scoped>
+.line-clamp-2 {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+</style>
+
+<!-- <script setup lang="ts">
 import { NuxtImg } from '#components';
 import type { favouriteProduct } from '~/types/favouriteTypes';
 const props = defineProps<{
@@ -26,46 +140,4 @@ const {removeFromFavourite} = useFavourite();
 const {addToCart} = useCart();
 const favouriteProduct = computed(() => props.favouriteProduct);
 
-</script>
-
-<style>
-.favourite-item{
-    width:225px;
-    height:285px;
-    position: relative;
-    border-radius: 9px;
-}
-.favourite-btn{
-    position: absolute;
-    right:5px;
-    top:5px;
-    cursor: pointer;
-    & svg{
-        width:22px;
-        height:19px;
-        & path{
-            fill:red;
-        }
-    }
-}
-.favourite-img{
-    width:100%;
-    height:145px;
-}
-.favourite-btn-container{
-    display: flex;
-    justify-content: center;
-    height:40px;
-    width:100%;
-    background-color: oklch(76.8% 0.233 130.85);
-}
-.favourite-overview-container{
-    padding:10px;
-    background-color: white;
-}
-.addToCartBtn{
-cursor: pointer;
-color:white;
-
-}
-</style>
+</script> -->

@@ -35,8 +35,8 @@ export const sidebarConfig: SidebarGroup[] = [
 		title: 'Покупки',
 		items: [
 			{
-				title: 'Мои покупки',
-				route: '/purchases',
+				title: 'Мои заказы',
+				route: '/Orders',
 				icon: '/icons/profile/orders_gray.png',
 				type: 'link',
 			},
