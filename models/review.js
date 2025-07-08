@@ -53,11 +53,16 @@ async function allProductReviewsSQL(productId){
     return new Promise((resolve,reject)=>{
         const sql = `
         SELECT
-        reviews.*,
-        klanUsers.username AS reviewerUsername
+        reviews.reviewId,
+        reviews.productId,
+        sellers.sellerName AS sellerName,
+        klanUsers.username AS reviewUsername,
+        reviews.rating,
+        reviews.comment,
+        reviews.createdAt
         FROM reviews 
         LEFT JOIN klanUsers ON reviews.userId = klanUsers.userId
-        WHERE productId = ?
+        LEFT JOIN sellers ON reviews.sellerId = sellers.sellerId
         `;
         connection.query(sql, [productId], (err,row)=>{
             if(err){
@@ -72,7 +77,18 @@ async function allProductReviewsSQL(productId){
 
 async function allUserReviewsSQL(userId){
     return new Promise((resolve, reject)=>{
-        const sql = `SELECT * FROM reviews WHERE userId = ?`;
+        const sql = `SELECT 
+        reviews.reviewId,
+        reviews.productId,
+        sellers.sellerName AS sellerName,
+        klanUsers.username AS reviewUsername,
+        reviews.rating,
+        reviews.comment,
+        reviews.createdAt
+        FROM reviews 
+        LEFT JOIN klanUsers ON reviews.userId = klanUsers.userId
+        LEFT JOIN sellers ON reviews.sellerId = sellers.sellerId
+        WHERE reviews.userId = ?`;
         connection.query(sql,[userId], (err,row)=>{
             if(err){
                 reject(err);
