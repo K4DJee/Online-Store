@@ -70,6 +70,7 @@ export const sidebarConfig: SidebarGroup[] = [
 		items: [
 			{
 				title: 'Стать продавцом',
+				route: '/aboutBecSeller',
 				icon: '/icons/profile/confirm_gray.png',
 				type: 'button',
 			},
@@ -81,10 +82,16 @@ export const sidebarConfig: SidebarGroup[] = [
 			},
 			{
 				title: 'Мой счёт',
-				route: '/account',
+				route: '/sellerAccount',
 				icon: '/icons/profile/dollar_gray.png',
 				type: 'link',
 			},
+			{
+				title: 'Добавить товар',
+				route: '/addNewProduct',
+				icon: '/icons/profile/addProduct_gray.png',
+				type: 'link',
+			}
 		],
 	},
 ]

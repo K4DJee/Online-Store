@@ -4,14 +4,17 @@ export interface responseReviewActions {
 }
 
 export interface responseAllUserReviews{
-    allUserReviews: userReviewsRows[]
+    userReviewRows: userReviewRows[]
     message:string,
     success:boolean
 }
 
-export interface userReviewsRows{
+export interface userReviewRows{
     reviewId: number,
     productId: number,
+    productName: string,
+    productDescription: string,
+    imageUrl: string
     reviewUsername: string,
     sellerName: string,
     rating: number,
@@ -20,7 +23,7 @@ export interface userReviewsRows{
 }
 
 export interface responseAllProductReviews{
-    reviewRows: userReviewsRows[]
+    reviewRows: userReviewRows[]
     message:string,
     success:boolean
 }

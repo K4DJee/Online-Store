@@ -7,6 +7,7 @@ export interface responseProductPageInfo {
 		price: string
 		quantity: number
 		categoryId: number | null
+		productCategory: string
 		imageUrl: string
 		createdAt: string
 		updatedAt: string

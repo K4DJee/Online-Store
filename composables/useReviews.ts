@@ -132,7 +132,7 @@ export const useReviews = () =>{
         }
     };
 
-    const changeReview = async(reviewId: number, rating: number, comment: string)=>{
+    const changeReview:(reviewId: number, rating: number, comment: string) => Promise<responseReviewActions> = async(reviewId: number, rating: number, comment: string)=>{
         if(!checkAuth()) return {message:'Ошибка изменения отзыва', success:false}
         if(rating <=0 || rating > 5){
             console.log('Оценка должна быть от 1 до 5');
@@ -184,8 +184,8 @@ export const useReviews = () =>{
         }
     };
 
-    const getAllUserReviews = async()=>{
-        if(!checkAuth()) return {allUserReviews:[],message:'Ошибка получения отзывов', success:false}
+    const getAllUserReviews = async():Promise<responseAllUserReviews>=>{
+        if(!checkAuth()) return {userReviewRows:[],message:'Ошибка получения отзывов', success:false}
         try{
             const data = await $fetch<responseAllUserReviews>('http://localhost:8000/api/user-reviews',{
                 method:'GET',
@@ -195,10 +195,10 @@ export const useReviews = () =>{
             });
 
             if(data?.success === true){
-                console.log('Успешное добавление отзыва');
+                console.log('Успешное получение отзывов пользователя');
                 return data;
             }
-            return {allUserReviews:[],message:'Ошибка получения отзывов', success:false}
+            return {userReviewRows:[],message:'Ошибка получения отзывов', success:false}
 
         }
         catch(error:any){
@@ -221,7 +221,7 @@ export const useReviews = () =>{
 					console.log('Произошла неизвестная ошибка.')
 					break;
 			}
-            return {allUserReviews:[],message:'Ошибка получения отзывов', success:false}
+            return {userReviewRows:[],message:'Ошибка получения отзывов', success:false}
         }
     };
 
