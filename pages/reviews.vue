@@ -7,13 +7,11 @@
 
 				<!-- Main Content -->
 				<div class="lg:col-span-3 space-y-8">
-					<div class="grid bg-white rounded-2xl border-gray-100 p-6  gap-2.5 mx-auto">
+					<div class="grid bg-white rounded-2xl border-gray-100 p-6 border  gap-2.5 mx-auto">
                         <h2 class="text-xl font-semibold">Ваши отзывы: {{ allUserReviews?.userReviewRows.length || '0' }}</h2>    
                     </div>
 
-                   НЕ ДОДЕЛАНО
-
-                    <div class="grid bg-white border-gray-100 rounded-2xl p-6">
+                    <div class="grid gap-3.5">
                         <user-review-card
                         v-for="userReviewCard in allUserReviews?.userReviewRows"
                         :key="userReviewCard.reviewId"

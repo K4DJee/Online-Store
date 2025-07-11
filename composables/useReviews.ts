@@ -93,13 +93,16 @@ export const useReviews = () =>{
         }
     };
 
-    const deleteReview:(productId:number) =>Promise<responseReviewActions> = async(productId:number)=>{
+    const deleteReview:(reviewId:number) =>Promise<responseReviewActions> = async(reviewId:number)=>{
         if(!checkAuth()) return {message:'Ошибка удаления отзыва', success:false}
         try{
-            const data = await $fetch<responseReviewActions>(`http://localhost:8000/api/product/${productId}/reviews`,{
+            const data = await $fetch<responseReviewActions>(`http://localhost:8000/api/delete-user-review`,{
                 method:'DELETE',
+                body:{
+                    reviewId
+                },
                 headers:{
-                    Authzorization:`Bearer ${token.value}`
+                    Authorization:`Bearer ${token.value}`
                 }
             });
             if(data?.success === true){
