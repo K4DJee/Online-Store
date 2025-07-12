@@ -14,7 +14,7 @@ const getProducts = async (req, res)=>{
     try{
     const products = await getProductsSQL();
     if(!products){
-        return res.status(200).json({message:'Товаров не было найдено', products:null, success:false})
+        return res.status(200).json({message:'Товаров не было найдено', products:[], success:false})
     }
     return res.status(200).json({products:products, success:true});
     }

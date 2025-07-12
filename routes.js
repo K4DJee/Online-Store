@@ -48,6 +48,9 @@ const {
 const {
     createTopUpSession
 } = require('./controllers/api-stripe-controller.js');
+const {
+    addProductArrayImgs
+} = require('./controllers/api-imgs-controllers.js')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 //auth
 router.post('/api/login', loginUser);
@@ -107,6 +110,8 @@ router.delete('/api/removeFromFavourite', deleteProductFromFavorite)//new
 //shipping
 router.get('/api/shippings', getAllShippingProducts);//new
 router.put('/api/receiveProduct', receiveShippingProduct);//new
+//product_imgs
+router.post('/api/addProductImgs', addProductArrayImgs);//new
 //stripe
 router.post('/api/createTopUpSession',createTopUpSession)//new
 //temporarily

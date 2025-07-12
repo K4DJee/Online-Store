@@ -1,6 +1,7 @@
 const connection = require('../db.js');
 const { connect } = require('../routes.js');
 const { createReviewProductSQL } = require('./review.js');
+const {addProductArrayImgsSQL} = require('../models/product_img.js')
 
     async function getProductsSQL(){
         return new Promise((resolve,reject)=>{
@@ -11,15 +12,22 @@ const { createReviewProductSQL } = require('./review.js');
             products.price,
             products.salePrice,
             products.quantity,
-            categories.categoryName AS productCategory,
             products.imageUrl,
+            categories.categoryName AS productCategory,
             products.createdAt,
             products.updatedAt,
             products.isActive,
             sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating), 1), 0) AS averageRating,
-            COUNT (reviews.reviewId) AS reviewCount
+            COUNT (reviews.reviewId) AS reviewCount,
+            GROUP_CONCAT(
+                CONCAT(
+                    '{\"imageId\":', product_imgs.imageId, 
+                    ',\"imageUrl\":\"', product_imgs.imageUrl, '\"}'
+                )
+            ) AS imagesJson
             FROM products
+            LEFT JOIN product_imgs ON products.productId = product_imgs.productId
             LEFT JOIN reviews ON products.productId = reviews.productId
             LEFT JOIN sellers ON products.sellerId = sellers.sellerId
             LEFT JOIN categories ON products.categoryId = categories.categoryId
@@ -30,8 +38,25 @@ const { createReviewProductSQL } = require('./review.js');
                     reject(err);
                 }
                 else{
-                    
-                    resolve(rows);
+                    const result = rows.map(row => {
+                        let images = [];
+                        if (row.imagesJson) {
+                            try {
+                                // Парсим строку в массив JSON-объектов
+                                images = JSON.parse(`[${row.imagesJson}]`);
+                            } catch (e) {
+                                console.error('Ошибка парсинга imagesJson:', e);
+                            }
+                        }
+        
+                        delete row.imagesJson;
+
+                        return {
+                            ...row,
+                            images
+                        };
+                    });
+                    resolve(result);
                 }
             })
         })
@@ -72,11 +97,11 @@ const { createReviewProductSQL } = require('./review.js');
         })
     }
 
-    async function addProductBySellerSQL(sellerId, name, description, price, quantity, categoryId, imageUrl, isActive){
+    async function addProductBySellerSQL(sellerId, name, description, price, quantity, categoryId, images, isActive){
         return new Promise((resolve,reject)=>{
             const sql = `
-            INSERT INTO products(sellerId, name, description, price, quantity, categoryId, imageUrl, isActive)
-            VALUES(?,?,?,?,?,?,?,?)
+            INSERT INTO products(sellerId, name, description, price, quantity, categoryId, isActive)
+            VALUES(?,?,?,?,?,?,?)
             `;
             connection.query(sql,[sellerId, name, description, price, quantity, categoryId, imageUrl, isActive],
                 (err,row)=>{
@@ -84,9 +109,19 @@ const { createReviewProductSQL } = require('./review.js');
                     reject(err);
                 }
                 else{
-                    resolve(row);
-                }
-            })
+                    const imgsArray = images.map(image => [productId, image]);
+                    const sql = `INSERT INTO product_imgs (productId,imageUrl) VALUES ?`;
+                    // массовая вставка | 1 sql запрос
+                        connection.query(sql,[imgsArray],(err,row)=>{
+                            if(err){
+                                return reject({ success: false, message: err.message });
+                            }
+                            else{
+                                resolve({ success: true, affectedRows: row.affectedRows });
+                            }
+                        })
+                    }
+                })//обернуть в  transaction
         });
     }
 
@@ -141,6 +176,7 @@ const { createReviewProductSQL } = require('./review.js');
             IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
             COUNT (reviews.reviewId) AS reviewCount
             FROM products
+            LEFT JOIN product_imgs ON products.productId = product_imgs.productId
             LEFT JOIN reviews ON products.productId = reviews.productId
             LEFT JOIN sellers ON products.sellerId = sellers.sellerId
             LEFT JOIN categories ON products.categoryId = categories.categoryId

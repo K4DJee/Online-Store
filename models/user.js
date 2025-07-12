@@ -71,19 +71,13 @@ async function findUserByIdSQL(userId){
         klanUsers.email,
         klanUsers.regDate,
         klanUsers.role,
-        COALESCE(carts.productsInCart) AS productsInCart,
-        COALESCE(reviews.reviewCount, 0) AS reviewCount
+        GROUP_CONCAT(DISTINCT favourite.favouriteId) AS favouritesIds,
+        GROUP_CONCAT(DISTINCT carts.cartId) AS cartsIds,
+        GROUP_CONCAT(DISTINCT purchases.purchaseId) AS purchasesIds
         FROM klanUsers
-        LEFT JOIN (
-            SELECT userId, COUNT(reviewId) AS reviewCount
-            FROM reviews
-            GROUP BY userId
-        ) reviews ON klanUsers.userId = reviews.userId
-        LEFT JOIN (
-            SELECT userId, COUNT(cartId) AS productsInCart
-            FROM carts
-            GROUP BY userId
-        ) carts ON klanUsers.userId = carts.userId
+        LEFT JOIN favourite  ON klanUsers.userId = favourite.userId
+        LEFT JOIN carts  ON klanUsers.userId = carts.userId
+        LEFT JOIN purchases ON klanUsers.userId = purchases.userId
         WHERE klanUsers.userId = ?
         GROUP BY klanUsers.userId`;
         connection.query(sql,[userId],(err,row)=>{

@@ -1,9 +1,13 @@
 const {
-    addToFavoriteSQL, getFavoriteProductsSQL, existProductInFavoriteSQL, deleteProductInFavoriteSQL
+    addToFavoriteSQL, getFavoriteProductsSQL, existProductInFavoriteSQL, deleteProductInFavoriteSQL,
+    existFavouriteProductSQL
 } = require('../models/favourite');
 const {
     findSellerSQL
 } = require('../models/seller');
+const{
+    adaptFavouriteProduct
+} = require('../adapters/favourite-adapter');
 
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -31,6 +35,12 @@ const addToFavorite = async (req,res)=>{
         if(!sellerRow.sellerId){
             return res.status(404).json({message:"Продавец с таким именем не найден", success:false});
         }
+
+        const existFavouriteProduct = await existFavouriteProductSQL(productId, decoded.userId);
+        if(existFavouriteProduct.success === false){
+            return res.status(400).json({message:'Товар уже существует в избранном', success:false});
+        }
+        
         const newFavoriteProductRow = await addToFavoriteSQL(decoded.userId, productId, sellerRow.sellerId);
         if(!newFavoriteProductRow.insertId){
             return res.status(500).json({message:'Ошибка при добавлении товара в избранное', success:false})
@@ -61,7 +71,10 @@ const getAllProductsInFavorite = async (req,res)=>{
         if(favouriteProducts.length === 0){
             return res.status(200).json({message:'Товаров в избранном не найдено', success:true, favouriteProducts:[]});
         }
-        return res.status(200).json({message:'Товары в избранном успешно найдены', success:true, favouriteProducts:favouriteProducts});
+
+        const adaptedProducts = favouriteProducts.map(product => adaptFavouriteProduct(product));
+
+        return res.status(200).json({message:'Товары в избранном успешно найдены', success:true, favouriteProducts:adaptedProducts});
     }
     catch(error){
         console.error(error.message);

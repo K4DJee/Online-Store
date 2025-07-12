@@ -156,11 +156,11 @@ const allUserReviews = async(req,res)=>{
     if(!decoded || !decoded.userId){
         return res.status(401).json({message:'Invalid token', valid:false, success:false});
     }
-    const userReviewsRows = await allUserReviewsSQL(decoded.userId);
-    if(userReviewsRows.length === 0){
-        res.status(200).json({message:'У пользователя ещё нет отзывов', success:true, userReviewsRows:[]})
+    const userReviewRows = await allUserReviewsSQL(decoded.userId);
+    if(userReviewRows.length === 0){
+        res.status(200).json({message:'У пользователя ещё нет отзывов', success:true, userReviewRows:[]})
     }
-    res.status(200).json({userReviewsRows:userReviewsRows, success:true});
+    res.status(200).json({userReviewRows:userReviewRows, success:true, message:'Успешная отправка отзывов пользователя'});
     }
     catch(error){
         console.error(error.message);

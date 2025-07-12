@@ -63,6 +63,7 @@ async function allProductReviewsSQL(productId){
         FROM reviews 
         LEFT JOIN klanUsers ON reviews.userId = klanUsers.userId
         LEFT JOIN sellers ON reviews.sellerId = sellers.sellerId
+        WHERE productId = ?
         `;
         connection.query(sql, [productId], (err,row)=>{
             if(err){
@@ -80,12 +81,16 @@ async function allUserReviewsSQL(userId){
         const sql = `SELECT 
         reviews.reviewId,
         reviews.productId,
+        products.name AS productName,
+        products.description AS productDescription,
+        products.imageUrl AS imageUrl,
         sellers.sellerName AS sellerName,
         klanUsers.username AS reviewUsername,
         reviews.rating,
         reviews.comment,
         reviews.createdAt
         FROM reviews 
+        LEFT JOIN products ON reviews.productId = products.productId
         LEFT JOIN klanUsers ON reviews.userId = klanUsers.userId
         LEFT JOIN sellers ON reviews.sellerId = sellers.sellerId
         WHERE reviews.userId = ?`;

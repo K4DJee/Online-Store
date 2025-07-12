@@ -3,7 +3,10 @@ const connection = require('../db.js');
 async function getProductArrayImgsSQL(productId){
     return new Promise((resolve,reject)=>{
         const sql = `
-        SELECT * FROM product_imgs WHERE productId = ?
+        SELECT
+        imageId,
+        imageUrl AS url
+        FROM product_imgs WHERE productId = ?
         `;
         connection.query(sql,[productId], (err,row)=>{
             if(err){
@@ -16,6 +19,22 @@ async function getProductArrayImgsSQL(productId){
     });
 }
 
+async function addProductArrayImgsSQL(imgsArray){
+    return new Promise((resolve,reject)=>{
+        const sql = `
+        INSERT INTO product_imgs (productId,imageUrl) VALUES ?
+        `;// массовая вставка | 1 sql запрос
+        connection.query(sql,[imgsArray],(err,row)=>{
+            if(err){
+                return reject({ success: false, message: err.message });
+            }
+            else{
+                resolve({ success: true, affectedRows: row.affectedRows });
+            }
+        })
+    })
+}
+
 module.exports = {
-    getProductArrayImgsSQL
+    getProductArrayImgsSQL, addProductArrayImgsSQL
 };

@@ -128,7 +128,28 @@ async function getSellerPageInfoSQL(sellerName){
     })
 }
 
+async function checkProductOwnerSQL(sellerId, productId){
+    return new Promise((resolve,reject)=>{
+        const sql = `
+        SELECT 1 FROM products WHERE sellerId = ? AND productId = ?
+        `;
+
+        connection.query(sql,[sellerId, productId], (err,row)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                if (row && row.length > 0) {
+                    return resolve({ success: true });
+                } else {
+                    return resolve({ success: false });
+                }
+            }
+        })
+    })
+}
+
 module.exports = {
     createBecomeSellerSQL, loginSellerSQL, findSellerSQL, sellerDataSQL,
-    deleteSellerAccountSQL, getSellerPageInfoSQL
+    deleteSellerAccountSQL, getSellerPageInfoSQL, checkProductOwnerSQL
 }
