@@ -1,5 +1,5 @@
 <template>
-	<section class="min-h-screen bg-gray-50">
+	<section v-if="!basketStore.isLoading" class="min-h-screen bg-gray-50">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<!-- Header -->
 			<div class="mb-8">
@@ -9,11 +9,11 @@
 							Корзина
 						</h1>
 						<p class="text-gray-600 mt-1">
-							{{ totalItems }}
+							{{ basketStore.totalItems }}
 							{{
-								totalItems === 1
+								basketStore.totalItems === 1
 									? 'товар'
-									: totalItems < 5
+									: basketStore.totalItems < 5
 									? 'товара'
 									: 'товаров'
 							}}
@@ -21,7 +21,7 @@
 					</div>
 					<button
 						@click="router.push('/')"
-						class="text-lime-600 hover:text-lime-700 font-medium transition-colors flex items-center space-x-2"
+						class="text-lime-600 hover:text-lime-700 font-medium transition-colors flex items-center space-x-2 cursor-pointer"
 					>
 						<svg
 							class="w-5 h-5"
@@ -40,177 +40,27 @@
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Items List -->
 				<div class="lg:col-span-2 space-y-6">
-					<!-- Select All -->
+					<!-- Basket Items -->
 					<div
-						class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+						v-if="basketStore.basketItems.length > 0"
+						class="space-y-4"
 					>
-						<label
-							class="flex items-center space-x-3 cursor-pointer"
-						>
-							<input
-								type="checkbox"
-								v-model="selectAll"
-								@change="toggleSelectAll"
-								class="w-5 h-5 text-lime-600 border-gray-300 rounded focus:ring-lime-500"
-							/>
-							<span class="text-lg font-semibold text-gray-900"
-								>Выбрать все товары в наличии</span
-							>
-							<span class="text-sm text-gray-500"
-								>({{ cartData?.cartProductsRow.length }})</span
-							>
-						</label>
-					</div>
-
-					<!-- In Stock Items -->
-					<div v-if="inStockItems.length > 0" class="space-y-4">
 						<h3 class="text-lg font-semibold text-gray-900">
 							В наличии
 						</h3>
 
-						<!-- v-for="item in inStockItems"
-		:key="item.productId" -->
-					</div>
-
-					<!-- Out of Stock Items -->
-					<div v-if="outOfStockItems.length > 0" class="space-y-4">
-						<h3 class="text-lg font-semibold text-gray-900">
-							Нет в наличии
-						</h3>
-
-						<div
-							v-for="item in outOfStockItems"
-							:key="item.productId"
-							class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 opacity-60"
-						>
-							<div class="flex items-start space-x-4">
-								<!-- Disabled Checkbox -->
-								<input
-									type="checkbox"
-									disabled
-									class="w-5 h-5 text-gray-400 border-gray-300 rounded mt-2 cursor-not-allowed"
-								/>
-
-								<!-- Product Image -->
-								<div class="flex-shrink-0">
-									<img
-										:src="item.imageUrl"
-										:alt="item.productName"
-										class="w-24 h-24 object-cover rounded-xl grayscale"
-									/>
-								</div>
-
-								<!-- Product Info -->
-								<div class="flex-1 min-w-0">
-									<div
-										class="flex items-start justify-between"
-									>
-										<div class="flex-1">
-											<h4
-												class="text-lg font-semibold text-gray-900 mb-1"
-											>
-												{{ item.productName }}
-											</h4>
-											<p
-												class="text-sm text-gray-600 mb-2"
-											>
-												Продавец: {{ item.sellerName }}
-											</p>
-											<div
-												class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium inline-block mb-3"
-											>
-												Нет в наличии
-											</div>
-
-											<!-- Price -->
-											<div
-												class="flex items-center space-x-2 mb-4"
-											>
-												<span
-													class="text-xl font-bold text-gray-500"
-													>{{
-														item.productSalePrice.toLocaleString()
-													}}
-													₽</span
-												>
-												<span
-													v-if="
-														item.productPrice >
-														item.productSalePrice
-													"
-													class="text-sm text-gray-400 line-through"
-												>
-													{{
-														item.productPrice.toLocaleString()
-													}}
-													₽
-												</span>
-											</div>
-										</div>
-
-										<!-- Actions -->
-										<div
-											class="flex flex-col items-end space-y-2"
-										>
-											<button
-												@click="
-													removeItem(item.productId)
-												"
-												class="text-gray-400 hover:text-red-500 transition-colors"
-											>
-												<svg
-													class="w-5 h-5"
-													fill="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-													/>
-												</svg>
-											</button>
-										</div>
-									</div>
-
-									<!-- Actions -->
-									<div
-										class="flex items-center justify-between"
-									>
-										<span class="text-sm text-gray-500"
-											>Количество:
-											{{ item.quantity }}</span
-										>
-										<div
-											class="flex items-center space-x-4"
-										>
-											<button
-												@click="
-													moveToWishlist(
-														item.productId
-													)
-												"
-												class="text-sm text-gray-600 hover:text-lime-600 transition-colors flex items-center space-x-1"
-											>
-												<svg
-													class="w-4 h-4"
-													fill="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-													/>
-												</svg>
-												<span>В избранное</span>
-											</button>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<basket-card
+							v-for="product in basketStore.basketItems"
+							:key="product.cartId"
+							:product
+							@remove="onRemove"
+							@moveToWishlist="onMoveToWishlist"
+						></basket-card>
 					</div>
 
 					<!-- Empty State -->
 					<div
-						v-if="basketItems.length === 0"
+						v-if="basketStore.basketItems.length === 0"
 						class="text-center py-12"
 					>
 						<div
@@ -253,23 +103,25 @@
 						<div class="space-y-3 mb-6">
 							<div class="flex justify-between text-sm">
 								<span class="text-gray-600"
-									>Товары ({{ selectedItems.length }})</span
+									>Товары ({{
+										basketStore.basketItems.length
+									}})</span
 								>
 								<span class="text-gray-900"
 									>{{
-										totalOriginalPrice.toLocaleString()
+										basketStore.totalOriginalPrice.toLocaleString()
 									}}
 									₽</span
 								>
 							</div>
 							<div
-								v-if="totalDiscount > 0"
+								v-if="basketStore.totalDiscount > 0"
 								class="flex justify-between text-sm"
 							>
 								<span class="text-gray-600">Скидка</span>
 								<span class="text-green-600"
 									>-{{
-										totalDiscount.toLocaleString()
+										basketStore.totalDiscount.toLocaleString()
 									}}
 									₽</span
 								>
@@ -283,7 +135,7 @@
 									<span
 										class="text-xl font-bold text-gray-900"
 										>{{
-											totalPrice.toLocaleString()
+											basketStore.totalPrice.toLocaleString()
 										}}
 										₽</span
 									>
@@ -292,9 +144,9 @@
 						</div>
 
 						<button
-							@click="proceedToCheckout"
-							:disabled="selectedItems.length === 0"
-							class="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 rounded-xl font-medium transition-colors mb-4"
+							@click="basketStore.proceedToCheckout"
+							:disabled="basketStore.basketItems.length === 0"
+							class="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 rounded-xl font-medium transition-colors mb-4 cursor-pointer"
 						>
 							Перейти к оформлению
 						</button>
@@ -345,152 +197,24 @@
 </template>
 
 <script setup lang="ts">
-import type { basketProduct, basketResponse } from '../types/basketTypes'
 import { useBasketStore } from '#imports'
+import type { basketProduct } from '~/types/basketTypes'
 
 const basketStore = useBasketStore()
 const router = useRouter()
-const token = useCookie('token')
-
-async function fetchUserBasket(): Promise<basketResponse | undefined> {
-	try {
-		if (token.value === undefined) {
-			console.log('Отсутствует токен')
-			return undefined
-		}
-		console.log('fetch cart attempt')
-		const cartData = await $fetch<basketResponse>(
-			'http://localhost:8000/api/cart',
-			{
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${token.value}`,
-				},
-			}
-		)
-		if (cartData?.cartProductsRow) {
-			console.log(cartData)
-			return cartData
-		}
-	} catch (error: any) {
-		const status = error?.status
-		switch (status) {
-			case 400:
-				console.log('Некорректный запрос')
-				break
-			case 401:
-				console.log('Неправильный токен авторизации')
-				break
-			case 404:
-				console.log('Продукт не найден')
-				break
-			case 500:
-				console.log('Ошибка сервера.')
-				break
-			default:
-				console.log('Произошла неизвестная ошибка.')
-				break
-		}
-	}
-}
-
-const {
-	data: cartData,
-	pending,
-	error,
-} = await useAsyncData<basketResponse | undefined>('/basket', fetchUserBasket)
 
 // Basket items state
-const basketItems = ref<basketProduct[]>([])
-
-const selectedItems = ref<number[]>([])
-const selectAll = ref(false)
-
-// Computed values
-const totalItems = computed(() =>
-	basketItems.value.reduce((sum, item) => sum + item.quantity, 0)
-)
-const totalPrice = computed(() => {
-	return basketItems.value
-		.filter(item => selectedItems.value.includes(item.productId))
-		.reduce((sum, item) => sum + item.productSalePrice * item.quantity, 0)
-})
-const totalOriginalPrice = computed(() => {
-	return basketItems.value
-		.filter(item => selectedItems.value.includes(item.productId))
-		.reduce((sum, item) => sum + item.productPrice * item.quantity, 0)
-})
-const totalDiscount = computed(
-	() => totalOriginalPrice.value - totalPrice.value
-)
-const inStockItems = computed(() =>
-	basketItems.value.filter(item => item.isActive)
-)
-const outOfStockItems = computed(() =>
-	basketItems.value.filter(item => !item.isActive)
-)
-
-// Methods
-const toggleSelectAll = () => {
-	if (selectAll.value) {
-		selectedItems.value = basketItems.value
-			.filter(item => item.isActive)
-			.map(item => item.productId)
-	} else {
-		selectedItems.value = []
-	}
-}
-
-const toggleItemSelection = (itemId: number) => {
-	const index = selectedItems.value.indexOf(itemId)
-	if (index > -1) {
-		selectedItems.value.splice(index, 1)
-	} else {
-		selectedItems.value.push(itemId)
-	}
-	updateSelectAll()
-}
-
-const updateSelectAll = () => {
-	const inStockIds = inStockItems.value.map(item => item.productId)
-	selectAll.value =
-		inStockIds.length > 0 &&
-		inStockIds.every(id => selectedItems.value.includes(id))
-}
-
-const updateQuantity = (itemId: number, newQuantity: number) => {
-	if (newQuantity < 1) return
-	const item = basketItems.value.find(item => item.productId === itemId)
-	if (item) {
-		item.quantity = newQuantity
-	}
-}
-
-const removeItem = (itemId: number) => {
-	basketItems.value = basketItems.value.filter(
-		item => item.productId !== itemId
-	)
-	selectedItems.value = selectedItems.value.filter(id => id !== itemId)
-	updateSelectAll()
-}
-
-const moveToWishlist = (itemId: number) => {
-	console.log(`Move item ${itemId} to wishlist`)
-	removeItem(itemId)
-}
-
-const proceedToCheckout = () => {
-	if (selectedItems.value.length === 0) return
-	router.push('/checkout')
-}
-
-// Initialize with all in-stock items selected
-selectedItems.value = inStockItems.value.map(item => item.productId)
-selectAll.value = true
-
 onMounted(async () => {
-	console.log(await basketStore.fetchUserBasket())
+	await basketStore.fetchUserBasket()
 })
+
+async function onRemove(cartId: number) {
+	await basketStore.removeItem(cartId)
+}
+
+async function onMoveToWishlist(product: basketProduct) {
+	await basketStore.moveToWishlist(product)
+}
 </script>
 
 <style scoped>
