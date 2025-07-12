@@ -23,12 +23,18 @@ export interface IProduct {
 	price: number,
 	salePrice: number,
 	quantity: number
-	productCategory: string,
 	imageUrl: string,
+	productCategory: string,
 	createdAt: Date,
 	updatedAt: Date,
 	isActive: number,
 	sellerName: string,
 	averageRating: number,
-	reviewCount: number
+	reviewCount: number,
+	images:IProductImages[]
+}
+
+export interface IProductImages{
+	imageId:number,
+	imageUrl:string
 }
