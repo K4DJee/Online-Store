@@ -120,10 +120,29 @@ const connection = require('../db.js');
                 }
             })
         });
+    };
+
+    async function checkExistProductInCartSQL(userId, productId){
+        return new Promise((resolve,reject)=>{
+            const sql = `SELECT 1 FROM carts WHERE userId = ? AND productId = ?`;
+            connection.query(sql,[userId, productId], (err,row)=>{
+                if(err){
+                    reject(err)
+                }
+                else{
+                    if(row[0] || row.length > 0){
+                        resolve({success:false})
+                    }
+                    else{
+                        resolve({success:true})
+                    }
+                }
+            })
+        })
     }
 
 module.exports = {
     addProductInCartSQL, changeQuantityProductsInCartSQL, deleteProductInCartSQL,
     getProductsFromCartSQL, checkProductQuantitySQL, checkProductExistsSQL,
-    checkCartItemExistsSQL, checkProductInCartExistsSQL
+    checkCartItemExistsSQL, checkProductInCartExistsSQL, checkExistProductInCartSQL
 };

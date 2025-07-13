@@ -1,7 +1,7 @@
 const {
     addProductInCartSQL, changeQuantityProductsInCartSQL, deleteProductInCartSQL,
     getProductsFromCartSQL, checkProductQuantitySQL, checkProductExistsSQL,
-    checkCartItemExistsSQL, checkProductInCartExistsSQL
+    checkCartItemExistsSQL, checkProductInCartExistsSQL, checkExistProductInCartSQL
 } = require('../models/cart');
 
 const {
@@ -36,9 +36,16 @@ const addProductInCart = async (req,res)=>{
     }
     const sellerId = sellerRow.sellerId;
     const productExists = await checkProductExistsSQL(productId);
-        if (!productExists) {
-            return res.status(404).json({ message: 'Товар не найден', success: false });
-        }
+    if (!productExists) {
+        return res.status(404).json({ message: 'Товар не найден', success: false });
+    }
+
+    //checkExistProductInCart
+    const checkExistProductInCart = await checkExistProductInCartSQL(decoded.userId, productId);
+    if(checkExistProductInCart.success === false)
+    {
+        return res.status(409).json({message:'Товар уже существует в корзине', success:false})
+    }
     //checkProductQuantity
     const checkProductQuantityRow = await checkProductQuantitySQL(productId);
     if(checkProductQuantityRow.quantity < quantity){
