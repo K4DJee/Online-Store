@@ -183,7 +183,13 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
             products.isActive,
             sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
-            COUNT (reviews.reviewId) AS reviewCount
+            COUNT (reviews.reviewId) AS reviewCount,
+            GROUP_CONCAT(
+                CONCAT(
+                    '{\"imageId\":', product_imgs.imageId, 
+                    ',\"imageUrl\":\"', product_imgs.imageUrl, '\"}'
+                )
+            ) AS imagesJson
             FROM products
             LEFT JOIN product_imgs ON products.productId = product_imgs.productId
             LEFT JOIN reviews ON products.productId = reviews.productId
@@ -196,7 +202,25 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
                     reject(err);
                 }
                 else{
-                    resolve(rows);
+                    const result = rows.map(row => {
+                        let images = [];
+                        if (row.imagesJson) {
+                            try {
+                                // Парсим строку в массив JSON-объектов
+                                images = JSON.parse(`[${row.imagesJson}]`);
+                            } catch (e) {
+                                console.error('Ошибка парсинга imagesJson:', e);
+                            }
+                        }
+        
+                        delete row.imagesJson;
+    
+                        return {
+                            ...row,
+                            images
+                        };
+                    });
+                    resolve(result);
                 }
             });
         })

@@ -133,7 +133,7 @@ const validateSellerToken = async (req,res)=>{
 const addProductBySeller = async(req,res)=>{
     try{
         const authHeader = req.headers['authorization'];
-        const { name, description, price, quantity, categoryId, images, isActive} = req.body;
+        const { name, description, price, quantity, categoryId, images, isActive} = req.body || {};
         if( !name || !description || !price || !quantity || !categoryId || !images || !isActive){
             return res.status(400).json({message:'Wrong data', success:false});
         }
@@ -152,7 +152,7 @@ const addProductBySeller = async(req,res)=>{
         const quantityINT = parseInt(quantity, 10);
         const productRow = await addProductBySellerSQL(decoded.sellerId, name, description, 
             priceINT, quantityINT, categoryId, images, isActive)
-        if(!productRow.insertId){
+        if(!productRow.success){
             return res.status(500).json({message:'Ошибка создания нового товара', success:false});
         }
         res.status(200).json({message:'Товар успешно был создан!', success:true});
