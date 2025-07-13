@@ -44,7 +44,7 @@ const addProductInCart = async (req,res)=>{
     const checkExistProductInCart = await checkExistProductInCartSQL(decoded.userId, productId);
     if(checkExistProductInCart.success === false)
     {
-        return res.status(409).json({message:'Товар уже существует в корзине', success:false})
+        return res.status(200).json({message:'Товар уже существует в корзине', success:false})
     }
     //checkProductQuantity
     const checkProductQuantityRow = await checkProductQuantitySQL(productId);

@@ -99,29 +99,38 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
 
     async function addProductBySellerSQL(sellerId, name, description, price, quantity, categoryId, images, isActive){
         return new Promise((resolve,reject)=>{
-            const sql = `
-            INSERT INTO products(sellerId, name, description, price, quantity, categoryId, isActive)
-            VALUES(?,?,?,?,?,?,?)
-            `;
-            connection.query(sql,[sellerId, name, description, price, quantity, categoryId, imageUrl, isActive],
-                (err,row)=>{
-                if(err){
-                    reject(err);
-                }
-                else{
-                    const imgsArray = images.map(image => [productId, image]);
-                    const sql = `INSERT INTO product_imgs (productId,imageUrl) VALUES ?`;
-                    // массовая вставка | 1 sql запрос
-                        connection.query(sql,[imgsArray],(err,row)=>{
-                            if(err){
-                                return reject({ success: false, message: err.message });
-                            }
-                            else{
-                                resolve({ success: true, affectedRows: row.affectedRows });
-                            }
-                        })
+            connection.beginTransaction((err)=>{
+                const sql = `
+                INSERT INTO products(sellerId, name, description, price, quantity, categoryId, isActive)
+                VALUES(?,?,?,?,?,?,?)
+                `;
+                connection.query(sql,[sellerId, name, description, price, quantity, categoryId, isActive],
+                    (err,row)=>{
+                    if(err){
+                        return connection.rollback(() => reject(err));
                     }
-                })//обернуть в  transaction
+                    else{
+                        const imgsArray = images.map(image => [row.insertId, image]);
+                        const sql = `INSERT INTO product_imgs (productId,imageUrl) VALUES ?`;
+                        // массовая вставка | 1 sql запрос
+                            connection.query(sql,[imgsArray],(err1,row1)=>{
+                                if(err1){
+                                    connection.rollback(() => reject(err1));
+                                }
+                                else{
+                                    connection.commit((commitErr)=>{
+                                        if(commitErr){
+                                            return connection.rollback(()=> reject(err))
+                                        }
+                                        else{
+                                            resolve({message:'Товар успешно был добавлен', success:true});
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })//обернуть в  transaction
+            });
         });
     }
 

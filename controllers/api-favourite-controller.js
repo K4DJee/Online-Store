@@ -38,7 +38,7 @@ const addToFavorite = async (req,res)=>{
 
         const existFavouriteProduct = await existFavouriteProductSQL(productId, decoded.userId);
         if(existFavouriteProduct.success === false){
-            return res.status(409).json({message:'Товар уже существует в избранном', success:false});
+            return res.status(200).json({message:'Товар уже существует в избранном', success:false});
         }
         
         const newFavoriteProductRow = await addToFavoriteSQL(decoded.userId, productId, sellerRow.sellerId);
