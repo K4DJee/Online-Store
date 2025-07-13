@@ -81,7 +81,7 @@ const changeQuantityProductsInCart = async (req,res)=>{
         }
         const checkProductQuantityRow = await checkProductQuantitySQL(productId);
         if(checkProductQuantityRow.quantity < quantity){
-            return res.status(400).json({message:'Количество выбранных товаров превышает количество имеющихся',
+            return res.status(409).json({message:'Количество выбранных товаров превышает количество имеющихся',
                 success:false
             });
         }
