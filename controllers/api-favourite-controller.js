@@ -105,7 +105,6 @@ const deleteProductFromFavorite = async (req,res)=>{
         if(!existProductInFavorite){
             return res.status(404).json({message:'Такого товара в избранном нету', success:false});
         }
-
         const deleteProductInFavorite = await deleteProductInFavoriteSQL(decoded.userId, favouriteId);
         if(deleteProductInFavorite.affectedRows === 0){
             return res.status(500).json({message:'Ошибка при удалении товара из избранного', success:false});

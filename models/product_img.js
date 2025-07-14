@@ -33,8 +33,42 @@ async function addProductArrayImgsSQL(imgsArray){
             }
         })
     })
+};
+
+async function checkProductAmountImgsSQL(productId){
+    return new Promise((resolve,reject)=>{
+        const sql = `SELECT imageId FROM product_imgs WHERE productId = ?`;
+        connection.query(sql,[productId],(err,rows)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(rows)
+            }
+        })
+    });
+};
+
+async function deleteProductImgsSQL(imgsIds){
+    return new Promise((resolve,reject)=>{
+        const placeholders = imgsIds.map(() => '?').join(', ');
+        const sql = `DELETE FROM product_imgs WHERE imageId IN (${placeholders})`;
+        connection.query(sql,imgsIds, (err,row)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                if(row.affectedRows === 0){
+                    resolve({success:false})
+                }
+                else{
+                    resolve({success:true})
+                }
+            }
+        })
+    })
 }
 
 module.exports = {
-    getProductArrayImgsSQL, addProductArrayImgsSQL
+    getProductArrayImgsSQL, addProductArrayImgsSQL, checkProductAmountImgsSQL, deleteProductImgsSQL
 };
