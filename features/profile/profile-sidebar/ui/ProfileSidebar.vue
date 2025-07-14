@@ -35,9 +35,12 @@
 const profileStore = useProfileStore()
 const router = useRouter()
 
+import ProfileHeader from './ProfileHeader.vue'
+import SidebarNav from './SidebarNav.vue'
+
 const logout = () => {
-  profileStore.useLogout()
-  router.push('/') // Перенаправление на главную
+	profileStore.useLogout()
+	router.push('/') // Перенаправление на главную
 }
 </script>
 

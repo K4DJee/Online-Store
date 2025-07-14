@@ -1,4 +1,4 @@
-export interface SidebarItem {
+export interface ISidebarItem {
 	title: string
 	route?: string
 	type?: 'link' | 'button'
@@ -8,7 +8,7 @@ export interface SidebarItem {
 
 export interface SidebarGroup {
 	title: string
-	items: SidebarItem[]
+	items: ISidebarItem[]
 }
 
 export const sidebarConfig: SidebarGroup[] = [
@@ -91,7 +91,7 @@ export const sidebarConfig: SidebarGroup[] = [
 				route: '/addNewProduct',
 				icon: '/icons/profile/addProduct_gray.png',
 				type: 'link',
-			}
+			},
 		],
 	},
 ]

@@ -1,50 +1,3 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import Register from './Register.vue'
-import Login from './Login.vue'
-const currentAuthForm = ref(1)
-const loginBtn = ref<HTMLButtonElement | null>(null)
-const regBtn = ref<HTMLButtonElement | null>(null)
-const props = defineProps<{
-	isOpen: boolean
-}>()
-const emit = defineEmits<{
-	(e: 'close'): void
-}>()
-
-function handleEsc(e: KeyboardEvent) {
-	if (e.key === 'Escape') {
-		emit('close')
-	}
-}
-
-watch(currentAuthForm, () => {
-	if (currentAuthForm.value === 1) {
-		if (loginBtn.value && regBtn.value) {
-			regBtn.value.classList.remove('active')
-			loginBtn.value.classList.add('active')
-		}
-	} else if (currentAuthForm.value === 2) {
-		if (regBtn.value && loginBtn.value) {
-			loginBtn.value.classList.remove('active')
-			regBtn.value.classList.add('active')
-		}
-	}
-})
-
-onMounted(() => {
-	window.addEventListener('keydown', handleEsc)
-	// Set initial active state
-	if (loginBtn.value) {
-		loginBtn.value.classList.add('active')
-	}
-})
-
-onUnmounted(() => {
-	window.removeEventListener('keydown', handleEsc)
-})
-</script>
-
 <template>
 	<Transition
 		appear
@@ -149,6 +102,55 @@ onUnmounted(() => {
 		</div>
 	</Transition>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+
+const Login = defineAsyncComponent(() => import('~/components/Login.vue'))
+const Register = defineAsyncComponent(() => import('~/components/Register.vue'))
+
+const currentAuthForm = ref(1)
+const loginBtn = ref<HTMLButtonElement | null>(null)
+const regBtn = ref<HTMLButtonElement | null>(null)
+const props = defineProps<{
+	isOpen: boolean
+}>()
+const emit = defineEmits<{
+	(e: 'close'): void
+}>()
+
+function handleEsc(e: KeyboardEvent) {
+	if (e.key === 'Escape') {
+		emit('close')
+	}
+}
+
+watch(currentAuthForm, () => {
+	if (currentAuthForm.value === 1) {
+		if (loginBtn.value && regBtn.value) {
+			regBtn.value.classList.remove('active')
+			loginBtn.value.classList.add('active')
+		}
+	} else if (currentAuthForm.value === 2) {
+		if (regBtn.value && loginBtn.value) {
+			loginBtn.value.classList.remove('active')
+			regBtn.value.classList.add('active')
+		}
+	}
+})
+
+onMounted(() => {
+	window.addEventListener('keydown', handleEsc)
+	// Set initial active state
+	if (loginBtn.value) {
+		loginBtn.value.classList.add('active')
+	}
+})
+
+onUnmounted(() => {
+	window.removeEventListener('keydown', handleEsc)
+})
+</script>
 
 <style scoped>
 /* Transition animations */

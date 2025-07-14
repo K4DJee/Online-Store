@@ -12,4 +12,11 @@
 	</div>
 </template>
 
-<script setup></script>
+<script setup>
+const Header = defineAsyncComponent(() =>
+	import('~/features/general/ui/Header.vue')
+)
+const Footer = defineAsyncComponent(() =>
+	import('~/features/general/ui/Footer.vue')
+)
+</script>

@@ -7,10 +7,11 @@
 		<div
 			class="relative w-full h-60 md:h-52 sm:h-44 overflow-hidden bg-gray-50"
 		>
-			<img
+			<NuxtImg
 				:src="product.imageUrl"
 				:alt="product.name"
 				class="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+				loading="eager"
 			/>
 			<div
 				v-if="isNewProduct"
@@ -74,9 +75,34 @@
 
 			<!-- price -->
 			<div class="flex items-center justify-between mt-2">
-				<span class="text-xl font-bold text-slate-800"
+				<!-- <span class="text-xl font-bold text-slate-800"
 					>{{ formatPrice(String(product.price)) }} ₽</span
-				>
+				> -->
+
+				<div class="flex items-center space-x-2 mb-4">
+					<!-- sale price -->
+					<div
+						v-if="product.salePrice"
+						className="flex flex-col-reverse gap-1  space-x-3"
+					>
+						<!--  Current Price  -->
+						<span class="text-lg font-bold text-green-700">
+							{{ product.salePrice.toLocaleString() }} ₽
+						</span>
+
+						<!-- Original Price (if on sale)  -->
+						<span class="text-sm text-gray-400 line-through">
+							{{ product.price.toLocaleString() }}
+							₽
+						</span>
+					</div>
+
+					<!-- no sale  -->
+					<span v-else class="text-xl font-bold text-slate-800">
+						{{ Number(product.price).toLocaleString() }}
+						₽
+					</span>
+				</div>
 				<!-- buy button -->
 				<button
 					class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-lime-500 to-lime-600 rounded-lg text-white transition-transform duration-200 ease-in-out hover:from-lime-600 cursor-pointer hover:to-lime-700 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
@@ -123,19 +149,20 @@
 
 <script setup lang="ts">
 import type { IProduct } from '~/types/types'
+import type { responseRequests } from '~/types/appTypes'
 
 import { pluralize } from '~/entities/helpers/pluralize'
 import { useProfileStore } from '#imports'
+import { useBasketStore } from '#imports'
 
-const { addToCart } = useCart()
 const profileStore = useProfileStore()
+const basketStore = useBasketStore()
 
 const props = defineProps<{
 	product: IProduct
 }>()
 
 const product = computed(() => props.product)
-const emit = defineEmits(['add-to-cart'])
 
 // Новинка (менее 30 дней)
 const isNewProduct = computed(() => {
@@ -149,12 +176,30 @@ const isNewProduct = computed(() => {
 const formatPrice = (price: string) => parseInt(price).toLocaleString('ru-RU')
 
 // Добавление в корзину
-const addToCartClick = () => {
+const addToCartClick = async () => {
 	if (product.value.quantity === 0 || !product.value.isActive) return
-	addToCart(product.value.productId, product.value.sellerName, 1)
+	const result: responseRequests = await basketStore.addToCart(
+		product.value.productId,
+		product.value.sellerName,
+		1
+	)
 
-	if (profileStore.isAuthenticated) {
-		emit('add-to-cart', product.value)
+	if (!profileStore.isAuthenticated) return
+
+	if (result.success) {
+		useShowToast('Товар успешно добавлен в корзину!')
+	} else {
+		const cartProduct = basketStore.getCartProduct(product.value)
+		if (!cartProduct) return console.log('XD some error')
+
+		const resp = await basketStore.updateQuantity(
+			cartProduct,
+			cartProduct.quantity + 1
+		)
+
+		if (resp && resp.success) {
+			useShowToast('Товар успешно добавлен в корзину!')
+		}
 	}
 }
 </script>

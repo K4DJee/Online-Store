@@ -19,11 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import type { SidebarItem } from '~/features/profile/profile-sidebar/config/sidebar.config'
+import type { ISidebarItem } from '~/features/profile/profile-sidebar/config/sidebar.config'
+import SidebarItem from './SidebarItem.vue'
 
 defineProps<{
 	title: string
-	items: SidebarItem[]
+	items: ISidebarItem[]
 }>()
 </script>
 

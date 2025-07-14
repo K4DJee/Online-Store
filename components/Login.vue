@@ -2,7 +2,6 @@
 import type { AuthState } from '../types/types'
 import type { IUser } from '~/types/types'
 
-
 import { ref, inject } from 'vue'
 
 const router = useRouter()

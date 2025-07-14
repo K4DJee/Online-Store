@@ -109,8 +109,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
 export interface IProduct {
 	productId: number
 	name: string
@@ -127,6 +125,10 @@ export interface IProduct {
 	averageRating: number
 	reviewCount: number
 }
+
+const FavouriteCard = defineAsyncComponent(
+	() => import('~/entities/ui/FavouriteCard.vue')
+)
 
 // Mock functions for demo purposes
 const useRouter = () => ({

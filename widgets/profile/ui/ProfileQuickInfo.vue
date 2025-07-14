@@ -19,7 +19,11 @@
 
 		<!-- Goods in shoping basket quantity -->
 		<profile-info-card>
-			<template #title>{{user?.productsInCart !== undefined ? pluralize(user?.productsInCart, 'товар') : '0 товаров' }}</template>
+			<template #title>{{
+				user?.productsInCart !== undefined
+					? pluralize(user?.productsInCart, 'товар')
+					: '0 товаров'
+			}}</template>
 			<template #subTitle>В корзине</template>
 			<template #icon
 				><svg
@@ -73,6 +77,7 @@
 <script setup lang="ts">
 import { pluralize } from '~/entities/helpers/pluralize'
 import { useProfileStore } from '#imports'
+import ProfileInfoCard from '~/entities/ui/profile/ProfileInfoCard.vue'
 
 const profileStore = useProfileStore()
 

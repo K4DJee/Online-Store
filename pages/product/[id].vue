@@ -1,113 +1,10 @@
-<script setup lang="ts">
-import { pluralize } from '~/entities/helpers/pluralize';
-import type {responseProductPageInfo, responseProductPageReviews} from '../../types/productTypes'
-import type {responseAllProductReviews} from '~/types/reviewsTypes';
-    const route = useRoute();
-    const productId = Number(route.params.id);
-	const quantity = ref(1);
-    const profileStore = useProfileStore()
-	const isAuthenticated = profileStore.isAuthenticated
-	const isAuthModal = ref(false);
-	const { addToCart } = useCart();
-	const {getAllProductReviews} = useReviews();
-	const {addToFavourite} = useFavourite();
-    async function fetchProductPageInfo(){
-		try{
-                const data =  await $fetch<responseProductPageInfo>(`http://localhost:8000/api/product/${productId}`,{
-                method:'GET'
-            })
-            if(data?.productRow){
-                return data;
-            }
-            }
-            catch(error: any){
-                const status = error?.status;
-                switch (status) {
-            case 400:
-                console.log('Некорректный запрос');
-            break;
-            case 404:
-                console.log('Продукт не найден');
-            break;
-            case 500:
-                console.log('Ошибка сервера.');
-            break;
-            default:
-                console.log('Произошла неизвестная ошибка.');
-            break;
-            }
-            }
-	}
-
-	async function fetchProductReviews(){
-		try{
-			const reviewsData = await $fetch<responseProductPageReviews>(`http://localhost:8000/api/product/${productId}/reviews`,{
-				method:'GET',
-			});
-			if(reviewsData?.reviewRows){
-				return reviewsData;
-			}
-		}
-		catch(error: any){
-			const status = error?.status;
-                switch (status) {
-            case 400:
-                console.log('Некорректный запрос');
-            break;
-            case 404:
-                console.log('Продукт не найден');
-            break;
-            case 500:
-                console.log('Ошибка сервера.');
-            break;
-            default:
-                console.log('Произошла неизвестная ошибка.');
-            break;
-            }
-		}
-	}
-
-	async function handleAddProduct(productId: number) {
-	console.log('productId: ', productId)
-	console.log(isAuthenticated);
-	// if(isAuthenticated === true){
-	// 	isAuthModal.value = false;
-	// 	// addToCart(productId);
-	// }
-	// else{
-	// 	isAuthModal.value = true;
-	// }
-	// if( data.value?.productRow?.sellerId){
-	// 	addToCart(productId, data.value?.productRow?.);
-	// }
-}
-
-    const {data, pending} = useAsyncData<responseProductPageInfo | undefined>(
-        `product-${productId}`,
-		fetchProductPageInfo
-	);
-
-        const {data:reviewRows} = useAsyncData<responseAllProductReviews>(
-        `product/${productId}/reviews`,
-        ()=>getAllProductReviews(productId)
-        )
-		//
-		const updateQuantity = (delta: number) => {
-  const newQuantity = quantity.value + delta;
-  const availableQuantity = data.value?.productRow?.quantity || 0;
-  
-  if (newQuantity >= 1 && newQuantity <= availableQuantity) {
-    quantity.value = newQuantity;
-  }
-};
-</script>
 <template>
 	<div v-if="data" class="product-page">
 		<div class="container">
 			<!-- Breadcrumb -->
 			<div class="breadcrumb">
 				<span class="breadcrumb-text"
-					>Категория: {{data.productRow?.productCategory}}</span
+					>Категория: {{ data.productRow?.productCategory }}</span
 				>
 			</div>
 
@@ -158,9 +55,16 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 											fill="#FFAC33"
 										/>
 									</svg>
-									<span class="rating-score">{{ data?.productRow?.averageRating }}</span>
+									<span class="rating-score">{{
+										data?.productRow?.averageRating
+									}}</span>
 								</div>
-								<span class="reviews-count">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</span>
+								<span class="reviews-count">{{
+									pluralize(
+										data?.productRow?.reviewCount,
+										'отзыв'
+									)
+								}}</span>
 							</div>
 						</div>
 
@@ -211,7 +115,12 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 										fill="#FFAC33"
 									/>
 								</svg>
-								<span class="seller-rating-score">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</span>
+								<span class="seller-rating-score">{{
+									pluralize(
+										data?.productRow?.reviewCount,
+										'отзыв'
+									)
+								}}</span>
 							</div>
 						</div>
 					</div>
@@ -296,8 +205,14 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 
 							<!-- Action Buttons -->
 							<div class="action-buttons">
-								<button class="btn btn-cart" 
-								@click.prevent="handleAddProduct(data?.productRow?.productId)">
+								<button
+									class="btn btn-cart"
+									@click.prevent="
+										handleAddProduct(
+											data?.productRow?.productId
+										)
+									"
+								>
 									<svg
 										width="18"
 										height="14"
@@ -327,7 +242,15 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 									<span>Купить сейчас</span>
 								</button>
 
-								<button class="btn btn-favorite" @click.prevent="addToFavourite(data?.productRow.productId, data?.productRow.sellerName)">
+								<button
+									class="btn btn-favorite"
+									@click.prevent="
+										addToFavourite(
+											data?.productRow.productId,
+											data?.productRow.sellerName
+										)
+									"
+								>
 									<svg
 										width="17"
 										height="14"
@@ -364,26 +287,150 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 			</div>
 
 			<div class="reviews-container">
-				<h2 class="review-title-h2 text-2xl">Отзывы товара: ({{ reviewRows?.reviewRows.length || '0' }})</h2>
-				
+				<h2 class="review-title-h2 text-2xl">
+					Отзывы товара: ({{ reviewRows?.reviewRows.length || '0' }})
+				</h2>
+
 				<add-review-card
-				:product-id="productId"
-				:seller-name="data?.productRow?.sellerName"
+					:product-id="productId"
+					:seller-name="data?.productRow?.sellerName"
 				></add-review-card>
-				
+
 				<ul class="review-list grid">
-				<review-card
-				v-for="(reviewCard) in reviewRows?.reviewRows"
-				:key="reviewCard?.reviewId"
-				:reviewCard
-				></review-card>
-				{{ reviewRows?.reviewRows }}
+					<review-card
+						v-for="reviewCard in reviewRows?.reviewRows"
+						:key="reviewCard?.reviewId"
+						:reviewCard
+					></review-card>
+					{{
+						reviewRows?.reviewRows
+					}}
 				</ul>
 			</div>
 		</div>
 	</div>
 	<AuthModal :is-open="isAuthModal" @close="isAuthModal = false"></AuthModal>
 </template>
+
+<script setup lang="ts">
+import { pluralize } from '~/entities/helpers/pluralize'
+import type {
+	responseProductPageInfo,
+	responseProductPageReviews,
+} from '../../types/productTypes'
+
+import type { responseAllProductReviews } from '~/types/reviewsTypes'
+
+const AddReviewCard = defineAsyncComponent(
+	() => import('~/entities/ui/addReviewCard.vue')
+)
+const ReviewCard = defineAsyncComponent(
+	() => import('~/entities/ui/ReviewCard.vue')
+)
+
+const route = useRoute()
+const productId = Number(route.params.id)
+const quantity = ref(1)
+const profileStore = useProfileStore()
+const isAuthenticated = profileStore.isAuthenticated
+const isAuthModal = ref(false)
+const { addToCart } = useCart()
+const { getAllProductReviews } = useReviews()
+const { addToFavourite } = useFavourite()
+async function fetchProductPageInfo() {
+	try {
+		const data = await $fetch<responseProductPageInfo>(
+			`http://localhost:8000/api/product/${productId}`,
+			{
+				method: 'GET',
+			}
+		)
+		if (data?.productRow) {
+			return data
+		}
+	} catch (error: any) {
+		const status = error?.status
+		switch (status) {
+			case 400:
+				console.log('Некорректный запрос')
+				break
+			case 404:
+				console.log('Продукт не найден')
+				break
+			case 500:
+				console.log('Ошибка сервера.')
+				break
+			default:
+				console.log('Произошла неизвестная ошибка.')
+				break
+		}
+	}
+}
+
+async function fetchProductReviews() {
+	try {
+		const reviewsData = await $fetch<responseProductPageReviews>(
+			`http://localhost:8000/api/product/${productId}/reviews`,
+			{
+				method: 'GET',
+			}
+		)
+		if (reviewsData?.reviewRows) {
+			return reviewsData
+		}
+	} catch (error: any) {
+		const status = error?.status
+		switch (status) {
+			case 400:
+				console.log('Некорректный запрос')
+				break
+			case 404:
+				console.log('Продукт не найден')
+				break
+			case 500:
+				console.log('Ошибка сервера.')
+				break
+			default:
+				console.log('Произошла неизвестная ошибка.')
+				break
+		}
+	}
+}
+
+async function handleAddProduct(productId: number) {
+	console.log('productId: ', productId)
+	console.log(isAuthenticated)
+	// if(isAuthenticated === true){
+	// 	isAuthModal.value = false;
+	// 	// addToCart(productId);
+	// }
+	// else{
+	// 	isAuthModal.value = true;
+	// }
+	// if( data.value?.productRow?.sellerId){
+	// 	addToCart(productId, data.value?.productRow?.);
+	// }
+}
+
+const { data, pending } = useAsyncData<responseProductPageInfo | undefined>(
+	`product-${productId}`,
+	fetchProductPageInfo
+)
+
+const { data: reviewRows } = useAsyncData<responseAllProductReviews>(
+	`product/${productId}/reviews`,
+	() => getAllProductReviews(productId)
+)
+//
+const updateQuantity = (delta: number) => {
+	const newQuantity = quantity.value + delta
+	const availableQuantity = data.value?.productRow?.quantity || 0
+
+	if (newQuantity >= 1 && newQuantity <= availableQuantity) {
+		quantity.value = newQuantity
+	}
+}
+</script>
 
 <style scoped>
 .product-page {
@@ -857,21 +904,21 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 	font-weight: 700;
 }
 
-.reviews-container{
-	width:100%;
+.reviews-container {
+	width: 100%;
 	background-color: white;
 	border-radius: 32px;
 	margin-top: 40px;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.review-title-h2{
+.review-title-h2 {
 	max-width: 775px;
 	font-weight: 700;
-	padding:20px 35px;
+	padding: 20px 35px;
 	border-bottom: 2px solid #80feac;
 }
-
 
 /* Responsive Design */
 @media (max-width: 1200px) {

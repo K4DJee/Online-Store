@@ -26,7 +26,6 @@
 			>
 				<product-card
 					v-for="(product, index) in products"
-					@add-to-cart="showToast"
 					:key="index"
 					:product="product"
 				/>
@@ -41,6 +40,15 @@
 
 <script setup lang="ts">
 import type { IProduct } from '~/types/types'
+
+const AuthModal = defineAsyncComponent(
+	() => import('~/components/AuthModal.vue')
+)
+const ProductCard = defineAsyncComponent(
+	() => import('~/entities/ui/ProductCard.vue')
+)
+
+import Loader from '~/components/Loader.vue'
 
 interface responseProducts {
 	products: [IProduct]
@@ -75,37 +83,6 @@ async function fetchProducts() {
 				break
 		}
 	}
-}
-
-const toast = useToast()
-
-function showToast(product: IProduct) {
-	console.log(product.name)
-
-	toast.settings({
-		color: '#000000',
-		titleColor: '#000000',
-		messageColor: '#000000',
-		backgroundColor: '#9AE600',
-	})
-
-	toast.success({
-		title: 'Отлично!',
-		message: `Товар успешно добавлен в корзину!`,
-	})
-
-	console.log(toast)
-}
-
-async function handleAddProduct(productId: number) {
-	console.log('productId: ', productId)
-	// if(isAuthenticated.value === true){
-	// 	isAuthModal.value = false;
-	// addToCart(productId,);
-	// }
-	// else{
-	// 	isAuthModal.value = true;
-	// }
 }
 
 onMounted(async () => {

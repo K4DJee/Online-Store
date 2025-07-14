@@ -1,31 +1,28 @@
-<script setup lang="ts">
-import {ref} from 'vue';
-import email_code_recover from '~/components/email_code_recover.vue';
-import email_recover from '~/components/email_recover.vue';
-const nextStage = ref(false);
-
-</script>
 <template>
-    <section class="recover-section">
-        <div class="recover-container">
-            <email_recover v-if="!nextStage" @next="nextStage = true"></email_recover>
-            <email_code_recover v-if="nextStage === true"></email_code_recover>
-        </div>
-    </section>
+	<section
+		class="w-full h-[600px] flex justify-center items-center bg-gray-50"
+	>
+		<div class="w-[600px] bg-white rounded-lg p-6 shadow-md">
+			<component :is="currentStep" @next="goNext" />
+		</div>
+	</section>
 </template>
-<style scoped>
-.recover-section{
-    width:100%;
-    height:600px;
-    display: flex;
-    justify-content: center;
-    align-items: center; 
+
+<script setup lang="ts">
+const step = ref<'email' | 'code'>('email')
+
+const EmailRecover = defineAsyncComponent(
+	() => import('~/components/email_recover.vue')
+)
+const EmailCodeRecover = defineAsyncComponent(
+	() => import('~/components/email_code_recover.vue')
+)
+
+const currentStep = computed(() =>
+	step.value === 'email' ? EmailRecover : EmailCodeRecover
+)
+
+function goNext() {
+	step.value = 'code'
 }
-.recover-container{
-    width:600px;
-    /* height:210px; */
-    background-color: white;
-    border-radius: 9px;
-    padding: 25px;
-}
-</style>
+</script>

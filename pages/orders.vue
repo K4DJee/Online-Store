@@ -1,280 +1,3 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-
-// Mock functions for demo purposes
-const useRouter = () => ({
-	push: (path: string) => console.log(`Navigate to: ${path}`),
-})
-
-const router = useRouter()
-
-// Order interface
-interface OrderItem {
-	id: number
-	title: string
-	price: number
-	quantity: number
-	image: string
-	seller: string
-}
-
-interface Order {
-	id: number
-	orderNumber: string
-	status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
-	createdAt: Date
-	deliveryDate?: Date
-	totalAmount: number
-	deliveryMethod: string
-	paymentMethod: string
-	items: OrderItem[]
-	deliveryAddress: string
-}
-
-// Mock orders data
-const orders = ref<Order[]>([
-	{
-		id: 1,
-		orderNumber: 'ORD-2024-001',
-		status: 'delivered',
-		createdAt: new Date('2024-01-15'),
-		deliveryDate: new Date('2024-01-18'),
-		totalAmount: 105980,
-		deliveryMethod: 'Курьерская доставка',
-		paymentMethod: 'Банковская карта',
-		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
-		items: [
-			{
-				id: 1,
-				title: 'iPhone 14 Pro Max 256GB',
-				price: 89990,
-				quantity: 1,
-				image: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=400',
-				seller: 'TechStore',
-			},
-			{
-				id: 2,
-				title: 'Gaming Chair RGB',
-				price: 15990,
-				quantity: 1,
-				image: 'https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=400',
-				seller: 'GameZone',
-			},
-		],
-	},
-	{
-		id: 2,
-		orderNumber: 'ORD-2024-002',
-		status: 'shipped',
-		createdAt: new Date('2024-01-20'),
-		deliveryDate: new Date('2024-01-23'),
-		totalAmount: 75990,
-		deliveryMethod: 'Курьерская доставка',
-		paymentMethod: 'Наличными при получении',
-		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
-		items: [
-			{
-				id: 3,
-				title: 'MacBook Air M2 13"',
-				price: 75990,
-				quantity: 1,
-				image: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
-				seller: 'AppleCenter',
-			},
-		],
-	},
-	{
-		id: 3,
-		orderNumber: 'ORD-2024-003',
-		status: 'confirmed',
-		createdAt: new Date('2024-01-22'),
-		deliveryDate: new Date('2024-01-25'),
-		totalAmount: 25980,
-		deliveryMethod: 'Самовывоз',
-		paymentMethod: 'СБП',
-		deliveryAddress: 'Пункт выдачи: ул. Арбат, д. 10',
-		items: [
-			{
-				id: 4,
-				title: 'Nike Air Jordan 1 Retro',
-				price: 12990,
-				quantity: 2,
-				image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400',
-				seller: 'SneakerWorld',
-			},
-		],
-	},
-	{
-		id: 4,
-		orderNumber: 'ORD-2024-004',
-		status: 'pending',
-		createdAt: new Date('2024-01-25'),
-		totalAmount: 21990,
-		deliveryMethod: 'Курьерская доставка',
-		paymentMethod: 'Банковская карта',
-		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
-		items: [
-			{
-				id: 5,
-				title: 'Sony WH-1000XM5 Headphones',
-				price: 21990,
-				quantity: 1,
-				image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
-				seller: 'AudioPro',
-			},
-		],
-	},
-	{
-		id: 5,
-		orderNumber: 'ORD-2024-005',
-		status: 'cancelled',
-		createdAt: new Date('2024-01-10'),
-		totalAmount: 8990,
-		deliveryMethod: 'Почта России',
-		paymentMethod: 'Банковская карта',
-		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
-		items: [
-			{
-				id: 6,
-				title: 'Vintage Leather Jacket',
-				price: 8990,
-				quantity: 1,
-				image: 'https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=400',
-				seller: 'VintageStyle',
-			},
-		],
-	},
-])
-
-// Filter state
-const selectedStatus = ref('all')
-const selectedPeriod = ref('all')
-
-// Status options
-const statusOptions = [
-	{ value: 'all', label: 'Все заказы' },
-	{ value: 'pending', label: 'Ожидают подтверждения' },
-	{ value: 'confirmed', label: 'Подтверждены' },
-	{ value: 'shipped', label: 'В пути' },
-	{ value: 'delivered', label: 'Доставлены' },
-	{ value: 'cancelled', label: 'Отменены' },
-]
-
-// Period options
-const periodOptions = [
-	{ value: 'all', label: 'За все время' },
-	{ value: 'month', label: 'За месяц' },
-	{ value: 'quarter', label: 'За 3 месяца' },
-	{ value: 'year', label: 'За год' },
-]
-
-// Computed filtered orders
-const filteredOrders = computed(() => {
-	let filtered = orders.value
-
-	// Filter by status
-	if (selectedStatus.value !== 'all') {
-		filtered = filtered.filter(
-			order => order.status === selectedStatus.value
-		)
-	}
-
-	// Filter by period
-	if (selectedPeriod.value !== 'all') {
-		const now = new Date()
-		const filterDate = new Date()
-
-		switch (selectedPeriod.value) {
-			case 'month':
-				filterDate.setMonth(now.getMonth() - 1)
-				break
-			case 'quarter':
-				filterDate.setMonth(now.getMonth() - 3)
-				break
-			case 'year':
-				filterDate.setFullYear(now.getFullYear() - 1)
-				break
-		}
-
-		filtered = filtered.filter(order => order.createdAt >= filterDate)
-	}
-
-	// Sort by date (newest first)
-	return filtered.sort(
-		(a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-	)
-})
-
-// Statistics
-const stats = computed(() => ({
-	total: orders.value.length,
-	pending: orders.value.filter(o => o.status === 'pending').length,
-	confirmed: orders.value.filter(o => o.status === 'confirmed').length,
-	shipped: orders.value.filter(o => o.status === 'shipped').length,
-	delivered: orders.value.filter(o => o.status === 'delivered').length,
-	cancelled: orders.value.filter(o => o.status === 'cancelled').length,
-	totalAmount: orders.value.reduce((sum, o) => sum + o.totalAmount, 0),
-}))
-
-// Status badge styles
-const getStatusBadge = (status: string) => {
-	switch (status) {
-		case 'pending':
-			return 'bg-yellow-100 text-yellow-800'
-		case 'confirmed':
-			return 'bg-blue-100 text-blue-800'
-		case 'shipped':
-			return 'bg-purple-100 text-purple-800'
-		case 'delivered':
-			return 'bg-green-100 text-green-800'
-		case 'cancelled':
-			return 'bg-red-100 text-red-800'
-		default:
-			return 'bg-gray-100 text-gray-800'
-	}
-}
-
-const getStatusText = (status: string) => {
-	switch (status) {
-		case 'pending':
-			return 'Ожидает подтверждения'
-		case 'confirmed':
-			return 'Подтвержден'
-		case 'shipped':
-			return 'В пути'
-		case 'delivered':
-			return 'Доставлен'
-		case 'cancelled':
-			return 'Отменен'
-		default:
-			return status
-	}
-}
-
-// Actions
-const viewOrderDetails = (orderId: number) => {
-	router.push(`/orders/${orderId}`)
-}
-
-const reorderItems = (order: Order) => {
-	console.log('Reorder items from order:', order.orderNumber)
-	// Add items to cart logic here
-}
-
-const cancelOrder = (orderId: number) => {
-	if (confirm('Вы уверены, что хотите отменить заказ?')) {
-		const order = orders.value.find(o => o.id === orderId)
-		if (order) {
-			order.status = 'cancelled'
-		}
-	}
-}
-
-const trackOrder = (orderId: number) => {
-	router.push(`/orders/${orderId}/tracking`)
-}
-</script>
-
 <template>
 	<section class="min-h-screen bg-gray-50">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -610,6 +333,283 @@ const trackOrder = (orderId: number) => {
 		</div>
 	</section>
 </template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+// Mock functions for demo purposes
+const useRouter = () => ({
+	push: (path: string) => console.log(`Navigate to: ${path}`),
+})
+
+const router = useRouter()
+
+// Order interface
+interface OrderItem {
+	id: number
+	title: string
+	price: number
+	quantity: number
+	image: string
+	seller: string
+}
+
+interface Order {
+	id: number
+	orderNumber: string
+	status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
+	createdAt: Date
+	deliveryDate?: Date
+	totalAmount: number
+	deliveryMethod: string
+	paymentMethod: string
+	items: OrderItem[]
+	deliveryAddress: string
+}
+
+// Mock orders data
+const orders = ref<Order[]>([
+	{
+		id: 1,
+		orderNumber: 'ORD-2024-001',
+		status: 'delivered',
+		createdAt: new Date('2024-01-15'),
+		deliveryDate: new Date('2024-01-18'),
+		totalAmount: 105980,
+		deliveryMethod: 'Курьерская доставка',
+		paymentMethod: 'Банковская карта',
+		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
+		items: [
+			{
+				id: 1,
+				title: 'iPhone 14 Pro Max 256GB',
+				price: 89990,
+				quantity: 1,
+				image: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=400',
+				seller: 'TechStore',
+			},
+			{
+				id: 2,
+				title: 'Gaming Chair RGB',
+				price: 15990,
+				quantity: 1,
+				image: 'https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=400',
+				seller: 'GameZone',
+			},
+		],
+	},
+	{
+		id: 2,
+		orderNumber: 'ORD-2024-002',
+		status: 'shipped',
+		createdAt: new Date('2024-01-20'),
+		deliveryDate: new Date('2024-01-23'),
+		totalAmount: 75990,
+		deliveryMethod: 'Курьерская доставка',
+		paymentMethod: 'Наличными при получении',
+		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
+		items: [
+			{
+				id: 3,
+				title: 'MacBook Air M2 13"',
+				price: 75990,
+				quantity: 1,
+				image: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
+				seller: 'AppleCenter',
+			},
+		],
+	},
+	{
+		id: 3,
+		orderNumber: 'ORD-2024-003',
+		status: 'confirmed',
+		createdAt: new Date('2024-01-22'),
+		deliveryDate: new Date('2024-01-25'),
+		totalAmount: 25980,
+		deliveryMethod: 'Самовывоз',
+		paymentMethod: 'СБП',
+		deliveryAddress: 'Пункт выдачи: ул. Арбат, д. 10',
+		items: [
+			{
+				id: 4,
+				title: 'Nike Air Jordan 1 Retro',
+				price: 12990,
+				quantity: 2,
+				image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400',
+				seller: 'SneakerWorld',
+			},
+		],
+	},
+	{
+		id: 4,
+		orderNumber: 'ORD-2024-004',
+		status: 'pending',
+		createdAt: new Date('2024-01-25'),
+		totalAmount: 21990,
+		deliveryMethod: 'Курьерская доставка',
+		paymentMethod: 'Банковская карта',
+		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
+		items: [
+			{
+				id: 5,
+				title: 'Sony WH-1000XM5 Headphones',
+				price: 21990,
+				quantity: 1,
+				image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+				seller: 'AudioPro',
+			},
+		],
+	},
+	{
+		id: 5,
+		orderNumber: 'ORD-2024-005',
+		status: 'cancelled',
+		createdAt: new Date('2024-01-10'),
+		totalAmount: 8990,
+		deliveryMethod: 'Почта России',
+		paymentMethod: 'Банковская карта',
+		deliveryAddress: 'г. Москва, ул. Тверская, д. 15, кв. 42',
+		items: [
+			{
+				id: 6,
+				title: 'Vintage Leather Jacket',
+				price: 8990,
+				quantity: 1,
+				image: 'https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=400',
+				seller: 'VintageStyle',
+			},
+		],
+	},
+])
+
+// Filter state
+const selectedStatus = ref('all')
+const selectedPeriod = ref('all')
+
+// Status options
+const statusOptions = [
+	{ value: 'all', label: 'Все заказы' },
+	{ value: 'pending', label: 'Ожидают подтверждения' },
+	{ value: 'confirmed', label: 'Подтверждены' },
+	{ value: 'shipped', label: 'В пути' },
+	{ value: 'delivered', label: 'Доставлены' },
+	{ value: 'cancelled', label: 'Отменены' },
+]
+
+// Period options
+const periodOptions = [
+	{ value: 'all', label: 'За все время' },
+	{ value: 'month', label: 'За месяц' },
+	{ value: 'quarter', label: 'За 3 месяца' },
+	{ value: 'year', label: 'За год' },
+]
+
+// Computed filtered orders
+const filteredOrders = computed(() => {
+	let filtered = orders.value
+
+	// Filter by status
+	if (selectedStatus.value !== 'all') {
+		filtered = filtered.filter(
+			order => order.status === selectedStatus.value
+		)
+	}
+
+	// Filter by period
+	if (selectedPeriod.value !== 'all') {
+		const now = new Date()
+		const filterDate = new Date()
+
+		switch (selectedPeriod.value) {
+			case 'month':
+				filterDate.setMonth(now.getMonth() - 1)
+				break
+			case 'quarter':
+				filterDate.setMonth(now.getMonth() - 3)
+				break
+			case 'year':
+				filterDate.setFullYear(now.getFullYear() - 1)
+				break
+		}
+
+		filtered = filtered.filter(order => order.createdAt >= filterDate)
+	}
+
+	// Sort by date (newest first)
+	return filtered.sort(
+		(a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+	)
+})
+
+// Statistics
+const stats = computed(() => ({
+	total: orders.value.length,
+	pending: orders.value.filter(o => o.status === 'pending').length,
+	confirmed: orders.value.filter(o => o.status === 'confirmed').length,
+	shipped: orders.value.filter(o => o.status === 'shipped').length,
+	delivered: orders.value.filter(o => o.status === 'delivered').length,
+	cancelled: orders.value.filter(o => o.status === 'cancelled').length,
+	totalAmount: orders.value.reduce((sum, o) => sum + o.totalAmount, 0),
+}))
+
+// Status badge styles
+const getStatusBadge = (status: string) => {
+	switch (status) {
+		case 'pending':
+			return 'bg-yellow-100 text-yellow-800'
+		case 'confirmed':
+			return 'bg-blue-100 text-blue-800'
+		case 'shipped':
+			return 'bg-purple-100 text-purple-800'
+		case 'delivered':
+			return 'bg-green-100 text-green-800'
+		case 'cancelled':
+			return 'bg-red-100 text-red-800'
+		default:
+			return 'bg-gray-100 text-gray-800'
+	}
+}
+
+const getStatusText = (status: string) => {
+	switch (status) {
+		case 'pending':
+			return 'Ожидает подтверждения'
+		case 'confirmed':
+			return 'Подтвержден'
+		case 'shipped':
+			return 'В пути'
+		case 'delivered':
+			return 'Доставлен'
+		case 'cancelled':
+			return 'Отменен'
+		default:
+			return status
+	}
+}
+
+// Actions
+const viewOrderDetails = (orderId: number) => {
+	router.push(`/orders/${orderId}`)
+}
+
+const reorderItems = (order: Order) => {
+	console.log('Reorder items from order:', order.orderNumber)
+	// Add items to cart logic here
+}
+
+const cancelOrder = (orderId: number) => {
+	if (confirm('Вы уверены, что хотите отменить заказ?')) {
+		const order = orders.value.find(o => o.id === orderId)
+		if (order) {
+			order.status = 'cancelled'
+		}
+	}
+}
+
+const trackOrder = (orderId: number) => {
+	router.push(`/orders/${orderId}/tracking`)
+}
+</script>
 
 <style scoped>
 .line-clamp-2 {

@@ -89,7 +89,7 @@
 						<button
 							@click="
 								basketStore.updateQuantity(
-									product.cartId,
+									product,
 									product.quantity - 1
 								)
 							"
@@ -111,7 +111,7 @@
 						<button
 							@click="
 								basketStore.updateQuantity(
-									product.cartId,
+									product,
 									product.quantity + 1
 								)
 							"
@@ -162,8 +162,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['remove', 'moveToWishlist'])
-
-console.log(props.product)
 </script>
 
 <style scoped></style>

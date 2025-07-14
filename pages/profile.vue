@@ -80,15 +80,15 @@
 <script setup lang="ts">
 import type { AuthState, IUser } from '~/types/types'
 import { useProfileStore } from '#imports'
+import ProfileSidebar from '~/features/profile/profile-sidebar/ui/ProfileSidebar.vue'
+import BalanceCard from '~/features/profile/balance-card/ui/BalanceCard.vue'
+import ProfileQuickInfo from '~/widgets/profile/ui/ProfileQuickInfo.vue'
+import SettingsSection from '~/widgets/profile/ui/SettingsSection.vue'
 
 const profileStore = useProfileStore()
 const { user } = storeToRefs(profileStore)
 
 const promoQuery = ref<string>('')
-
-definePageMeta({
-	middleware: 'auth',
-})
 
 const promoCode = ref('')
 
