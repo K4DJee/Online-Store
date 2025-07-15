@@ -5,7 +5,7 @@ function adaptFavouriteProduct(favouriteProducts) {
       description: favouriteProducts.productDescription || rawProduct.productDescription,
       price: favouriteProducts.productPrice,//parseFloat
       salePrice: favouriteProducts.productSalePrice ? favouriteProducts.productSalePrice : null,
-      quanity:favouriteProducts.quanity,
+      quantity:favouriteProducts.quantity,
       imageUrl: favouriteProducts.productImage,
       productCategory:favouriteProducts.productCategory,
       imageUrl: favouriteProducts.productImage,

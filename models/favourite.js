@@ -24,7 +24,7 @@ async function getFavoriteProductsSQL(userId){
         products.description AS productDescription,
         products.price AS productPrice,
         products.salePrice AS productSalePrice,
-        products.quantity,
+        products.quantity AS quantity,
         categories.categoryName AS productCategory,
         products.imageUrl AS productImage,
         products.createdAt,
