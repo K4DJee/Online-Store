@@ -49,10 +49,10 @@
                 </div>
 
                 <div class="changeReviewBtns-container flex justify-between mt-3"> 
-                    <button class="w-[174px] pt-[10px] pb-[10px] text-base cursor-pointer rounded-lg bg-green-100 hover:bg-lime-400 border-gray-300 border transition-colors"
-                    @click="confirmChangeReview">Сохранить изменения</button>
                     <button class="w-[174px] pt-[10px] pb-[10px] text-base cursor-pointer bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg border-gray-300 border transition-colors"
                     @click="close">Отменить</button>
+                    <button class="w-[174px] pt-[10px] pb-[10px] text-base cursor-pointer rounded-lg bg-green-100 hover:bg-lime-400 border-gray-300 border transition-colors"
+                    @click="confirmChangeReview">Сохранить изменения</button>
                 </div>
             </div>
         </div>

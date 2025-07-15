@@ -380,7 +380,6 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 				:key="reviewCard?.reviewId"
 				:reviewCard
 				></review-card>
-				{{ reviewRows?.reviewRows }}
 				</ul>
 			</div>
 		</div>
