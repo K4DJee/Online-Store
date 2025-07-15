@@ -210,6 +210,10 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '#imports'
 
+const AuthModal = defineAsyncComponent(
+	() => import('~/components/AuthModal.vue')
+)
+
 const appStore = useAppStore()
 const profileStore = useProfileStore()
 

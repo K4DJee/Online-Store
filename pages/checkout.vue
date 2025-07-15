@@ -1,180 +1,12 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-
-// Mock functions for demo purposes
-const useRouter = () => ({
-	push: (path: string) => console.log(`Navigate to: ${path}`),
-})
-
-const router = useRouter()
-
-// Checkout form data
-const checkoutForm = ref({
-	// Delivery info
-	firstName: '',
-	lastName: '',
-	phone: '',
-	email: '',
-	city: '',
-	address: '',
-	postalCode: '',
-	deliveryMethod: 'courier',
-
-	// Payment info
-	paymentMethod: 'card',
-	cardNumber: '',
-	expiryDate: '',
-	cvv: '',
-	cardHolder: '',
-
-	// Additional
-	comment: '',
-	saveInfo: true,
-})
-
-// Mock basket items from previous component
-const basketItems = ref([
-	{
-		id: 1,
-		title: 'iPhone 14 Pro Max 256GB',
-		price: 89990,
-		originalPrice: 99990,
-		image: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=400',
-		seller: 'TechStore',
-		quantity: 1,
-		deliveryDate: '2024-01-20',
-	},
-	{
-		id: 2,
-		title: 'MacBook Air M2 13"',
-		price: 75990,
-		originalPrice: 85990,
-		image: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
-		seller: 'AppleCenter',
-		quantity: 1,
-		deliveryDate: '2024-01-22',
-	},
-	{
-		id: 4,
-		title: 'Gaming Chair RGB',
-		price: 15990,
-		originalPrice: 19990,
-		image: 'https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=400',
-		seller: 'GameZone',
-		quantity: 1,
-		deliveryDate: '2024-01-18',
-	},
-])
-
-// Delivery methods
-const deliveryMethods = [
-	{
-		value: 'courier',
-		label: 'Курьерская доставка',
-		price: 300,
-		time: '1-2 дня',
-	},
-	{ value: 'pickup', label: 'Самовывоз', price: 0, time: 'Сегодня' },
-	{ value: 'post', label: 'Почта России', price: 250, time: '3-7 дней' },
-]
-
-// Payment methods
-const paymentMethods = [
-	{ value: 'card', label: 'Банковская карта', icon: '💳' },
-	{ value: 'cash', label: 'Наличными при получении', icon: '💵' },
-	{ value: 'sbp', label: 'СБП (Система быстрых платежей)', icon: '📱' },
-]
-
-// Computed values
-const subtotal = computed(() =>
-	basketItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-)
-const originalTotal = computed(() =>
-	basketItems.value.reduce(
-		(sum, item) => sum + item.originalPrice * item.quantity,
-		0
-	)
-)
-const discount = computed(() => originalTotal.value - subtotal.value)
-const deliveryPrice = computed(() => {
-	const method = deliveryMethods.find(
-		m => m.value === checkoutForm.value.deliveryMethod
-	)
-	return method ? method.price : 0
-})
-const total = computed(() => subtotal.value + deliveryPrice.value)
-
-// Form validation
-const isFormValid = computed(() => {
-	const form = checkoutForm.value
-	return (
-		form.firstName &&
-		form.lastName &&
-		form.phone &&
-		form.email &&
-		form.city &&
-		form.address &&
-		form.deliveryMethod &&
-		form.paymentMethod &&
-		(form.paymentMethod !== 'card' ||
-			(form.cardNumber && form.expiryDate && form.cvv && form.cardHolder))
-	)
-})
-
-// Methods
-const formatCardNumber = (value: string) => {
-	return value
-		.replace(/\s/g, '')
-		.replace(/(.{4})/g, '$1 ')
-		.trim()
-}
-
-const formatExpiryDate = (value: string) => {
-	return value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2')
-}
-
-const handleCardNumberInput = (event: Event) => {
-	const target = event.target as HTMLInputElement
-	const value = target.value.replace(/\D/g, '').slice(0, 16)
-	checkoutForm.value.cardNumber = formatCardNumber(value)
-}
-
-const handleExpiryInput = (event: Event) => {
-	const target = event.target as HTMLInputElement
-	const value = target.value.replace(/\D/g, '').slice(0, 4)
-	checkoutForm.value.expiryDate = formatExpiryDate(value)
-}
-
-const handleCvvInput = (event: Event) => {
-	const target = event.target as HTMLInputElement
-	checkoutForm.value.cvv = target.value.replace(/\D/g, '').slice(0, 3)
-}
-
-const submitOrder = () => {
-	if (!isFormValid.value) {
-		alert('Пожалуйста, заполните все обязательные поля')
-		return
-	}
-
-	// Here would be the actual order submission logic
-	alert('Заказ успешно оформлен!')
-	router.push('/orders')
-}
-
-const goBack = () => {
-	router.push('/basket')
-}
-</script>
-
 <template>
 	<section class="min-h-screen bg-gray-50">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<!-- Header -->
 			<div class="mb-8">
 				<div class="flex items-center space-x-4 mb-6">
-					<button
-						@click="goBack"
-						class="text-gray-600 hover:text-gray-800 transition-colors"
+					<NuxtLink
+						to="/basket"
+						class="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
 					>
 						<svg
 							class="w-6 h-6"
@@ -185,7 +17,7 @@ const goBack = () => {
 								d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
 							/>
 						</svg>
-					</button>
+					</NuxtLink>
 					<div>
 						<h1 class="text-3xl font-bold text-gray-900">
 							Оформление заказа
@@ -647,6 +479,174 @@ const goBack = () => {
 		</div>
 	</section>
 </template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+// Mock functions for demo purposes
+const useRouter = () => ({
+	push: (path: string) => console.log(`Navigate to: ${path}`),
+})
+
+const router = useRouter()
+
+// Checkout form data
+const checkoutForm = ref({
+	// Delivery info
+	firstName: '',
+	lastName: '',
+	phone: '',
+	email: '',
+	city: '',
+	address: '',
+	postalCode: '',
+	deliveryMethod: 'courier',
+
+	// Payment info
+	paymentMethod: 'card',
+	cardNumber: '',
+	expiryDate: '',
+	cvv: '',
+	cardHolder: '',
+
+	// Additional
+	comment: '',
+	saveInfo: true,
+})
+
+// Mock basket items from previous component
+const basketItems = ref([
+	{
+		id: 1,
+		title: 'iPhone 14 Pro Max 256GB',
+		price: 89990,
+		originalPrice: 99990,
+		image: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=400',
+		seller: 'TechStore',
+		quantity: 1,
+		deliveryDate: '2024-01-20',
+	},
+	{
+		id: 2,
+		title: 'MacBook Air M2 13"',
+		price: 75990,
+		originalPrice: 85990,
+		image: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
+		seller: 'AppleCenter',
+		quantity: 1,
+		deliveryDate: '2024-01-22',
+	},
+	{
+		id: 4,
+		title: 'Gaming Chair RGB',
+		price: 15990,
+		originalPrice: 19990,
+		image: 'https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=400',
+		seller: 'GameZone',
+		quantity: 1,
+		deliveryDate: '2024-01-18',
+	},
+])
+
+// Delivery methods
+const deliveryMethods = [
+	{
+		value: 'courier',
+		label: 'Курьерская доставка',
+		price: 300,
+		time: '1-2 дня',
+	},
+	{ value: 'pickup', label: 'Самовывоз', price: 0, time: 'Сегодня' },
+	{ value: 'post', label: 'Почта России', price: 250, time: '3-7 дней' },
+]
+
+// Payment methods
+const paymentMethods = [
+	{ value: 'card', label: 'Банковская карта', icon: '💳' },
+	{ value: 'cash', label: 'Наличными при получении', icon: '💵' },
+	{ value: 'sbp', label: 'СБП (Система быстрых платежей)', icon: '📱' },
+]
+
+// Computed values
+const subtotal = computed(() =>
+	basketItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+)
+const originalTotal = computed(() =>
+	basketItems.value.reduce(
+		(sum, item) => sum + item.originalPrice * item.quantity,
+		0
+	)
+)
+const discount = computed(() => originalTotal.value - subtotal.value)
+const deliveryPrice = computed(() => {
+	const method = deliveryMethods.find(
+		m => m.value === checkoutForm.value.deliveryMethod
+	)
+	return method ? method.price : 0
+})
+const total = computed(() => subtotal.value + deliveryPrice.value)
+
+// Form validation
+const isFormValid = computed(() => {
+	const form = checkoutForm.value
+	return (
+		form.firstName &&
+		form.lastName &&
+		form.phone &&
+		form.email &&
+		form.city &&
+		form.address &&
+		form.deliveryMethod &&
+		form.paymentMethod &&
+		(form.paymentMethod !== 'card' ||
+			(form.cardNumber && form.expiryDate && form.cvv && form.cardHolder))
+	)
+})
+
+// Methods
+const formatCardNumber = (value: string) => {
+	return value
+		.replace(/\s/g, '')
+		.replace(/(.{4})/g, '$1 ')
+		.trim()
+}
+
+const formatExpiryDate = (value: string) => {
+	return value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2')
+}
+
+const handleCardNumberInput = (event: Event) => {
+	const target = event.target as HTMLInputElement
+	const value = target.value.replace(/\D/g, '').slice(0, 16)
+	checkoutForm.value.cardNumber = formatCardNumber(value)
+}
+
+const handleExpiryInput = (event: Event) => {
+	const target = event.target as HTMLInputElement
+	const value = target.value.replace(/\D/g, '').slice(0, 4)
+	checkoutForm.value.expiryDate = formatExpiryDate(value)
+}
+
+const handleCvvInput = (event: Event) => {
+	const target = event.target as HTMLInputElement
+	checkoutForm.value.cvv = target.value.replace(/\D/g, '').slice(0, 3)
+}
+
+const submitOrder = () => {
+	if (!isFormValid.value) {
+		alert('Пожалуйста, заполните все обязательные поля')
+		return
+	}
+
+	// Here would be the actual order submission logic
+	alert('Заказ успешно оформлен!')
+	router.push('/orders')
+}
+
+const goBack = () => {
+	router.push('/basket')
+}
+</script>
 
 <style scoped>
 .line-clamp-2 {

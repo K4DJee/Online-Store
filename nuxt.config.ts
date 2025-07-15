@@ -18,36 +18,12 @@ export default defineNuxtConfig({
 		},
 	},
 
-	components: {
-		dirs: [
-			{
-				path: '~/components',
-				pathPrefix: false,
-				global: true,
-			},
-			{
-				path: '~/entities',
-				pathPrefix: false,
-				global: true,
-			},
-			{
-				path: '~/features',
-				pathPrefix: false,
-				global: true,
-			},
-			{
-				path: '~/widgets/',
-				pathPrefix: false,
-				global: true,
-			},
-		],
-	},
-
 	runtimeConfig: {
 		public: {
 			apiBase: '/api',
 		},
 	},
+
 	nitro: {
 		devProxy: {
 			'/api': {

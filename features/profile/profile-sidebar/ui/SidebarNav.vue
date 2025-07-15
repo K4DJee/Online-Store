@@ -14,6 +14,8 @@
 import { useProfileStore } from '#imports'
 import { sidebarConfig } from '../config/sidebar.config'
 
+import SidebarGroup from '~/widgets/profile/ui/SidebarGroup.vue'
+
 const profileStore = useProfileStore()
 const { user } = profileStore
 </script>

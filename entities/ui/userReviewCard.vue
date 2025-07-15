@@ -1,40 +1,52 @@
 <template>
-    <div class="userReviewCard bg-white rounded-2xl p-[15px] border border-gray-100">
-        <div class=" flex items-center gap-2.5 justify-between h-full">
-            <div class="w-full flex gap-2.5">
-                <NuxtImg class="rounded-[9px] w-[90px]" :src="userReviewCard.imageUrl"></NuxtImg>
-                 <div class="grid gap-1.25">
-                    <div class="grid">
-                        <h2 class="w-full">{{userReviewCard.productName }}</h2>
-                        <h2 class="text-gray-600 text-sm">{{ formatDate(parseDate(userReviewCard.createdAt)) }}</h2>
-                        <div class="flex gap-2.5 items-center mt-[20px]">
-                        <div class="userReviewRating flex gap-0.5" >
-                            <div class="star"
-                            v-for="star in 5"
-                            :key="star"
-                            >
-                            <svg
-                            width="16"
-                            height="15"
-                            viewBox="0 0 15 14"
-                            fill="none"
-                        >
-                            <path
-                                d="M11.5973 14C11.419 14 11.2417 13.9466 11.089 13.8403L7.50009 11.3293L3.91113 13.8403C3.76244 13.9447 3.58374 14.0005 3.40056 13.9999C3.21738 13.9993 3.03909 13.9422 2.89114 13.8369C2.74305 13.7321 2.63259 13.5845 2.57548 13.4149C2.51837 13.2454 2.51752 13.0626 2.57305 12.8925L3.91157 8.67793L0.354822 6.23275C0.207417 6.12662 0.0979459 5.97796 0.0418925 5.8078C-0.0141608 5.63764 -0.0139588 5.45459 0.0424702 5.28455C0.0993442 5.11492 0.209422 4.96702 0.357147 4.86175C0.504871 4.75648 0.682771 4.69916 0.865703 4.6979L5.27083 4.69144L6.67333 0.58142C6.73121 0.412106 6.84222 0.264848 6.99064 0.160499C7.13906 0.0561503 7.31737 0 7.50031 0C7.68326 0 7.86156 0.0561503 8.00998 0.160499C8.1584 0.264848 8.26942 0.412106 8.32729 0.58142L9.70597 4.69144L14.1336 4.6979C14.3167 4.69891 14.4949 4.75619 14.6428 4.86162C14.7907 4.96705 14.9007 5.11526 14.9573 5.2852C15.0139 5.45513 15.0142 5.63815 14.9581 5.80825C14.9021 5.97835 14.7925 6.12689 14.6449 6.23275L11.0882 8.67793L12.4267 12.8925C12.4823 13.0625 12.4816 13.2453 12.4246 13.4149C12.3675 13.5844 12.2571 13.7321 12.109 13.8369C11.9606 13.9431 11.7813 14.0002 11.5973 14Z"
-                                :fill="(userReviewCard.rating >= star) ?  '#FFAC33' :  '#B0B0B0'"
-                            />
-                        </svg>
-                        </div>
-                        </div>
-                        <h2 class="text-gray-600 text-sm">{{ userReviewCard.rating }} из 5</h2>
-                    </div>
-                    </div>
+	<div
+		class="userReviewCard bg-white rounded-2xl p-[15px] border border-gray-100"
+	>
+		<div class="flex items-center gap-2.5 justify-between h-full">
+			<div class="w-full flex gap-2.5">
+				<NuxtImg
+					class="rounded-[9px] w-[90px]"
+					:src="userReviewCard.imageUrl"
+				></NuxtImg>
+				<div class="grid gap-1.25">
+					<div class="grid">
+						<h2 class="w-full">{{ userReviewCard.productName }}</h2>
+						<h2 class="text-gray-600 text-sm">
+							{{
+								formatDate(parseDate(userReviewCard.createdAt))
+							}}
+						</h2>
+						<div class="flex gap-2.5 items-center mt-[20px]">
+							<div class="userReviewRating flex gap-0.5">
+								<div class="star" v-for="star in 5" :key="star">
+									<svg
+										width="16"
+										height="15"
+										viewBox="0 0 15 14"
+										fill="none"
+									>
+										<path
+											d="M11.5973 14C11.419 14 11.2417 13.9466 11.089 13.8403L7.50009 11.3293L3.91113 13.8403C3.76244 13.9447 3.58374 14.0005 3.40056 13.9999C3.21738 13.9993 3.03909 13.9422 2.89114 13.8369C2.74305 13.7321 2.63259 13.5845 2.57548 13.4149C2.51837 13.2454 2.51752 13.0626 2.57305 12.8925L3.91157 8.67793L0.354822 6.23275C0.207417 6.12662 0.0979459 5.97796 0.0418925 5.8078C-0.0141608 5.63764 -0.0139588 5.45459 0.0424702 5.28455C0.0993442 5.11492 0.209422 4.96702 0.357147 4.86175C0.504871 4.75648 0.682771 4.69916 0.865703 4.6979L5.27083 4.69144L6.67333 0.58142C6.73121 0.412106 6.84222 0.264848 6.99064 0.160499C7.13906 0.0561503 7.31737 0 7.50031 0C7.68326 0 7.86156 0.0561503 8.00998 0.160499C8.1584 0.264848 8.26942 0.412106 8.32729 0.58142L9.70597 4.69144L14.1336 4.6979C14.3167 4.69891 14.4949 4.75619 14.6428 4.86162C14.7907 4.96705 14.9007 5.11526 14.9573 5.2852C15.0139 5.45513 15.0142 5.63815 14.9581 5.80825C14.9021 5.97835 14.7925 6.12689 14.6449 6.23275L11.0882 8.67793L12.4267 12.8925C12.4823 13.0625 12.4816 13.2453 12.4246 13.4149C12.3675 13.5844 12.2571 13.7321 12.109 13.8369C11.9606 13.9431 11.7813 14.0002 11.5973 14Z"
+											:fill="
+												userReviewCard.rating >= star
+													? '#FFAC33'
+													: '#B0B0B0'
+											"
+										/>
+									</svg>
+								</div>
+							</div>
+							<h2 class="text-gray-600 text-sm">
+								{{ userReviewCard.rating }} из 5
+							</h2>
+						</div>
+					</div>
 
-                    <div class=" border-amber-500 min-h-4">
-                    {{ userReviewCard.comment }}
-                    </div>
-                 </div>
-            </div>
+					<div class="border-amber-500 min-h-4">
+						{{ userReviewCard.comment }}
+					</div>
+				</div>
+			</div>
 
             <div class="userReviewCard-btn-container flex gap-2.5 h-full items-start" >
                 <button class="userReviewBtn h-7.5 w-7.5 hover:bg-green-100 transition-colors"
@@ -67,29 +79,43 @@
     @close="showChangeConfirmation = false"
     ></ChangeReviewModal>
 
+	<ChangeReviewModal
+		v-if="showChangeConfirmation"
+		:show="showChangeConfirmation"
+		:userReviewCard="userReviewCard"
+		@confirm="handleChangeReview"
+		@close="showChangeConfirmation = false"
+	></ChangeReviewModal>
 </template>
 <script setup lang="ts">
-import { NuxtImg } from '#components';
-import type {userReviewRows} from '~/types/reviewsTypes'
-import {formatDate, parseDate} from '~/entities/helpers/formatDate'
-import ReviewCard from './ReviewCard.vue';
-import ConfirmDeleteModal from '~/components/ConfirmDeleteModal.vue';
-const {changeReview, deleteReview} = useReviews();
-const props = defineProps<{
-    userReviewCard:userReviewRows
-}>()
-const userReviewCard = computed(()=>props.userReviewCard);
-const showDeleteConfirmation = ref(false);
-const showChangeConfirmation = ref(false);
+import { NuxtImg } from '#components'
+import type { userReviewRows } from '~/types/reviewsTypes'
+import { formatDate, parseDate } from '~/entities/helpers/formatDate'
 
-async function handleDelete(){
-    await deleteReview(props.userReviewCard.reviewId);
-    showDeleteConfirmation.value = false
+const ConfirmDeleteModal = defineAsyncComponent(
+	() => import('~/components/ConfirmDeleteModal.vue')
+)
+const ReviewCard = defineAsyncComponent(() => import('./ReviewCard.vue'))
+const ChangeReviewModal = defineAsyncComponent(
+	() => import('~/components/ChangeReviewModal.vue')
+)
+
+const { changeReview, deleteReview } = useReviews()
+const props = defineProps<{
+	userReviewCard: userReviewRows
+}>()
+const userReviewCard = computed(() => props.userReviewCard)
+const showDeleteConfirmation = ref(false)
+const showChangeConfirmation = ref(false)
+
+async function handleDelete() {
+	await deleteReview(props.userReviewCard.reviewId)
+	showDeleteConfirmation.value = false
 }
 
-async function handleChangeReview(){
-    // await changeReview(props.userReviewCard.reviewId, );
-    showChangeConfirmation.value = false;
+async function handleChangeReview() {
+	// await changeReview(props.userReviewCard.reviewId, );
+	showChangeConfirmation.value = false
 }
 
 watch(()=>showDeleteConfirmation.value || showChangeConfirmation.value, (isOpen)=>{
@@ -98,19 +124,18 @@ watch(()=>showDeleteConfirmation.value || showChangeConfirmation.value, (isOpen)
 
 </script>
 <style>
-.userReviewCard{
-
-    border-bottom: 3px solid var(--color-lime-400);
+.userReviewCard {
+	border-bottom: 3px solid var(--color-lime-400);
 }
-.userReviewBtn{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    /* background-color: var(--color-lime-400); */
-    border-radius: 5px;
-    & svg{
-        height:18px;
-    }
+.userReviewBtn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	/* background-color: var(--color-lime-400); */
+	border-radius: 5px;
+	& svg {
+		height: 18px;
+	}
 }
 </style>

@@ -2,6 +2,7 @@ import type { basketProduct, basketResponse } from '../types/basketTypes'
 import type { appResponses, responseRequests } from '~/types/appTypes'
 
 import { useAppStore } from '#imports'
+import type { IProduct } from '~/types/types'
 
 export const useBasketStore = defineStore('basketStore', () => {
 	const router = useRouter()
@@ -24,7 +25,45 @@ export const useBasketStore = defineStore('basketStore', () => {
 		return cartData
 	}
 
-	async function removeItem(cartId: number): Promise<responseRequests> {
+	const addToCart = async (
+		productId: number,
+		sellerName: string,
+		quantity: number = 1
+	) => {
+		const result = await appStore.postResponse({
+			url: 'http://localhost:8000/api/add-product-cart',
+			data: {
+				productId,
+				quantity,
+				sellerName,
+			},
+		})
+
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+
+		await fetchUserBasket()
+
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+		// !!!!!!!!!!!!!!!!!! КОСТЫЛЬ
+
+		return result
+	}
+
+	async function removeItem(
+		cartId: number,
+		isShowToast: boolean = true
+	): Promise<responseRequests> {
 		const response: responseRequests = await appStore.deleteResponse({
 			url: 'http://localhost:8000/api/delete-product-cart',
 			data: {
@@ -38,6 +77,10 @@ export const useBasketStore = defineStore('basketStore', () => {
 			)
 		}
 
+		if (isShowToast) {
+			useShowToast('Товар был удален из корзины', '')
+		}
+
 		return response
 	}
 
@@ -46,10 +89,13 @@ export const useBasketStore = defineStore('basketStore', () => {
 		return basketItems.value.reduce((sum, item) => sum + item.quantity, 0)
 	})
 	const totalPrice = computed(() => {
-		return basketItems.value.reduce(
-			(sum, item) => sum + item.salePrice * item.quantity,
-			0
-		)
+		return basketItems.value.reduce((sum, item) => {
+			if (item.salePrice) {
+				return sum + item.salePrice * item.quantity
+			} else {
+				return sum + item.productPrice * item.quantity
+			}
+		}, 0)
 	})
 	const totalOriginalPrice = computed(() => {
 		return basketItems.value.reduce(
@@ -61,12 +107,33 @@ export const useBasketStore = defineStore('basketStore', () => {
 		() => totalOriginalPrice.value - totalPrice.value
 	)
 
-	const updateQuantity = (itemId: number, newQuantity: number) => {
+	const updateQuantity = async (
+		product: basketProduct,
+		newQuantity: number
+	) => {
 		if (newQuantity < 1) return
-		const item = basketItems.value.find(item => item.productId === itemId)
-		if (item) {
-			item.quantity = newQuantity
+
+		const result: responseRequests = await appStore.putResponse({
+			url: 'http://localhost:8000/api/change-product-cart',
+			data: {
+				cartId: product.cartId,
+				quantity: newQuantity,
+				productId: product.productId,
+			},
+		})
+
+		if (result.success) {
+			const item = basketItems.value.find(
+				item => item.cartId === product.cartId
+			)
+			if (item) {
+				item.quantity = newQuantity
+			}
+		} else {
+			useShowToast('Больше товаров нет', '')
 		}
+
+		return result
 	}
 
 	const moveToWishlist = async (product: basketProduct) => {
@@ -79,7 +146,8 @@ export const useBasketStore = defineStore('basketStore', () => {
 		})
 
 		if (response.success) {
-			await removeItem(product.cartId)
+			await removeItem(product.cartId, false)
+			useShowToast('Товар был перемещен в Избранное', '')
 		}
 	}
 
@@ -88,9 +156,28 @@ export const useBasketStore = defineStore('basketStore', () => {
 		router.push('/checkout')
 	}
 
+	const getCartProduct = (product: IProduct) => {
+		const cartProduct = basketItems.value.find(
+			p => p.productId === product.productId
+		)
+
+		if (!cartProduct) return null
+
+		return cartProduct
+	}
+
+	const getProductQuantity = (cartId: number) => {
+		const cartProduct = basketItems.value.find(p => p.cartId === cartId)
+
+		if (!cartProduct) return 0
+
+		return cartProduct.quantity
+	}
+
 	return {
 		fetchUserBasket,
 		basketItems,
+		addToCart,
 		isLoading,
 		totalItems,
 		totalPrice,
@@ -100,5 +187,7 @@ export const useBasketStore = defineStore('basketStore', () => {
 		removeItem,
 		moveToWishlist,
 		proceedToCheckout,
+		getProductQuantity,
+		getCartProduct,
 	}
 })

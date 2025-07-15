@@ -14,8 +14,11 @@
 <script setup lang="ts">
 import type { AuthState, IUser } from './types/types'
 import { useProfileStore } from '#imports'
+import { useBasketStore } from '#imports'
+import { Loader } from '#components'
 
 const profileStore = useProfileStore()
+const basketStore = useBasketStore()
 
 //variables
 const token = useCookie('token')
@@ -24,6 +27,10 @@ const currentUser = ref<IUser | null>(null)
 interface validateTokenResponse {
 	valid: boolean
 }
+definePageMeta({
+	middleware: 'auth',
+})
+
 provide<AuthState>('auth', {
 	isAuthUser,
 	currentUser,
@@ -76,6 +83,7 @@ async function fetchUserData(actualToken: string) {
 onMounted(async () => {
 	if (token.value) {
 		await fetchUserData(token.value)
+		await basketStore.fetchUserBasket()
 	} else {
 		console.log('Not enough token')
 	}

@@ -200,14 +200,14 @@
 import { useBasketStore } from '#imports'
 import type { basketProduct } from '~/types/basketTypes'
 
+const BasketCard = defineAsyncComponent(
+	() => import('~/entities/ui/basket/BasketCard.vue')
+)
+
 const basketStore = useBasketStore()
 const router = useRouter()
 
 // Basket items state
-onMounted(async () => {
-	await basketStore.fetchUserBasket()
-})
-
 async function onRemove(cartId: number) {
 	await basketStore.removeItem(cartId)
 }
