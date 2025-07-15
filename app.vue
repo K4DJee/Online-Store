@@ -36,7 +36,6 @@ async function fetchUserData(actualToken: string) {
 			token.value = actualToken
 		}
 		if (!token.value) {
-			console.log('enough token')
 			return
 		}
 		const response = await $fetch<validateTokenResponse>(
@@ -49,7 +48,7 @@ async function fetchUserData(actualToken: string) {
 			}
 		)
 		if (!response?.valid === true) {
-			return console.log('wrong valid')
+			return
 		}
 		isAuthUser.value = true
 		const userResponse = await $fetch<IUser>(
@@ -64,9 +63,8 @@ async function fetchUserData(actualToken: string) {
 		// currentUser.value = userResponse
 		// profileStore.user = userResponse
 		profileStore.setUser(userResponse)
-		console.log(userResponse)
 
-		return console.log('success')
+		return
 	} catch (error) {
 		console.error(error)
 	}

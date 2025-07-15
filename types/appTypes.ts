@@ -5,12 +5,12 @@ export interface responseRequests {
 
 export interface requestParams {
 	url: string
-	method: string
+	method?: string
 	data: object
 }
 
 export interface appResponses {
 	message: string
 	success: boolean
-	responseRow: any[]
+	cartProductsRow: any[]
 }

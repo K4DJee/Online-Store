@@ -20,25 +20,29 @@ export const useAppStore = defineStore('appStore', () => {
 
 	const getResponse = async ({
 		url,
-		data,
+		data = {},
 	}: Partial<requestParams>): Promise<appResponses> => {
 		try {
 			const token = getTokenFromCookie()
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/json',
+				...(token ? { Authorization: `Bearer ${token}` } : {}),
+			}
+
 			const response = await $fetch<appResponses>(url!, {
 				method: 'GET',
-				body: {
-					headers: {
-						Authorization: token ? `Bearer ${token}` : '',
-					},
-				},
+				headers,
+				params: data, // передаём все параметры в query-string
 			})
-			if (response?.success) {
+
+			if (response.success) {
 				return response
 			}
+
 			return {
 				message: 'Ошибка получения данных',
 				success: false,
-				responseRow: [],
+				cartProductsRow: [],
 			}
 		} catch (error: any) {
 			const status = error?.status
@@ -56,14 +60,13 @@ export const useAppStore = defineStore('appStore', () => {
 					console.log('Ошибка сервера.')
 					break
 				default:
-					console.log(error)
-					console.log('Произошла неизвестная ошибка.')
+					console.log('Неизвестная ошибка:', error)
 					break
 			}
 			return {
 				message: 'Ошибка получения данных',
 				success: false,
-				responseRow: [],
+				cartProductsRow: [],
 			}
 		}
 	}

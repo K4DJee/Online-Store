@@ -1,63 +1,65 @@
 <template>
 	<div
+		v-if="product"
+		:to="`/product/${product.productId}`"
 		class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
 	>
 		<div class="flex items-start space-x-4">
 			<!-- Product Image -->
 			<div class="flex-shrink-0">
-				<img
-					:src="item.imageUrl"
-					:alt="item.productName"
-					class="w-24 h-24 object-cover rounded-xl"
-				/>
+				<NuxtLink :to="`/product/${product.productId}`">
+					<img
+						:src="product.imageUrl"
+						:alt="product.productName"
+						class="w-24 h-24 object-cover rounded-xl"
+					/>
+				</NuxtLink>
 			</div>
 
 			<!-- Product Info -->
 			<div class="flex-1 min-w-0">
 				<div class="flex items-start justify-between">
 					<div class="flex-1">
-						<h4 class="text-lg font-semibold text-gray-900 mb-1">
-							{{ item.productName }}
-						</h4>
+						<NuxtLink :to="`/product/${product.productId}`">
+							<h4
+								class="text-lg font-semibold text-gray-900 mb-1"
+							>
+								{{ product.productName }}
+							</h4>
+						</NuxtLink>
 						<p class="text-sm text-gray-600 mb-2">
-							Продавец: {{ item.sellerName }}
-						</p>
-						<p class="text-sm text-gray-600 mb-3">
-							Доставка:
-							{{
-								new Date(item.addedAt).toLocaleDateString(
-									'ru-RU'
-								)
-							}}
+							Продавец: {{ product.sellerName }}
 						</p>
 
 						<!-- Price -->
 						<div class="flex items-center space-x-2 mb-4">
-							<span class="text-xl font-bold text-gray-900"
-								>{{
-									item.productSalePrice.toLocaleString()
+							<!-- sale price -->
+							<div
+								v-if="product.salePrice"
+								className="flex items-center space-x-3"
+							>
+								<!--  Current Price  -->
+								<span class="text-xl font-bold text-green-700">
+									{{ product.salePrice.toLocaleString() }} ₽
+								</span>
+
+								<!-- Original Price (if on sale)  -->
+								<span
+									class="text-sm text-gray-400 line-through"
+								>
+									{{ product.productPrice.toLocaleString() }}
+									₽
+								</span>
+							</div>
+
+							<!-- no sale  -->
+							<span v-else class="text-sm text-gray-600">
+								{{
+									Number(
+										product.productPrice
+									).toLocaleString()
 								}}
-								₽</span
-							>
-							<span
-								v-if="item.productPrice > item.productPrice"
-								class="text-sm text-gray-500 line-through"
-							>
-								{{ item.productPrice.toLocaleString() }}
 								₽
-							</span>
-							<span
-								v-if="item.productPrice > item.productSalePrice"
-								class="text-sm text-green-600 font-medium"
-							>
-								-{{
-									Math.round(
-										(1 -
-											item.productSalePrice /
-												item.productPrice) *
-											100
-									)
-								}}%
 							</span>
 						</div>
 					</div>
@@ -65,8 +67,8 @@
 					<!-- Actions -->
 					<div class="flex flex-col items-end space-y-2">
 						<button
-							@click="removeItem(item.cartId)"
-							class="text-gray-400 hover:text-red-500 transition-colors"
+							@click="$emit('remove', product.cartId)"
+							class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
 						>
 							<svg
 								class="w-5 h-5"
@@ -86,9 +88,12 @@
 					<div class="flex items-center space-x-3">
 						<button
 							@click="
-								updateQuantity(item.cartId, item.quantity - 1)
+								basketStore.updateQuantity(
+									product.cartId,
+									product.quantity - 1
+								)
 							"
-							:disabled="item.quantity <= 1"
+							:disabled="product.quantity <= 1"
 							class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
 							<svg
@@ -101,11 +106,14 @@
 						</button>
 						<span
 							class="text-lg font-medium min-w-[2rem] text-center"
-							>{{ item.quantity }}</span
+							>{{ product.quantity }}</span
 						>
 						<button
 							@click="
-								updateQuantity(item.cartId, item.quantity + 1)
+								basketStore.updateQuantity(
+									product.cartId,
+									product.quantity + 1
+								)
 							"
 							class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
 						>
@@ -121,8 +129,8 @@
 
 					<div class="flex items-center space-x-4">
 						<button
-							@click="moveToWishlist(item.cartId)"
-							class="text-sm text-gray-600 hover:text-lime-600 transition-colors flex items-center space-x-1"
+							@click="emit('moveToWishlist', product)"
+							class="text-sm text-gray-600 hover:text-lime-600 transition-colors flex items-center space-x-1 cursor-pointer"
 						>
 							<svg
 								class="w-4 h-4"
@@ -144,9 +152,18 @@
 
 <script setup lang="ts">
 import type { basketProduct } from '~/types/basketTypes'
-defineProps<{
-	item: basketProduct
+import { useBasketStore } from '#imports'
+import { NuxtLink } from '#components'
+
+const basketStore = useBasketStore()
+
+const props = defineProps<{
+	product: basketProduct
 }>()
+
+const emit = defineEmits(['remove', 'moveToWishlist'])
+
+console.log(props.product)
 </script>
 
 <style scoped></style>
