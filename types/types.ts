@@ -31,6 +31,8 @@ export interface IProduct {
 	sellerName: string,
 	averageRating: number,
 	reviewCount: number,
+	totalSellerReviews: number,
+    sellerAverageRating: string,
 	images:IProductImages[]
 }
 

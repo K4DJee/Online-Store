@@ -212,7 +212,7 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 										fill="#FFAC33"
 									/>
 								</svg>
-								<span class="seller-rating-score">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</span>
+								<span class="seller-rating-score">{{ pluralize(data?.productRow?.totalSellerReviews, 'отзыв') }}</span>
 							</div>
 						</div>
 					</div>
@@ -365,7 +365,7 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 			</div>
 
 			<div class="reviews-container" id="reviews-section">
-				<h2 class="review-title-h2 text-2xl">Отзывы товара: ({{ reviewRows?.reviewRows.length || '0' }})</h2>
+				<h2 class="review-title-h2 text-2xl">Отзывы товара: ({{ reviewRows?.reviewRows?.length ?? 0 }})</h2>
 				
 				<div class="p-2.5">
 				<add-review-card

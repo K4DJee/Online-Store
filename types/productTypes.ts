@@ -14,6 +14,8 @@ export interface responseProductPageInfo {
 		isActive: number
 		averageRating: number
 		reviewCount: number
+		totalSellerReviews: number,
+    	sellerAverageRating: string,
 		images: {
 			imageId: number
 			productId: number
