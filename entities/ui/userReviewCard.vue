@@ -62,7 +62,6 @@
     
     <ChangeReviewModal
     v-if="showChangeConfirmation"
-    :show="showChangeConfirmation"
     :userReviewCard="userReviewCard"
     @confirm="handleChangeReview"
     @close="showChangeConfirmation = false"
@@ -92,6 +91,11 @@ async function handleChangeReview(){
     // await changeReview(props.userReviewCard.reviewId, );
     showChangeConfirmation.value = false;
 }
+
+watch(()=>showDeleteConfirmation.value || showChangeConfirmation.value, (isOpen)=>{
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+})
+
 </script>
 <style>
 .userReviewCard{

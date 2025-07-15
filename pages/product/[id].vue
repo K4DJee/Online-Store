@@ -160,7 +160,8 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 									</svg>
 									<span class="rating-score">{{ data?.productRow?.averageRating }}</span>
 								</div>
-								<span class="reviews-count">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</span>
+								<a class="reviews-count"
+								  href="#reviews-section">{{ pluralize(data?.productRow?.reviewCount, 'отзыв') }}</a>
 							</div>
 						</div>
 
@@ -363,15 +364,17 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 				</div>
 			</div>
 
-			<div class="reviews-container">
+			<div class="reviews-container" id="reviews-section">
 				<h2 class="review-title-h2 text-2xl">Отзывы товара: ({{ reviewRows?.reviewRows.length || '0' }})</h2>
 				
+				<div class="p-2.5">
 				<add-review-card
 				:product-id="productId"
 				:seller-name="data?.productRow?.sellerName"
 				></add-review-card>
-				
-				<ul class="review-list grid">
+				</div>
+
+				<ul class="review-list grid p-2.5 gap-5">
 				<review-card
 				v-for="(reviewCard) in reviewRows?.reviewRows"
 				:key="reviewCard?.reviewId"
@@ -545,6 +548,10 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 .reviews-count {
 	color: #6b7280;
 	font-size: 0.875rem;
+	font-weight: 500;
+	&:hover{
+		color:oklch(48.8% 0.243 264.376)	
+	}
 }
 
 .product-details {
@@ -833,6 +840,10 @@ import type {responseAllProductReviews} from '~/types/reviewsTypes';
 .features {
 	border-top: 1px solid #e5e7eb;
 	padding-top: 1.5rem;
+}
+
+.review-list{
+
 }
 
 .feature-item {

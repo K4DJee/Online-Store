@@ -1,6 +1,6 @@
 <template>
     <Teleport to="body">
-        <div v-if="show" class="modal-overlay backdrop-blur-xs">
+        <div  class="modal-overlay backdrop-blur-xs">
             <div class="modal-container bg-white w-[450px] rounded-2xl border-gray-300 border p-10">
                 <div class="flex justify-center w-full">
                     <div class="changeRewiew-svg-container flex justify-center items-center rounded-[52px] h-[45px] w-[45px] bg-lime-50">
@@ -15,7 +15,7 @@
                 <h2 class="text-gray-500  mt-5 text-left text-sm">Оценка</h2>
 
                 <div class="userReviewRating flex gap-0.5 justify-center" >
-                            <div class="star"
+                            <div class="star cursor-pointer"
                             v-for="star in 5"
                             :key="star"
                             @mouseover="hoverRating = star"
@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="changeReviewBtns-container flex justify-between mt-3"> 
-                    <button class="w-[174px] pt-[10px] pb-[10px] text-base cursor-pointer rounded-lg bg-lime-50 hover:bg-lime-400 border-gray-300 border transition-colors"
+                    <button class="w-[174px] pt-[10px] pb-[10px] text-base cursor-pointer rounded-lg bg-green-100 hover:bg-lime-400 border-gray-300 border transition-colors"
                     @click="confirmChangeReview">Сохранить изменения</button>
                     <button class="w-[174px] pt-[10px] pb-[10px] text-base cursor-pointer bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg border-gray-300 border transition-colors"
                     @click="close">Отменить</button>
@@ -65,11 +65,11 @@ const hoverRating = ref();
 const newRating = ref();
 const errorMessage = ref();
 const props = defineProps<{
-    show:boolean,
     userReviewCard:userReviewRows
 }>()
 
 const comment = ref(props.userReviewCard.comment)
+const isOpen = ref(true);
 
 const emit = defineEmits<{
     (e: 'confirm'): void;
@@ -99,11 +99,14 @@ watch(comment,()=>{
 })
 
 function close(){
+    console.log('Закрываем модалку...');
+    isOpen.value = false
+    console.log('isOpen: ', isOpen.value)
     emit('close')
 }
 
 watchEffect(() => {
-  if (props.show) {
+  if (isOpen.value) {
     document.body.style.overflow = 'hidden'
   } else {
     document.body.style.overflow = ''
