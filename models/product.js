@@ -20,6 +20,8 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
             sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating), 1), 0) AS averageRating,
             COUNT (reviews.reviewId) AS reviewCount,
+            IFNULL(seller_stats.totalReviews, 0) AS totalSellerReviews,
+            IFNULL(ROUND(seller_stats.avgRating, 1), 0) AS sellerAverageRating,
             GROUP_CONCAT(
                 CONCAT(
                     '{\"imageId\":', product_imgs.imageId, 
@@ -31,6 +33,14 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
             LEFT JOIN reviews ON products.productId = reviews.productId
             LEFT JOIN sellers ON products.sellerId = sellers.sellerId
             LEFT JOIN categories ON products.categoryId = categories.categoryId
+            LEFT JOIN (
+                SELECT 
+                    sellerId,
+                    COUNT(reviewId) AS totalReviews,
+                    AVG(rating) AS avgRating
+                FROM reviews
+                GROUP BY sellerId
+            ) AS seller_stats ON sellers.sellerId = seller_stats.sellerId
             WHERE isActive = 1
             GROUP BY products.productId`; 
             connection.query(sql,(err,rows)=>{
@@ -78,11 +88,21 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
             products.isActive,
             sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
-            COUNT (reviews.reviewId) AS reviewCount
+            COUNT (reviews.reviewId) AS reviewCount,
+            IFNULL(seller_stats.totalReviews, 0) AS totalSellerReviews,
+            IFNULL(ROUND(seller_stats.avgRating, 1), 0) AS sellerAverageRating
             FROM products
             LEFT JOIN reviews ON products.productId = reviews.productId
             LEFT JOIN sellers ON products.sellerId = sellers.sellerId
             LEFT JOIN categories ON products.categoryId = categories.categoryId
+            LEFT JOIN (
+                SELECT 
+                    sellerId,
+                    COUNT(reviewId) AS totalReviews,
+                    AVG(rating) AS avgRating
+                FROM reviews
+                GROUP BY sellerId
+            ) AS seller_stats ON sellers.sellerId = seller_stats.sellerId
             WHERE products.productId = ?
             GROUP BY products.productId`;
             connection.query(sql, [productId], (err,row)=>{
@@ -184,6 +204,8 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
             sellers.sellerName as sellerName,
             IFNULL(ROUND(AVG(reviews.rating),1),0) AS averageRating,
             COUNT (reviews.reviewId) AS reviewCount,
+            IFNULL(seller_stats.totalReviews, 0) AS totalSellerReviews,
+            IFNULL(ROUND(seller_stats.avgRating, 1), 0) AS sellerAverageRating,
             GROUP_CONCAT(
                 CONCAT(
                     '{\"imageId\":', product_imgs.imageId, 
@@ -195,6 +217,14 @@ const {addProductArrayImgsSQL} = require('../models/product_img.js')
             LEFT JOIN reviews ON products.productId = reviews.productId
             LEFT JOIN sellers ON products.sellerId = sellers.sellerId
             LEFT JOIN categories ON products.categoryId = categories.categoryId
+            LEFT JOIN (
+                SELECT 
+                    sellerId,
+                    COUNT(reviewId) AS totalReviews,
+                    AVG(rating) AS avgRating
+                FROM reviews
+                GROUP BY sellerId
+            ) AS seller_stats ON sellers.sellerId = seller_stats.sellerId
             WHERE products.sellerId = ?
             GROUP BY products.productId`;
             connection.query(sql,[sellerId],(err,rows)=>{

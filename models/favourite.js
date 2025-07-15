@@ -41,6 +41,8 @@ async function getFavoriteProductsSQL(userId){
             FROM reviews
             WHERE reviews.productId = favourite.productId
         ) AS reviewCount,
+        IFNULL(MAX(seller_stats.totalReviews), 0) AS totalSellerReviews,
+        IFNULL(ROUND(MAX(seller_stats.avgRating), 1), 0) AS sellerAverageRating,
         GROUP_CONCAT(
             CONCAT(
                 '{\"imageId\":', product_imgs.imageId, 
@@ -52,8 +54,16 @@ async function getFavoriteProductsSQL(userId){
         LEFT JOIN sellers ON favourite.sellerId = sellers.sellerId
         LEFT JOIN products ON favourite.productId = products.productId
         LEFT JOIN categories ON products.categoryId = categories.categoryId
+        LEFT JOIN (
+            SELECT 
+                sellerId,
+                COUNT(reviewId) AS totalReviews,
+                AVG(rating) AS avgRating
+            FROM reviews
+            GROUP BY sellerId
+        ) AS seller_stats ON sellers.sellerId = seller_stats.sellerId
         WHERE favourite.userId =  ?
-        GROUP BY sellers.sellerName, favourite.productId
+        GROUP BY favourite.productId
         `;
         connection.query(sql,[userId], (err,rows)=>{
             if(err){

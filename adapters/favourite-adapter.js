@@ -15,6 +15,8 @@ function adaptFavouriteProduct(favouriteProducts) {
       sellerName: favouriteProducts.sellerName,
       averageRating: parseFloat(favouriteProducts.averageRating || '0'),
       reviewCount: favouriteProducts.reviewCount || 0,
+      totalSellerReviews: parseFloat(favouriteProducts.totalSellerReviews),
+      sellerAverageRating: favouriteProducts.sellerAverageRating,
       images:favouriteProducts.images
     };
   }
