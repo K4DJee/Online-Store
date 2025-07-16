@@ -27,9 +27,9 @@ const currentUser = ref<IUser | null>(null)
 interface validateTokenResponse {
 	valid: boolean
 }
-definePageMeta({
-	middleware: 'auth',
-})
+// definePageMeta({
+// 	middleware: 'auth',
+// })
 
 provide<AuthState>('auth', {
 	isAuthUser,

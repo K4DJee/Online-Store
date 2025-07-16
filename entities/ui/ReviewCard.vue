@@ -1,5 +1,5 @@
 <template>
-<div class="reviewCard-container border border-gray-300 rounded-xl">
+<div class="reviewCard-container border border-gray-300 rounded-xl max-w-[725px] sm:p-5">
     <div class="review-main-info-container">
         <div class="review-main-info-1c">
             <NuxtImg :src="'https://i.pinimg.com/736x/11/1c/7f/111c7f70a48c84f490574de35e7cb4c5.jpg'" class="reviewAvatar"></NuxtImg>
@@ -30,10 +30,10 @@
         </div>
         <div class="review-main-info-2c">
             <div class="review-reportBtn flex items-center gap-1.25 transition-colors p-2 rounded-xl">
-                <svg width="59" height="68" viewBox="0 0 59 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="" width="59" height="68" viewBox="0 0 59 68" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6.32143 3.1875C6.32143 1.42109 4.91228 0 3.16071 0C1.40915 0 0 1.42109 0 3.1875V8.5V46.5508V53.125V64.8125C0 66.5789 1.40915 68 3.16071 68C4.91228 68 6.32143 66.5789 6.32143 64.8125V51.5312L16.8967 48.8617C22.3094 47.4937 28.0382 48.1312 33.0295 50.6414C38.8504 53.5766 45.6065 53.9352 51.6908 51.6242L56.2607 49.8977C57.9069 49.2734 59 47.693 59 45.9133V8.77891C59 5.72422 55.8129 3.73203 53.1 5.1L51.8357 5.7375C45.7382 8.81875 38.5607 8.81875 32.4632 5.7375C27.8406 3.4 22.5333 2.81563 17.5156 4.07734L6.32143 6.90625V3.1875ZM6.32143 13.4805L19.0433 10.2664C22.5991 9.37656 26.3525 9.78828 29.6317 11.4352C36.8618 15.0742 45.2641 15.3797 52.6786 12.3383V44.4523L49.4652 45.6609C45.027 47.3344 40.0884 47.082 35.8478 44.9437C29.5 41.743 22.2435 40.9461 15.3558 42.6727L6.32143 44.957V13.4805Z" fill="red"/>
                 </svg>
-                <h2>Пожаловаться</h2>
+                <h2 class="sm:text-[15px] text-xs">Пожаловаться</h2>
             </div>
         </div>
     </div>
@@ -54,7 +54,7 @@ const reviewCard = computed(()=> props.reviewCard);
 </script>
 <style>
 .reviewCard-container{
-    width:775px;
+    
     min-height:120px;
     padding:15px 20px;
     position: relative;
@@ -113,7 +113,7 @@ const reviewCard = computed(()=> props.reviewCard);
         }
     }
     & h2{
-    font-size: 15px;
+    /* font-size: 15px; */
     color:red;
     font-weight: 500;
     cursor: pointer;

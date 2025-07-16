@@ -14,6 +14,9 @@ export interface IUser {
 	username: string
 	productsInCart: number
 	reviewCount: number
+	favouritesIds: [],
+	cartsIds: [],
+	purchasesIds: []
 }
 
 export interface IProduct {

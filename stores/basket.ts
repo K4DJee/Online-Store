@@ -149,6 +149,7 @@ export const useBasketStore = defineStore('basketStore', () => {
 			await removeItem(product.cartId, false)
 			useShowToast('Товар был перемещен в Избранное', '')
 		}
+		//add logic "Товар уже существует в Избранном"
 	}
 
 	const proceedToCheckout = () => {

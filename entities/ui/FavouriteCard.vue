@@ -59,12 +59,18 @@
 
 			<!-- Price -->
 			<div class="flex items-center space-x-2">
-				<span class="text-lg font-bold text-gray-900"
-					>{{ formatPrice(product.salePrice) }} ₽</span
+					<span v-if="product.salePrice" class="text-lg font-bold text-gray-900"
+					>{{ formatPrice(product.salePrice) || 0 }} ₽</span
 				>
 				<span
-					v-if="product.salePrice < product.price"
+					v-if="product.salePrice < product.price && product.salePrice"
 					class="text-xs text-gray-500 line-through"
+				>
+					{{ formatPrice(product.price) }} ₽
+				</span>
+				<span
+				v-else
+					class="text-lg font-bold text-gray-900"
 				>
 					{{ formatPrice(product.price) }} ₽
 				</span>
@@ -75,7 +81,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import { formatDate, parseDate } from '~/entities/helpers/formatDate'
 export interface IProduct {
 	productId: number
 	name: string
@@ -102,7 +108,6 @@ const emit = defineEmits<{
 	removeFromFavourites: [productId: number]
 	viewProduct: [productId: number]
 }>()
-
 const handleRemoveFromFavourites = () => {
 	emit('removeFromFavourites', props.product.productId)
 }
@@ -111,13 +116,14 @@ const handleViewProduct = () => {
 	emit('viewProduct', props.product.productId)
 }
 
-const formatPrice = (price: number) => {
-	return price.toLocaleString('ru-RU')
+const formatPrice = (price: number | null | undefined): string => {
+    if (price === null || price === undefined) return '0'
+    return price.toLocaleString('ru-RU')
 }
 
 const getDiscountPercentage = () => {
 	if (props.product.salePrice >= props.product.price) return 0
-	return Math.round((1 - props.product.salePrice / props.product.price) * 100)
+	return Math.round((1 - (props.product.salePrice ?? props.product.price) / props.product.price) * 100)
 }
 </script>
 

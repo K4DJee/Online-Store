@@ -1,17 +1,10 @@
 export interface responceFavouriteProducts{
-    favouriteProducts: favouriteProduct[]
+    message:string,
+    success:boolean,
+    favouriteProducts: IProduct[]
 }
 
-export interface favouriteProduct{
-    favouriteId: number,
-    productId: number,
-    productName: string,
-    productDescription: string,
-    productPrice: number,
-    productSalePrice: number,
-    productImage: string,
-    sellerName: string
-}
+import type { IProduct } from "./types"
 
 export interface responseFavouriteActions{
     message:string,

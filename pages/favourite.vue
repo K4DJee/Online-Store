@@ -15,7 +15,7 @@
 					<div class="flex items-center space-x-4">
 						<button
 							@click="clearAllFavourites"
-							:disabled="favouriteProducts.length === 0"
+							:disabled="favouriteProducts?.favouriteProducts.length === 0"
 							class="text-sm text-red-600 hover:text-red-700 cursor-pointer disabled:text-gray-400 disabled:cursor-not-allowed font-medium transition-colors"
 						>
 							Очистить все
@@ -65,7 +65,7 @@
 				class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
 			>
 				<FavouriteCard
-					v-for="product in favouriteProducts"
+					v-for="product in favouriteProducts?.favouriteProducts"
 					:key="product.productId"
 					:product="product"
 					@remove-from-favourites="removeFromFavourites"
@@ -75,7 +75,7 @@
 
 			<!-- Empty State -->
 			<div
-				v-if="favouriteProducts.length === 0"
+				v-if="favouriteProducts?.favouriteProducts.length === 0"
 				class="text-center py-12"
 			>
 				<div
@@ -109,210 +109,226 @@
 </template>
 
 <script setup lang="ts">
-export interface IProduct {
-	productId: number
-	name: string
-	description: string
-	price: number
-	salePrice: number
-	quantity: number
-	productCategory: string
-	imageUrl: string
-	createdAt: Date
-	updatedAt: Date
-	isActive: number
-	sellerName: string
-	averageRating: number
-	reviewCount: number
-}
+import type { responceFavouriteProducts } from '~/types/favouriteTypes'
+import {useRouter} from  'vue-router'
+const {fetchFavouriteProducts, removeFromFavourite} = useFavourite();
+const {user} = useProfileStore();
 
 const FavouriteCard = defineAsyncComponent(
 	() => import('~/entities/ui/FavouriteCard.vue')
 )
 
 // Mock functions for demo purposes
-const useRouter = () => ({
-	push: (path: string) => console.log(`Navigate to: ${path}`),
-})
+// const useRouter = () => ({
+// 	push: (path: string) => console.log(`Navigate to: ${path}`),
+// })
 
 const router = useRouter()
 
 // Mock favourites data
-const favouriteProducts = ref<IProduct[]>([
-	{
-		productId: 1,
-		name: 'iPhone 14 Pro Max 256GB Space Black',
-		description:
-			'Новейший флагманский смартфон Apple с камерой Pro и чипом A16 Bionic',
-		price: 99990,
-		salePrice: 89990,
-		quantity: 5,
-		productCategory: 'Электроника',
-		imageUrl:
-			'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2024-01-15'),
-		updatedAt: new Date('2024-01-15'),
-		isActive: 1,
-		sellerName: 'TechStore',
-		averageRating: 4.8,
-		reviewCount: 124,
-	},
-	{
-		productId: 2,
-		name: 'MacBook Air M2 13" 256GB',
-		description:
-			'Ультрабук Apple с процессором M2, 8GB RAM и Retina дисплеем',
-		price: 85990,
-		salePrice: 75990,
-		quantity: 3,
-		productCategory: 'Электроника',
-		imageUrl:
-			'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2024-01-10'),
-		updatedAt: new Date('2024-01-10'),
-		isActive: 1,
-		sellerName: 'AppleCenter',
-		averageRating: 4.9,
-		reviewCount: 89,
-	},
-	{
-		productId: 3,
-		name: 'Nike Air Jordan 1 Retro High OG',
-		description:
-			'Классические баскетбольные кроссовки в оригинальной расцветке',
-		price: 15990,
-		salePrice: 12990,
-		quantity: 0,
-		productCategory: 'Одежда и обувь',
-		imageUrl:
-			'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2024-01-08'),
-		updatedAt: new Date('2024-01-08'),
-		isActive: 0,
-		sellerName: 'SneakerWorld',
-		averageRating: 4.6,
-		reviewCount: 67,
-	},
-	{
-		productId: 4,
-		name: 'Samsung Galaxy S24 Ultra 512GB',
-		description: 'Флагманский смартфон Samsung с S Pen и камерой 200MP',
-		price: 89990,
-		salePrice: 79990,
-		quantity: 8,
-		productCategory: 'Электроника',
-		imageUrl:
-			'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2024-01-05'),
-		updatedAt: new Date('2024-01-05'),
-		isActive: 1,
-		sellerName: 'GalaxyShop',
-		averageRating: 4.7,
-		reviewCount: 156,
-	},
-	{
-		productId: 5,
-		name: 'Vintage Leather Jacket Brown',
-		description: 'Винтажная кожаная куртка из натуральной кожи, размер M',
-		price: 12990,
-		salePrice: 8990,
-		quantity: 1,
-		productCategory: 'Одежда и обувь',
-		imageUrl:
-			'https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2024-01-03'),
-		updatedAt: new Date('2024-01-03'),
-		isActive: 1,
-		sellerName: 'VintageStyle',
-		averageRating: 4.4,
-		reviewCount: 23,
-	},
-	{
-		productId: 6,
-		name: 'Gaming Chair RGB Pro Max',
-		description:
-			'Профессиональное игровое кресло с RGB подсветкой и массажем',
-		price: 19990,
-		salePrice: 15990,
-		quantity: 12,
-		productCategory: 'Мебель',
-		imageUrl:
-			'https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2024-01-01'),
-		updatedAt: new Date('2024-01-01'),
-		isActive: 1,
-		sellerName: 'GameZone',
-		averageRating: 4.5,
-		reviewCount: 78,
-	},
-	{
-		productId: 7,
-		name: 'Sony WH-1000XM5 Wireless Headphones',
-		description: 'Беспроводные наушники с активным шумоподавлением',
-		price: 24990,
-		salePrice: 21990,
-		quantity: 6,
-		productCategory: 'Электроника',
-		imageUrl:
-			'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2023-12-28'),
-		updatedAt: new Date('2023-12-28'),
-		isActive: 1,
-		sellerName: 'AudioPro',
-		averageRating: 4.9,
-		reviewCount: 234,
-	},
-	{
-		productId: 8,
-		name: 'Mechanical Keyboard RGB Cherry MX',
-		description: 'Механическая клавиатура с переключателями Cherry MX Blue',
-		price: 8990,
-		salePrice: 6990,
-		quantity: 0,
-		productCategory: 'Электроника',
-		imageUrl:
-			'https://images.pexels.com/photos/2115257/pexels-photo-2115257.jpeg?auto=compress&cs=tinysrgb&w=400',
-		createdAt: new Date('2023-12-25'),
-		updatedAt: new Date('2023-12-25'),
-		isActive: 0,
-		sellerName: 'KeyboardMaster',
-		averageRating: 4.3,
-		reviewCount: 45,
-	},
-])
+// const favouriteProducts = ref<IProduct[]>([
+// 	{
+// 		productId: 1,
+// 		name: 'iPhone 14 Pro Max 256GB Space Black',
+// 		description:
+// 			'Новейший флагманский смартфон Apple с камерой Pro и чипом A16 Bionic',
+// 		price: 99990,
+// 		salePrice: 89990,
+// 		quantity: 5,
+// 		productCategory: 'Электроника',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2024-01-15'),
+// 		updatedAt: new Date('2024-01-15'),
+// 		isActive: 1,
+// 		sellerName: 'TechStore',
+// 		averageRating: 4.8,
+// 		reviewCount: 124,
+// 	},
+// 	{
+// 		productId: 2,
+// 		name: 'MacBook Air M2 13" 256GB',
+// 		description:
+// 			'Ультрабук Apple с процессором M2, 8GB RAM и Retina дисплеем',
+// 		price: 85990,
+// 		salePrice: 75990,
+// 		quantity: 3,
+// 		productCategory: 'Электроника',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2024-01-10'),
+// 		updatedAt: new Date('2024-01-10'),
+// 		isActive: 1,
+// 		sellerName: 'AppleCenter',
+// 		averageRating: 4.9,
+// 		reviewCount: 89,
+// 	},
+// 	{
+// 		productId: 3,
+// 		name: 'Nike Air Jordan 1 Retro High OG',
+// 		description:
+// 			'Классические баскетбольные кроссовки в оригинальной расцветке',
+// 		price: 15990,
+// 		salePrice: 12990,
+// 		quantity: 0,
+// 		productCategory: 'Одежда и обувь',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2024-01-08'),
+// 		updatedAt: new Date('2024-01-08'),
+// 		isActive: 0,
+// 		sellerName: 'SneakerWorld',
+// 		averageRating: 4.6,
+// 		reviewCount: 67,
+// 	},
+// 	{
+// 		productId: 4,
+// 		name: 'Samsung Galaxy S24 Ultra 512GB',
+// 		description: 'Флагманский смартфон Samsung с S Pen и камерой 200MP',
+// 		price: 89990,
+// 		salePrice: 79990,
+// 		quantity: 8,
+// 		productCategory: 'Электроника',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2024-01-05'),
+// 		updatedAt: new Date('2024-01-05'),
+// 		isActive: 1,
+// 		sellerName: 'GalaxyShop',
+// 		averageRating: 4.7,
+// 		reviewCount: 156,
+// 	},
+// 	{
+// 		productId: 5,
+// 		name: 'Vintage Leather Jacket Brown',
+// 		description: 'Винтажная кожаная куртка из натуральной кожи, размер M',
+// 		price: 12990,
+// 		salePrice: 8990,
+// 		quantity: 1,
+// 		productCategory: 'Одежда и обувь',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2024-01-03'),
+// 		updatedAt: new Date('2024-01-03'),
+// 		isActive: 1,
+// 		sellerName: 'VintageStyle',
+// 		averageRating: 4.4,
+// 		reviewCount: 23,
+// 	},
+// 	{
+// 		productId: 6,
+// 		name: 'Gaming Chair RGB Pro Max',
+// 		description:
+// 			'Профессиональное игровое кресло с RGB подсветкой и массажем',
+// 		price: 19990,
+// 		salePrice: 15990,
+// 		quantity: 12,
+// 		productCategory: 'Мебель',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2024-01-01'),
+// 		updatedAt: new Date('2024-01-01'),
+// 		isActive: 1,
+// 		sellerName: 'GameZone',
+// 		averageRating: 4.5,
+// 		reviewCount: 78,
+// 	},
+// 	{
+// 		productId: 7,
+// 		name: 'Sony WH-1000XM5 Wireless Headphones',
+// 		description: 'Беспроводные наушники с активным шумоподавлением',
+// 		price: 24990,
+// 		salePrice: 21990,
+// 		quantity: 6,
+// 		productCategory: 'Электроника',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2023-12-28'),
+// 		updatedAt: new Date('2023-12-28'),
+// 		isActive: 1,
+// 		sellerName: 'AudioPro',
+// 		averageRating: 4.9,
+// 		reviewCount: 234,
+// 	},
+// 	{
+// 		productId: 8,
+// 		name: 'Mechanical Keyboard RGB Cherry MX',
+// 		description: 'Механическая клавиатура с переключателями Cherry MX Blue',
+// 		price: 8990,
+// 		salePrice: 6990,
+// 		quantity: 0,
+// 		productCategory: 'Электроника',
+// 		imageUrl:
+// 			'https://images.pexels.com/photos/2115257/pexels-photo-2115257.jpeg?auto=compress&cs=tinysrgb&w=400',
+// 		createdAt: new Date('2023-12-25'),
+// 		updatedAt: new Date('2023-12-25'),
+// 		isActive: 0,
+// 		sellerName: 'KeyboardMaster',
+// 		averageRating: 4.3,
+// 		reviewCount: 45,
+// 	},
+// ])
+
+// const productsWithFavouriteId = computed(() => {
+//   if (!favouriteProducts.value?.favouriteProducts || !user?.favouritesIds) {
+//     return []
+//   }
+
+//   return favouriteProducts.value.favouriteProducts.map((product, index) => {
+//     const favouriteId = user?.favouritesIds[index] ?? null
+
+//     return {
+//       ...product,
+//       favouriteId
+//     }
+//   })
+// })
 
 // Statistics
 const stats = computed(() => ({
-	total: favouriteProducts.value.length,
-	available: favouriteProducts.value.filter(
+	total: (favouriteProducts.value?.favouriteProducts || []).length,
+	available: (favouriteProducts.value?.favouriteProducts || []).filter(
 		p => p.quantity > 0 && p.isActive === 1
 	).length,
-	totalValue: favouriteProducts.value.reduce(
-		(sum, p) => sum + p.salePrice,
+	totalValue: (favouriteProducts.value?.favouriteProducts || []).reduce(
+		(sum, p) => sum + Number(p.salePrice ?? p.price),
 		0
 	),
-	totalSavings: favouriteProducts.value.reduce(
-		(sum, p) => sum + (p.price - p.salePrice),
+	totalSavings: (favouriteProducts.value?.favouriteProducts || []).reduce(
+		(sum, p) => sum + (p.price - (p.salePrice ?? p.price)),
 		0
 	),
 }))
 
 // Actions
 const removeFromFavourites = (productId: number) => {
-	favouriteProducts.value = favouriteProducts.value.filter(
+	if(favouriteProducts.value){
+		const data = removeFromFavourite(productId);
+		favouriteProducts.value.favouriteProducts = (favouriteProducts.value.favouriteProducts || []).filter(
 		p => p.productId !== productId
 	)
+	}
 }
 
 const viewProduct = (productId: number) => {
-	router.push(`/products/${productId}`)
+	router.push(`/product/${productId}`)
 }
 
 const clearAllFavourites = () => {
 	if (confirm('Вы уверены, что хотите очистить все избранные товары?')) {
-		favouriteProducts.value = []
+		favouriteProducts.value = {
+	message: '',
+	success: false,
+	favouriteProducts: [],
+	};
 	}
 }
+
+const { data:favouriteProducts, pending } = useAsyncData<responceFavouriteProducts>(
+	`favourite`,
+	() => fetchFavouriteProducts()
+)
+
 </script>
 
 <!-- <script setup lang="ts">
@@ -355,10 +371,7 @@ async function fetchFavouriteProducts(): Promise<responceFavouriteProducts> {
 		return { favouriteProducts: [] }
 	}
 }
-const { data, pending } = useAsyncData<responceFavouriteProducts>(
-	`favourite`,
-	fetchFavouriteProducts
-)
+
 </script>
 
 <style>
