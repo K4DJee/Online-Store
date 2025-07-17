@@ -77,7 +77,7 @@ export const sidebarConfig: SidebarGroup[] = [
 			{
 				title: 'Мои продажи',
 				route: '/sales',
-				icon: '/icons/profile/chart_line_gray.png',
+				icon: '/icons/sidebar/arrow-left-top.svg',
 				type: 'link',
 			},
 			{
@@ -89,7 +89,7 @@ export const sidebarConfig: SidebarGroup[] = [
 			{
 				title: 'Добавить товар',
 				route: '/addNewProduct',
-				icon: '/icons/profile/addProduct_gray.png',
+				icon: '/icons/sidebar/plus.svg',
 				type: 'link',
 			},
 		],
