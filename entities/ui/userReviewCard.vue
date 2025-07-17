@@ -5,7 +5,7 @@
 		<div class="flex items-center gap-2.5 justify-between h-full">
 			<div class="w-full flex gap-2.5">
 				<NuxtImg
-					class="rounded-[9px] w-[90px]"
+					class="rounded-[9px] w-[75px] h-[113px] md:w-[90px] sm:w-[80px] "
 					:src="userReviewCard.imageUrl"
 				></NuxtImg>
 				<div class="grid gap-1.25">
@@ -42,7 +42,7 @@
 						</div>
 					</div>
 
-					<div class="border-amber-500 min-h-4">
+					<div class="border-amber-500 min-h-4 text-[15px] sm:text-base">
 						{{ userReviewCard.comment }}
 					</div>
 				</div>

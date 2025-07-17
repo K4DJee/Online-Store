@@ -71,7 +71,7 @@ export const sidebarConfig: SidebarGroup[] = [
 			{
 				title: 'Стать продавцом',
 				route: '/aboutBecSeller',
-				icon: '/icons/profile/confirm_gray.png',
+				icon: '/icons/sidebar/seller_home.svg',
 				type: 'button',
 			},
 			{
@@ -83,7 +83,7 @@ export const sidebarConfig: SidebarGroup[] = [
 			{
 				title: 'Мой счёт',
 				route: '/sellerAccount',
-				icon: '/icons/profile/dollar_gray.png',
+				icon: '/icons/sidebar/dollar1svg.svg',
 				type: 'link',
 			},
 			{
