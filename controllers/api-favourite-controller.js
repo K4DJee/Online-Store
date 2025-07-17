@@ -84,8 +84,8 @@ const getAllProductsInFavorite = async (req,res)=>{
 
 const deleteProductFromFavorite = async (req,res)=>{
     try{
-        const {favouriteId} = req.body;
-        if(!favouriteId){
+        const {productId} = req.body;
+        if(!productId){
             return res.status(400).json({message:'Wrong data', success:false})
         }
         const authHeader = req.headers['authorization'];
@@ -101,11 +101,11 @@ const deleteProductFromFavorite = async (req,res)=>{
             return res.status(401).json({message:'Invalid token', success:false});
         }
 
-        const existProductInFavorite = await existProductInFavoriteSQL(favouriteId);
+        const existProductInFavorite = await existProductInFavoriteSQL(decoded.userId, productId);
         if(!existProductInFavorite){
             return res.status(404).json({message:'Такого товара в избранном нету', success:false});
         }
-        const deleteProductInFavorite = await deleteProductInFavoriteSQL(decoded.userId, favouriteId);
+        const deleteProductInFavorite = await deleteProductInFavoriteSQL(decoded.userId, productId);
         if(deleteProductInFavorite.affectedRows === 0){
             return res.status(500).json({message:'Ошибка при удалении товара из избранного', success:false});
         }

@@ -94,10 +94,10 @@ async function getFavoriteProductsSQL(userId){
     })
 };
 
-async function deleteProductInFavoriteSQL(userId, favouriteId){
+async function deleteProductInFavoriteSQL(userId, productId){
     return  new Promise((resolve,reject)=>{
-        const sql = `DELETE FROM favourite WHERE userId = ? AND favouriteId = ?`;
-        connection.query(sql,[userId, favouriteId],(err,row)=>{
+        const sql = `DELETE FROM favourite WHERE userId = ? AND productId = ?`;
+        connection.query(sql,[userId, productId],(err,row)=>{
             if(err){
                 reject(err);
             }
@@ -108,10 +108,10 @@ async function deleteProductInFavoriteSQL(userId, favouriteId){
     })
 };
 
-async function existProductInFavoriteSQL(favouriteId){
+async function existProductInFavoriteSQL(userId, productId){
     return new Promise((resolve,reject)=>{
-        const sql = `SELECT * FROM favourite WHERE favouriteId = ?`;
-        connection.query(sql,[favouriteId],(err,row)=>{
+        const sql = `SELECT * FROM favourite WHERE userId = ? AND productId = ?`;
+        connection.query(sql,[userId, productId],(err,row)=>{
             if(err){
                 reject(err);
             }
