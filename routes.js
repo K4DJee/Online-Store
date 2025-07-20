@@ -64,7 +64,7 @@ router.delete('/api/user/deleteAccount', deleteUserAccount);//new
 router.post('/api/1/changeUserEmail', generateCodeForUserEmail);//new
 router.post('/api/2/changeUserEmail', verifyCodeForChangeUserEmail);//new
 router.put('/api/3/changeUserEmail', changeUserEmail);//new
-router.get('/api/user/:username', getUserPageInfo);//new
+router.get('/api/users/:username', getUserPageInfo);//new
 //products
 router.get('/api/products', getProducts);
 router.get('/api/product/:productId', getProductPage);
@@ -92,7 +92,7 @@ router.put('/api/changeProductInfo',changeProductInfoBySeller);
 router.delete('/api/deleteProduct', deleteProductBySeller);
 router.delete('/api/seller/deleteAccount', deleteSellerAccount);//new
 router.put('/api/changeSalePrice', changeSalePriceBySeller);//new
-router.get('/api/seller/:sellerName', sellerPageInfo)//new
+router.get('/api/sellers/:sellerName', sellerPageInfo)//new
 //balance 
 router.post('/api/refillBalance',refillUserBalance);
 router.get('/api/sellerBalance', getSellerBalance);

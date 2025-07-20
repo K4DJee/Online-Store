@@ -25,11 +25,12 @@ const stripeWebhook = async(req,res)=>{
         console.log('Session object:', JSON.stringify(session, null, 2));
         if (session.client_reference_id && session.metadata.type === 'topup') {
             const userId = parseInt(session.client_reference_id);
-            const amount = parseInt(session.metadata.amount) / 100;
+            console.log('До: ', session.metadata.amount)
+            const amount = parseInt(session.metadata.amount);
             try {
                 const refillResult = await refillUserBalanceSQL(userId, amount);
     
-                if (refillResult.affectedRows > 0) {
+                if (refillResult.success) {
                     console.log(`Баланс пользователя #${userId} успешно пополнен на $${amount}`);
                     console.log('User balance updated successfully');
                 } else {

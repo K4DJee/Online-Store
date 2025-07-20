@@ -8,8 +8,8 @@ require('dotenv').config();
 const createTopUpSession = async(req,res) => {
     try{
         const {amount} = req.body;
+        console.log(amount);
         if (!amount  || amount <= 50) {
-            console.log(amount);
             return res.status(400).json({
                 success: false,
                 message: 'Укажите корректную сумму пополнения',
