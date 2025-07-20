@@ -6,7 +6,7 @@
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 			<div class="text-center">
 				<h3 class="text-2xl font-bold mb-4">
-					Tech<span class="text-lime-400">Store</span>
+					Klan<span class="text-lime-400">Shop</span>
 				</h3>
 				<p class="text-gray-400">
 					Ваш надежный партнер в мире технологий
