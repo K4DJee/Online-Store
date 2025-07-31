@@ -5,10 +5,14 @@ const router = require('./routes');
 const cors = require('cors');
 app.use(express.urlencoded({extended:true}));
 const { stripeWebhook } = require('./stripeWebhook');
+const {yookassaWebhook} = require('./yookassaWebhook.js');
 app.post('/stripe-webhook',
   express.raw({ type: 'application/json' }),
   stripeWebhook
 );
+app.post('/api/yookassaWebhook',
+  express.raw({ type: 'application/json' }),
+  yookassaWebhook);//new
 app.use(express.json());
 app.use(cors()); // Разрешает все домены
 app.use(router);

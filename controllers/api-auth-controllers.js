@@ -9,7 +9,7 @@ const {
     findUserByIdSQL, createUserBalanceSQL, findUserSQL,
     getBalanceByIdSQL, checkExistSQL, changePassUserSQL,
     deleteUserAccountSQL, changeUserEmailSQL,
-    getUserPageInfoSQL
+    getUserPageInfoSQL, getUserEmailSQL, checkExistEmailForOtherUsersSQL
 } = require('../models/user');
 
 
@@ -218,10 +218,7 @@ const verifyRecoverAccount = async(req,res)=>{
 
 const generateCodeForUserEmail = async (req,res)=>{
     try{
-        const {email} = req.body;
-        if(!email){
-            return res.status(400).json({message:'email required', valid:false});
-        }
+        console.log(1)
         const authHeader = req.headers['authorization'];
         if(!authHeader){
             return res.status(400).json({message:'Token required', success:false}); 
@@ -234,11 +231,13 @@ const generateCodeForUserEmail = async (req,res)=>{
         if(!decoded || !decoded.userId){
             return res.status(401).json({message:'Invalid token', success:false});
         }
-        const valid_user = await checkExistSQL(email);
-        if(valid_user.length > 0){
+        const email = await getUserEmailSQL(decoded.userId);
+        
+        if(email !== null && email !== '' && email !== undefined){
             const code = Math.floor(100000 + Math.random() * 900000);//Generate 6 symbols code
             const expiresAt = Date.now() + 5 * 60 * 1000;// 5 minutes expires
             recoveryCodes.set(code.toString(), { email, expiresAt });
+            console.log(recoveryCodes)
                 const info = await transporter.sendMail({
                 from: '"KLANSHOP" <klanshopk4dje@mail.ru>',
                 to: `${email}`,
@@ -283,15 +282,16 @@ const verifyCodeForChangeUserEmail = async(req,res)=>{
         if(!decoded || !decoded.userId){
             return res.status(401).json({message:'Invalid token', success:false});
         }
-        const entry = recoveryCodes.get(code);
+        const codeStr = code.toString();
+        const entry = recoveryCodes.get(codeStr);
         if(!entry){
         return res.status(401).json({message:'Invalid or expired code', success:false});
         }
         if (Date.now() > entry.expiresAt) {
-            recoveryCodes.delete(code); // Очистка просроченного кода
+            recoveryCodes.delete(ToString(code)); // Очистка просроченного кода
             return res.status(419).json({ message: 'Code has expired', success: false });
         }
-        recoveryCodes.delete(code);//delete success code
+        recoveryCodes.delete(codeStr);//delete success code
         const changeToken = jwt.sign({userId:decoded.userId, action:'changeEmail'}, JWT_SECRET, {expiresIn:'5min'})
         if(!changeToken){
             res.status(500).json({message:'Ошибка создания токена', success:false});
@@ -314,7 +314,10 @@ const changeUserEmail = async(req,res)=>{
         if(!decoded || !decoded.userId){
             return res.status(401).json({message:'Invalid token', success:false});
         }
-
+        const existEmailForOtherUsers = await checkExistEmailForOtherUsersSQL(newEmail);
+        if(existEmailForOtherUsers.success === false){
+            return res.status(403).json({success:false, message:'Написанная почта уже зарегистрирована на другом аккаунте'});
+        }
         const changeUserEmailRow = await changeUserEmailSQL(newEmail, decoded.userId);
         if(changeUserEmailRow.affectedRows === 0){
             return res.status(500).json({message:'Ошибка смены почты',success:false})

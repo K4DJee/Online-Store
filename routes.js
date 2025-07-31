@@ -43,6 +43,9 @@ const {
     receiveShippingProduct, getAllShippingProducts
 } = require('./controllers/api-shipping-controller');
 const {
+    createPayment, capturePayment, getPaymentInfo
+} = require('./controllers/api-yoomoney-controller.js');
+const {
     stripeWebhook
 } = require('./stripeWebhook');
 const {
@@ -115,6 +118,10 @@ router.post('/api/addProductImgs', addProductArrayImgs);//new
 router.delete('/api/deleteProductImgs', deleteProductImgs);//new
 //stripe
 router.post('/api/createTopUpSession',createTopUpSession)//new
+//yoomoney
+router.post('/api/yoomoney/createPayment',createPayment)//new
+router.post('/api/yoomoney/capturePayment', capturePayment);//new
+router.get('/api/payment/:paymentId', getPaymentInfo)//new
 //temporarily
 router.get('/success', async (req, res) => {
     const sessionId = req.query.session_id;

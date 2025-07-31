@@ -156,6 +156,25 @@ async function deleteUserAccountSQL(userId){
     });
 };
 
+async function checkExistEmailForOtherUsersSQL(email){
+    return new Promise((resolve,reject)=>{
+        const sql = `SELECT 1 FROM klanUsers WHERE email = ?`;
+        connection.query(sql,[email],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                if(row[0].length > 0 || row[0] || row.length > 0){
+                    resolve({success:false, message:'Аккаунт с такой почтой уже существует'});
+                }
+                else{
+                    resolve({success:true, message:'Аккаунтов с такой почтой не выявлено'});
+                }
+            }
+        })
+    })
+}
+
 async function changeUserEmailSQL(email, userId){
     return new Promise((resolve,reject)=>{
         const sql = `UPDATE klanUsers SET email = ? WHERE userId = ?`
@@ -190,11 +209,25 @@ async function getUserPageInfoSQL(username){
             }
         })
     })
+};
+
+async function getUserEmailSQL(userId){
+    return new Promise((resolve,reject)=>{
+        const sql = `SELECT email FROM klanUsers WHERE userId = ?`
+        connection.query(sql,[userId],(err,row)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(row[0].email);
+            }
+        })
+    })
 }
 
 module.exports = {
     loginUserSQL, comparePassword,registerUserSQL, findUserByIdSQL,
     createUserBalanceSQL, findUserSQL, getBalanceByIdSQL, checkExistSQL,
     changePassUserSQL, deleteUserAccountSQL, changeUserEmailSQL,
-    getUserPageInfoSQL
+    getUserPageInfoSQL, getUserEmailSQL, checkExistEmailForOtherUsersSQL
 };
