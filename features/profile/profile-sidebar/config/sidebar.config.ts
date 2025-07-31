@@ -37,19 +37,19 @@ export const sidebarConfig: SidebarGroup[] = [
 			{
 				title: 'Мои заказы',
 				route: '/Orders',
-				icon: '/icons/profile/orders_gray.png',
+				icon: '/icons/sidebar/orders-inactive.svg',
 				type: 'link',
 			},
 			{
 				title: 'Мои возвраты',
 				route: '/returns',
-				icon: '/icons/profile/star_gray.svg',
+				icon: '/icons/sidebar/returns-inactive.svg',
 				type: 'link',
 			},
 			{
 				title: 'Корзина',
 				route: '/basket',
-				icon: '/icons/profile/shoppingBasket_gray.png',
+				icon: '/icons/sidebar/basket-inactive.svg',
 				type: 'link',
 			},
 		],
@@ -60,7 +60,8 @@ export const sidebarConfig: SidebarGroup[] = [
 			{
 				title: 'Мои отзывы',
 				route: '/reviews',
-				icon: '/icons/profile/star_gray.svg',
+				icon: '/icons/sidebar/reviews-inactive.svg',
+				activeIcon: '/icons/sidebar/reviews-active.svg',
 				type: 'link',
 			},
 		],

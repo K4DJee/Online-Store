@@ -40,7 +40,7 @@
               <div class="grid gap-2.5">
                 <button
                   @click="showReplenishmentModal = true"
-                  class="flex items-center justify-center gap-2.5 py-1.25 w-[150px] bg-lime-500 rounded-lg text-white border-gray-200 cursor-pointer"
+                  class="flex items-center justify-center gap-2.5 py-1.25 w-[150px] bg-lime-500 rounded-lg hover:bg-lime-600 text-white border-gray-200 cursor-pointer transition-colors"
                 >
                   <svg
                     height="10"

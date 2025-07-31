@@ -1,11 +1,11 @@
-export const useStripe = ()=>{
+export const useYooMoney = ()=>{
     //temporaily
     interface responseRefillBalance{
         message:string
         success:boolean
-        url:string
+        confirmation_url:string
     }
-    const backendUrl = 'https://c0c25940cc82.ngrok-free.app';
+    const backendUrl = 'https://51ae6bfcc664.ngrok-free.app';
     const token = useCookie('token');
     const checkAuth = () => {
         if (!token.value) {
@@ -15,10 +15,10 @@ export const useStripe = ()=>{
         return true
     }
 
-    const refillBalanceStripe = async(amount:number):Promise<responseRefillBalance>=>{
-        if(!checkAuth()) return {message:'Ошибка авторизации', success:false, url:''}
+    const refillBalanceYooMoney = async(amount:number):Promise<responseRefillBalance>=>{
+        if(!checkAuth()) return {message:'Ошибка авторизации', success:false, confirmation_url:''}
         try{
-            const data = await $fetch<responseRefillBalance>(`${backendUrl}/api/createTopUpSession`,{
+            const data = await $fetch<responseRefillBalance>(`${backendUrl}/api/yoomoney/createPayment`,{
                 method:'POST',
                 body:{
                     amount
@@ -29,10 +29,11 @@ export const useStripe = ()=>{
             });
             if(data?.success){
                 console.log('УРА, у тебя получилось пополнить баланс');
-                await navigateTo(data.url, { external: true });
+                console.log(data)
+                await navigateTo(data.confirmation_url, { external: true });
                 return data;
             }
-            return {message:'Ошибка создания платежа', success:false, url:''}
+            return {message:'Ошибка создания платежа', success:false, confirmation_url:''}
         }
         catch(error:any){
             const status = error?.status
@@ -51,12 +52,12 @@ export const useStripe = ()=>{
 					console.log('Произошла неизвестная ошибка.')
 					break
 			}
-			return {message:'Ошибка создания платежа', success:false, url:''}
+			return {message:'Ошибка создания платежа', success:false, confirmation_url:''}
         }
 
     }
 
     return {
-        refillBalanceStripe
+        refillBalanceYooMoney
     }
 }

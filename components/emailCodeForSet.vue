@@ -1,75 +1,27 @@
 <script setup lang="ts">
 import { ref, provide } from 'vue'
-// const code = ref('');
-const nextStage = ref(false)
-const recover = useCookie('recover')
-const recover_token = useCookie('recover_token')
-const router = useRouter()
+const changeToken = useCookie('changeToken')
 const CODE_LENGTH = 6
 const code = ref<string[]>(Array(CODE_LENGTH).fill(''))
 const errorMessage = ref('')
-interface codeObject {
-	code: String
-	email: string | null | undefined
-}
-async function codeRecover() {
-	errorMessage.value = ''
-	if (!recover.value) {
-		return (errorMessage.value = 'Произошла ошибка')
+const {confirmTheCode} = useRecover();
+const emit = defineEmits<{
+	(e: 'next'):void
+}>()
+async function codeRecover() {	
+	if(!parseInt(code.value.join(''))){
+		return errorMessage.value = 'Введите код'
 	}
-	if (!code.value[0] || !code.value) {
-		return (errorMessage.value = 'Введите код')
+	const result = await confirmTheCode(parseInt(code.value.join('')));
+	if(result?.success){
+		console.log('Код правильный')
+		changeToken.value = result.changeToken;
+		
+		emit('next');
 	}
-	const codeObject: codeObject = {
-		code: code.value.join(''),
-		email: recover.value,
-	}
-	interface responseCodeRecover {
-		valid: boolean
-		recover_token: string
-	}
-	try {
-		if (!code.value) {
-			return console.log('code required!')
-		}
-		const data = await $fetch<responseCodeRecover>(
-			'http://localhost:8000/api/account-recover-code',
-			{
-				method: 'POST',
-				body: {
-					codeObject,
-				},
-			}
-		)
-		if (data?.valid) {
-			recover_token.value = data?.recover_token
-			router.push({
-				path: '/reset-password',
-				query: { email: recover.value }, // можно передать email или token
-			})
-			errorMessage.value = 'Успешное подтверждение кода'
-			return
-		} else {
-			return console.log('Неправильный код!')
-		}
-	} catch (error: any) {
-		const status = error?.status
-		switch (status) {
-			case 400:
-				errorMessage.value = 'Некорректные данные'
-				break
-			case 401:
-				errorMessage.value = 'Неправильный код'
-				break
-			case 419:
-				errorMessage.value = 'Время кода истекло'
-				break
-			case 500:
-				errorMessage.value = 'Ошибка на стороне сервера'
-				break
-			default:
-				errorMessage.value = 'Неизвестная ошибка'
-		}
+	else{
+		errorMessage.value = result?.message;
+		console.log('Ошибка', result?.message);
 	}
 }
 

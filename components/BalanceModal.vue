@@ -9,7 +9,12 @@
 		leave-from-class="opacity-100"
 		leave-to-class="opacity-0"
     >
-        <div v-show="show" class="w-full h-screen fixed top-0 right-0 flex justify-center items-center backdrop-blur-sm bg-black/50 transition-all">
+        <div
+        @click="
+				$event =>
+					$event.target === $event.currentTarget && $emit('close')
+			"
+         v-show="show" class="w-full h-screen fixed top-0 right-0 flex justify-center items-center backdrop-blur-sm bg-black/50 transition-all">
             
             <div class="bg-white overflow-x-auto h-[550px] rounded-2xl w-[650px] border border-gray-200 p-5">
                 <div class=" items-center flex justify-end">
@@ -53,7 +58,9 @@
 
                             <div class="absolute top-2.5 right-2.5 bg-gray-200 rounded-xl text-xs px-1.25 py-0.25 font-medium">Без комиссии</div>
                         </li>
-                        <li class="cursor-pointer relative border border-gray-200 min-h-[75px] rounded-lg p-2.5 flex items-center">
+                        <li
+                        @click="refillBalanceYooMoney(amount)" 
+                        class="cursor-pointer relative border border-gray-200 min-h-[75px] rounded-lg p-2.5 flex items-center">
                             <div class="flex gap-2.5">
                                 <input type="radio">
                                 <div class="grid">
@@ -69,7 +76,7 @@
                             <div class="absolute top-2.5 right-2.5 bg-gray-200 rounded-xl text-xs px-1.25 py-0.25 font-medium">Без комиссии</div>
                         </li>
                         <li 
-                        @click="refillBalance(amount)"
+                        @click="refillBalanceStripe(amount)"
                         class="cursor-pointer relative border border-gray-200 min-h-[75px] rounded-lg p-2.5 flex items-center">
                             <div class="flex gap-2.5">
                                 <input type="radio">
@@ -147,7 +154,10 @@
 </template>
 
 <script setup lang="ts">
-const {refillBalance} = useStripe();
+import { useYooMoney } from '~/composables/useYooMoney';
+
+const {refillBalanceStripe} = useStripe();
+const {refillBalanceYooMoney} = useYooMoney();
 const amount = ref(0);
 const props = defineProps<{
     show:boolean

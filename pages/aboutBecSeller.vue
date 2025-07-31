@@ -68,25 +68,25 @@
                                     <label for="shopName" class="font-[Roboto] font-medium">Название магазина *</label>
                                     <input id="shopName" type="text" 
                                     placeholder="Введите название вашего магазина" 
-                                    class="border border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-3 transition-colors font-[Roboto] min-h-[38px]">
+                                    class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]">
                                 </li>
                                 <li class="grid w-full">
                                     <label for="shopEmail" class="font-[Roboto] font-medium">Ваша почта *</label>
                                     <input id="shopEmail" type="text" 
                                     placeholder="Введите свой email" 
-                                    class="border border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-3 transition-colors font-[Roboto] min-h-[38px]">
+                                    class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]">
                                 </li>
                                 <li class="grid w-full">
                                     <label for="shopPass" class="font-[Roboto] font-medium">Название магазина *</label>
                                     <input id="shopPass" type="text"
                                     placeholder="Придумайте пароль" 
-                                    class="border border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-3 transition-colors font-[Roboto] min-h-[38px]">
+                                    class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]">
                                 </li>
                             </ul>
                             
                             <div class="grid  mb-10  w-[330px] lg:w-1/2  max-h-[100px] lg:px-2.5 md:px-2.5 md:w-1/2">
                                 <label for="shopDescription" class="font-[Roboto] font-medium">Описание магазина *</label>
-                                <textarea id="shopDescription" class="resize-none border border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-3 transition-colors font-[Roboto] h-[120px] outline-0"></textarea>
+                                <textarea id="shopDescription" class="resize-none border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] h-[120px] outline-0"></textarea>
                             </div>
                         </div>
 

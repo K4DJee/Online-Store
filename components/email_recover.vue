@@ -66,14 +66,16 @@ function isValidEmail(email: string): boolean {
 </script>
 <template>
 	<form @submit.prevent="emailRecover" class="emailRecover-container">
-		<h2 class="recover-title">
+		<h2 class="text-xl">
 			Введите свою почту для восстановления доступа к аккаунту
 		</h2>
-		<input v-model="email" type="text" />
-		<h2 class="error-message-container" v-if="errorMessage">
-			{{ errorMessage }}
-		</h2>
-		<button @click="emailRecover">Отправить</button>
+		<input v-model="email" type="text" class="border border-gray-200 focus:ring-2 focus:ring-lime-400 transition-all"/>
+		<div class="mt-2.5 bg-red-50 border border-red-200 rounded-lg p-3" v-if="errorMessage">
+			<h2 class="text-sm font-medium text-red-600 m-0">{{ errorMessage }}</h2>
+		</div>
+		<div class="flex pt-2.5">
+			<button @click="emailRecover" class="font-semibold bg-linear-to-r from-lime-500  to-lime-500 hover:shadow-lg hover:hover:-translate-y-0.5 active:opacity-80 active:translate-y-0 transitions-all duration-200">Отправить</button>
+		</div>
 		<div ref="loading" class="loader-krug" v-if="loading">
 			<div class="anim-container">
 				<svg
@@ -118,7 +120,7 @@ function isValidEmail(email: string): boolean {
 		height: 45px;
 		width: 100%;
 		border-radius: 9px;
-		border: 1px solid black;
+	
 		padding: 0 10px;
 		font-family: 'Roboto';
 		font-size: 18px;
@@ -127,19 +129,16 @@ function isValidEmail(email: string): boolean {
 	& button {
 		width: 130px;
 		height: 45px;
-		border-radius: 9px;
-		background-color: #1178ff;
+		border-radius: 8px;
 		color: white;
-		font-size: 18px;
+		font-size: 16px;
 		font-family: 'Roboto';
 		cursor: pointer;
 		margin: 0 auto;
 		margin-top: 15px;
 	}
 }
-.recover-title {
-	font-size: 21px;
-}
+
 .error-message-container {
 	margin-top: 5px;
 	/* border: 1px solid black; */

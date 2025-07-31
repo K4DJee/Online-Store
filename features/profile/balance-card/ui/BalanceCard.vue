@@ -21,12 +21,17 @@
 				</div>
 			</div>
 			<button
+			  @click="showReplenishmentModal = true"
 				class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
 			>
 				Пополнить
 			</button>
 		</div>
 	</div>
+	<BalanceModal
+            :show="showReplenishmentModal"
+            @close="showReplenishmentModal = false"
+          ></BalanceModal>
 </template>
 
 <script setup lang="ts">
@@ -34,6 +39,7 @@ import type { IUser } from '~/types/types'
 import { useProfileStore } from '#imports'
 
 const profileStore = useProfileStore()
+const showReplenishmentModal = ref(false);
 
 const { user } = storeToRefs(profileStore)
 </script>

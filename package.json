@@ -10,22 +10,31 @@
 		"postinstall": "nuxt prepare"
 	},
 	"dependencies": {
+		"@algolia/autocomplete-js": "^1.19.2",
+		"@algolia/autocomplete-preset-algolia": "^1.19.2",
 		"@nuxt/image": "^1.10.0",
 		"@nuxt/ui": "^3.2.0",
+		"@nuxtjs/algolia": "^1.11.2",
 		"@pinia/nuxt": "^0.11.1",
+		"algoliasearch": "^4.25.2",
 		"axios": "^1.9.0",
+		"dotenv": "^17.2.1",
 		"heapdump": "^0.3.15",
+		"instantsearch.js": "^4.79.2",
 		"izitoast": "^1.4.0",
+		"lodash.debounce": "^4.0.8",
 		"nuxt": "^3.17.7",
 		"nuxt-toast": "^1.1.4",
 		"pinia": "^3.0.3",
 		"vue": "^3.5.16",
+		"vue-instantsearch": "^4.21.2",
 		"vue-router": "^4.5.1"
 	},
 	"devDependencies": {
 		"@nuxtjs/tailwindcss": "^7.0.0-beta.0",
 		"@types/heapdump": "^0.3.4",
 		"@types/js-cookie": "^3.0.6",
+		"@types/lodash.debounce": "^4.0.9",
 		"typescript": "^5.8.3"
 	}
 }
