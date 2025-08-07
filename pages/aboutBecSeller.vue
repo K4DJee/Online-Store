@@ -7,6 +7,7 @@
 
 				<!-- Main Content -->
 				<div class="lg:col-span-3 space-y-8">
+					<!-- top info -->
 					<div
 						class="max-w-full min-h-[260px] bg-gradient-to-r from-lime-400 via-lime-200 to-white rounded-2xl p-8.75"
 					>
@@ -128,129 +129,10 @@
 						</div>
 					</div>
 
-					<div
-						class="max-w-full min-h-[280px] bg-white border border-gray-200 rounded-2xl p-5"
-					>
-						<h2 class="font-medium text-center sm:text-2xl">
-							Регистрация продавца
-						</h2>
-						<h2 class="text-gray-500 text-center sm:text-base">
-							Заполните форму для создания магазина
-						</h2>
+					<!-- form -->
+					<SellerForm />
 
-						<div class="flex flex-wrap justify-center mt-5 gap-y-5">
-							<ul
-								class="grid gap-2.5 w-[330px] lg:w-1/2 lg:px-2.5 md:px-2.5 md:w-1/2"
-							>
-								<li class="grid w-full">
-									<label
-										for="shopName"
-										class="font-[Roboto] font-medium"
-										>Название магазина *</label
-									>
-									<input
-										id="shopName"
-										type="text"
-										placeholder="Введите название вашего магазина"
-										class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]"
-									/>
-								</li>
-								<li class="grid w-full">
-									<label
-										for="shopEmail"
-										class="font-[Roboto] font-medium"
-										>Ваша почта *</label
-									>
-									<input
-										id="shopEmail"
-										type="text"
-										placeholder="Введите свой email"
-										class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]"
-									/>
-								</li>
-								<li class="grid w-full">
-									<label
-										for="shopPass"
-										class="font-[Roboto] font-medium"
-										>Название магазина *</label
-									>
-									<input
-										id="shopPass"
-										type="text"
-										placeholder="Придумайте пароль"
-										class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]"
-									/>
-								</li>
-							</ul>
-
-<<<<<<< HEAD
-							<div
-								class="grid mb-10 w-[330px] lg:w-1/2 max-h-[100px] lg:px-2.5 md:px-2.5 md:w-1/2"
-							>
-								<label
-									for="shopDescription"
-									class="font-[Roboto] font-medium"
-									>Описание магазина *</label
-								>
-								<textarea
-									id="shopDescription"
-									class="resize-none border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] h-[120px] outline-0"
-								></textarea>
-							</div>
-						</div>
-=======
-                        <div class="flex flex-wrap justify-center mt-5 gap-y-5">
-                            <ul class="grid gap-2.5 w-[330px] lg:w-1/2 lg:px-2.5 md:px-2.5 md:w-1/2">
-                                <li class="grid w-full">
-                                    <label for="shopName" class="font-[Roboto] font-medium">Название магазина *</label>
-                                    <input id="shopName" type="text" 
-                                    placeholder="Введите название вашего магазина" 
-                                    class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]">
-                                </li>
-                                <li class="grid w-full">
-                                    <label for="shopEmail" class="font-[Roboto] font-medium">Ваша почта *</label>
-                                    <input id="shopEmail" type="text" 
-                                    placeholder="Введите свой email" 
-                                    class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]">
-                                </li>
-                                <li class="grid w-full">
-                                    <label for="shopPass" class="font-[Roboto] font-medium">Название магазина *</label>
-                                    <input id="shopPass" type="text"
-                                    placeholder="Придумайте пароль" 
-                                    class="border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:border-2 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] min-h-[38px]">
-                                </li>
-                            </ul>
-                            
-                            <div class="grid  mb-10  w-[330px] lg:w-1/2  max-h-[100px] lg:px-2.5 md:px-2.5 md:w-1/2">
-                                <label for="shopDescription" class="font-[Roboto] font-medium">Описание магазина *</label>
-                                <textarea id="shopDescription" class="resize-none border-2 border-gray-200 px-2.5 py-1.25 text-[15px] rounded-lg focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition-colors font-[Roboto] h-[120px] outline-0"></textarea>
-                            </div>
-                        </div>
->>>>>>> 2a795a1ec9caaf21f816718b97a380cc705ad0b4
-
-						<div class="border-b mt-5 border-b-gray-200"></div>
-
-						<div class="mt-5 flex justify-center">
-							<button
-								class="flex gap-2.5 items-center justify-center cursor-pointer w-full bg-gradient-to-r to-lime-200 via-lime-300 from-lime-200 text-white text-base sm:text-lg font-[Roboto] rounded-2xl h-[45px]"
-							>
-								Зарегистрироваться как продавец
-								<svg
-									height="24"
-									width="22"
-									fill="none"
-									viewBox="0 0 22 13"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										d="M15.2734 0.907471C15.5035 0.696937 15.8773 0.696963 16.1074 0.907471L21.8271 6.11841C22.0573 6.32896 22.0573 6.6706 21.8271 6.8811L16.1074 12.092C15.8773 12.3025 15.5036 12.3025 15.2734 12.092L14.9268 11.7747C14.6966 11.5641 14.6966 11.2225 14.9268 11.012L19.0479 7.26392H0.588867C0.263729 7.26371 0.000165633 7.02229 0 6.72485V6.27563C0 5.97807 0.263627 5.73678 0.588867 5.73657H19.0479L14.9268 1.98755C14.6967 1.77702 14.6967 1.43633 14.9268 1.22583L15.2734 0.907471Z"
-										fill="white"
-									/>
-								</svg>
-							</button>
-						</div>
-					</div>
-
+					<!-- some advice -->
 					<ul class="flex flex-wrap gap-11.5 justify-center">
 						<li
 							class="w-[270px] min-h-[240px] bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-sm transition-shadow"
@@ -341,6 +223,7 @@
 						</li>
 					</ul>
 
+					<!-- how to become a seller -->
 					<div
 						class="min-h-[240px] bg-white rounded-2xl border border-gray-200 p-5"
 					>
@@ -407,6 +290,7 @@
 						</ul>
 					</div>
 
+					<!-- some text -->
 					<div
 						class="bg-lime-50 border border-gray-200 min-h-[180px] rounded-2xl p-5"
 					>
@@ -470,9 +354,13 @@
 		</div>
 	</section>
 </template>
+
 <script setup lang="ts">
+import SellerForm from '~/features/profile/ui/SellerForm.vue'
+import ProfileSidebar from '~/features/profile/profile-sidebar/ui/ProfileSidebar.vue'
+
 const profileStore = useProfileStore()
 const { user } = storeToRefs(profileStore)
-import ProfileSidebar from '~/features/profile/profile-sidebar/ui/ProfileSidebar.vue'
 </script>
+
 <style></style>

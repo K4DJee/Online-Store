@@ -8,15 +8,15 @@ export default defineNuxtConfig({
 		'@pinia/nuxt',
 		'@nuxt/ui',
 		'nuxt-toast',
-		'@nuxtjs/algolia'
+		'@nuxtjs/algolia',
 	],
 
-	algolia:{
+	algolia: {
 		apiKey: process.env.ALGOLIA_SEARCH_API_KEY,
-    applicationId: process.env.ALGOLIA_APPLICATION_ID,
-    instantSearch: {
-      theme: 'algolia'
-    }
+		applicationId: process.env.ALGOLIA_APPLICATION_ID,
+		instantSearch: {
+			theme: 'algolia',
+		},
 	},
 
 	app: {
