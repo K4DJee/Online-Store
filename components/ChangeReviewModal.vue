@@ -1,6 +1,21 @@
 <template>
     <Teleport to="body">
-        <div  class="modal-overlay backdrop-blur-xs">
+        <Transition
+        appear
+		enter-active-class="transition-opacity duration-200"
+		enter-from-class="opacity-0"
+		enter-to-class="opacity-100"
+		leave-active-class="transition-opacity duration-200"
+		leave-from-class="opacity-100"
+		leave-to-class="opacity-0"
+    >
+        <div
+        @click="
+				$event =>
+					$event.target === $event.currentTarget && $emit('close')
+			"
+        v-if="props.show"
+        class="modal-overlay backdrop-blur-xs bg-black/25 transition-all">
             <div class="modal-container bg-white w-[450px] rounded-2xl border-gray-300 border p-10">
                 <div class="flex justify-center w-full">
                     <div class="changeRewiew-svg-container flex justify-center items-center rounded-[52px] h-[45px] w-[45px] bg-lime-50">
@@ -56,20 +71,22 @@
                 </div>
             </div>
         </div>
+        </Transition>
     </Teleport>
 </template>
 <script setup lang="ts">
 import UserReviewCard from '~/entities/ui/userReviewCard.vue';
+
 import type {userReviewRows} from '~/types/reviewsTypes'
 const hoverRating = ref();
 const newRating = ref();
 const errorMessage = ref();
 const props = defineProps<{
-    userReviewCard:userReviewRows
+    userReviewCard:userReviewRows,
+    show:boolean
 }>()
 
 const comment = ref(props.userReviewCard.comment)
-const isOpen = ref(true);
 
 const emit = defineEmits<{
     (e: 'confirm'): void;
@@ -99,15 +116,13 @@ watch(comment,()=>{
 })
 
 function close(){
-    console.log('Закрываем модалку...');
-    isOpen.value = false
-    console.log('isOpen: ', isOpen.value)
     emit('close')
 }
 
 watchEffect(() => {
-  if (isOpen.value) {
+    if (props.show) {
     document.body.style.overflow = 'hidden'
+    console.log(props.show)
   } else {
     document.body.style.overflow = ''
   }

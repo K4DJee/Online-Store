@@ -43,7 +43,7 @@
                         </li>
                     </ul>
 
-                    <div class="bg-white min-h-[100px] rounded-2xl p-5">
+                    <div class="bg-white min-h-[100px] rounded-2xl p-5 border border-gray-200">
                         <h2 class="font-medium">Последние заказы</h2>
                         <div class="overflow-x-auto">
                             <table class="w-full mt-5 table-auto">

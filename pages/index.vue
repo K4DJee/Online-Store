@@ -1,6 +1,7 @@
 <template>
 	<div class="mt-6 m-auto max-w-[1350px]">
 		<section class="mb-4">
+			<SearchInput></SearchInput>
 			<div
 				class="bg-gradient-to-r from-lime-500 to-lime-600 rounded-2xl p-8 text-white"
 			>
@@ -49,6 +50,7 @@ const ProductCard = defineAsyncComponent(
 )
 
 import Loader from '~/components/Loader.vue'
+import SearchInput from '~/components/searchInput.vue'
 
 interface responseProducts {
 	products: [IProduct]

@@ -66,21 +66,15 @@
         </div>
     </div>
     <ConfirmDeleteModal
-    v-if="showDeleteConfirmation"
+    
     :show="showDeleteConfirmation"
     @confirm="handleDelete"
     @close="showDeleteConfirmation = false"
     ></ConfirmDeleteModal>
     
-    <ChangeReviewModal
-    v-if="showChangeConfirmation"
-    :userReviewCard="userReviewCard"
-    @confirm="handleChangeReview"
-    @close="showChangeConfirmation = false"
-    ></ChangeReviewModal>
-
+    
 	<ChangeReviewModal
-		v-if="showChangeConfirmation"
+		
 		:show="showChangeConfirmation"
 		:userReviewCard="userReviewCard"
 		@confirm="handleChangeReview"

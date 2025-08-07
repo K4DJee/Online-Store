@@ -2,7 +2,7 @@
 	<section
 		class="w-full h-[600px] flex justify-center items-center bg-gray-50"
 	>
-		<div class="w-[600px] bg-white rounded-lg p-6 shadow-md">
+		<div class="w-[600px] bg-white rounded-xl border border-gray-200 p-6 shadow-xs">
 			<component :is="currentStep" @next="goNext" />
 		</div>
 	</section>

@@ -35,8 +35,14 @@
 								</svg>
 							</template>
 							<template #text>{{ user!.email }}</template>
-							<template #textButton
-								>Привязать другую почту</template
+							<template 
+							#textButton
+								>
+								<NuxtLink
+								to="/setEmail">
+									Привязать другую почту
+								</NuxtLink>
+								</template
 							>
 						</settings-section>
 
